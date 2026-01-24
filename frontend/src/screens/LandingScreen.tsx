@@ -1,15 +1,17 @@
 import { Link } from 'react-router-dom';
 import GroceryVisual from '../components/GroceryVisual';
+import BackgroundPattern from '../components/BackgroundPattern';
+import StoreLogoCarousel from '../components/StoreLogoCarousel';
 
 export default function LandingScreen() {
   return (
-    <div className="min-h-screen bg-cream overflow-hidden">
-      {/* Background gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-cream via-cream to-orange-50/30 pointer-events-none" />
+    <div className="h-screen bg-cream overflow-hidden relative flex flex-col">
+      {/* Background dot pattern with radial gradient */}
+      <BackgroundPattern />
 
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 flex flex-col flex-1 w-full">
         {/* Logo / Brand */}
-        <header className="pt-8 pb-4">
+        <header className="pt-6 pb-2">
           <Link to="/" className="inline-block">
             <h1
               className="text-2xl font-bold text-charcoal tracking-tight"
@@ -21,9 +23,9 @@ export default function LandingScreen() {
         </header>
 
         {/* Hero Section */}
-        <main className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-120px)] py-8 lg:py-0">
+        <main className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-center flex-1">
           {/* Left: Content */}
-          <div className="space-y-8 animate-fade-in-up">
+          <div className="space-y-6 animate-fade-in-up">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-100 rounded-full">
               <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
@@ -56,7 +58,7 @@ export default function LandingScreen() {
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-4 pt-2" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            <div className="flex flex-wrap gap-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
               <Link
                 to="/home"
                 className="inline-flex items-center gap-2 bg-accent text-white font-semibold px-8 py-4 rounded-full
@@ -77,31 +79,6 @@ export default function LandingScreen() {
                 View Products
               </Link>
             </div>
-
-            {/* Trust indicators */}
-            <div
-              className="flex items-center gap-6 pt-4 text-sm text-muted"
-              style={{ fontFamily: "'Outfit', sans-serif" }}
-            >
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>5 Major Stores</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Real-time Prices</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>100% Free</span>
-              </div>
-            </div>
           </div>
 
           {/* Right: Visual */}
@@ -109,6 +86,9 @@ export default function LandingScreen() {
             <GroceryVisual />
           </div>
         </main>
+
+        {/* Store Logo Carousel */}
+        <StoreLogoCarousel />
       </div>
     </div>
   );
