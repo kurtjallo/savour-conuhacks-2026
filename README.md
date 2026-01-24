@@ -1,4 +1,4 @@
-# InflationFighter
+# Savour
 
 A grocery price comparison mobile app for Canadian shoppers. Compare prices across 5 major stores, build a basket, and see optimized shopping strategies with real savings calculations.
 
