@@ -38,3 +38,7 @@ Thumbs.db
 # Kaggle dataset
 GroceryStoreDataset/
 grocery-store-dataset.zip
+
+# Data files
+*.csv
+*.zip
