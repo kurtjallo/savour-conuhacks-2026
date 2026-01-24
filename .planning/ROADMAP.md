@@ -53,18 +53,19 @@ Grocery price comparison app for Canadian shoppers. Browse products, compare pri
 
 **Milestone Goal:** Add dedicated All Products page with images, price history tracking
 
-#### Phase 9: Price History Data
+#### Phase 9: Price History Data ✅
 **Goal**: Add previous_price field to database and API
 **Depends on**: Phase 8
 **Requirements**: DATA-01, DATA-02, DATA-03
 **Success Criteria** (what must be TRUE):
-  1. Categories in database have previous_price field
-  2. All 15 categories have sample previous prices seeded
-  3. API returns previous_price in category responses
-**Plans**: TBD
+  1. ✓ Categories in database have previous_price field
+  2. ✓ All 25 categories have sample previous prices seeded
+  3. ✓ API returns previous_price in category responses
+**Status**: Complete
+**Plans**: 1 plan
 
 Plans:
-- [ ] 09-01: Schema and seed updates
+- [x] 09-01: Schema and seed updates
 
 #### Phase 10: All Products Page
 **Goal**: Create All Products page with product grid, images, and price display
@@ -89,7 +90,7 @@ Plans:
 | 6. Cleanup Mobile | v1.1 | Complete | 2026-01-24 |
 | 7. Web Foundation | v1.1 | Complete | 2026-01-24 |
 | 8. Web UI | v1.1 | Complete | 2026-01-24 |
-| 9. Price History Data | v1.2 | Not started | - |
+| 9. Price History Data | v1.2 | Complete | 2026-01-24 |
 | 10. All Products Page | v1.2 | Not started | - |
 
 ---
