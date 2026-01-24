@@ -7,9 +7,9 @@
 
 ### Data Layer
 
-- [ ] **DATA-01**: Add `previous_price` field to category schema in database
-- [ ] **DATA-02**: Seed database with sample previous prices for all 15 categories
-- [ ] **DATA-03**: API returns previous_price in category response
+- [x] **DATA-01**: Add `previous_price` field to category schema in database
+- [x] **DATA-02**: Seed database with sample previous prices for all 25 categories
+- [x] **DATA-03**: API returns previous_price in category response
 
 ### All Products Page
 
@@ -69,9 +69,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 9: Price History Data | Pending |
-| DATA-02 | Phase 9: Price History Data | Pending |
-| DATA-03 | Phase 9: Price History Data | Pending |
+| DATA-01 | Phase 9: Price History Data | Complete |
+| DATA-02 | Phase 9: Price History Data | Complete |
+| DATA-03 | Phase 9: Price History Data | Complete |
 | PROD-01 | Phase 10: All Products Page | Pending |
 | PROD-02 | Phase 10: All Products Page | Pending |
 | PROD-03 | Phase 10: All Products Page | Pending |
