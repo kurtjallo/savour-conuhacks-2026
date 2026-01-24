@@ -38,6 +38,7 @@ export default function AllProductsScreen() {
 
   const formatStoreName = (storeId: string): string => {
     const storeNames: Record<string, string> = {
+      'nofrills': 'No Frills',
       'no-frills': 'No Frills',
       'freshco': 'FreshCo',
       'walmart': 'Walmart',
@@ -51,7 +52,7 @@ export default function AllProductsScreen() {
     return (
       <div className="min-h-screen bg-cream">
         <header className="sticky top-0 z-50 bg-cream/80 backdrop-blur-md border-b border-border/50">
-          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <button
               onClick={() => navigate('/')}
               className="hover:opacity-70 transition-opacity duration-200"
@@ -62,7 +63,7 @@ export default function AllProductsScreen() {
             </button>
           </div>
         </header>
-        <main className="max-w-6xl mx-auto px-6 py-20">
+        <main className="max-w-7xl mx-auto px-6 py-20">
           <div className="flex flex-col items-center justify-center">
             <div className="w-8 h-8 border-2 border-charcoal/20 border-t-charcoal rounded-full animate-spin mb-4"></div>
             <p className="text-charcoal-light text-sm">Loading products...</p>
@@ -76,7 +77,7 @@ export default function AllProductsScreen() {
     <div className="min-h-screen bg-cream">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-cream/80 backdrop-blur-md border-b border-border/50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <button
               onClick={() => navigate('/')}
@@ -126,7 +127,7 @@ export default function AllProductsScreen() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-10">
+      <main className="max-w-7xl mx-auto px-6 py-10">
         {/* Page Header */}
         <div className="mb-10">
           <h2 className="text-3xl font-semibold text-charcoal tracking-tight mb-2">
@@ -154,61 +155,61 @@ export default function AllProductsScreen() {
 
         {/* Products Grid */}
         {categories.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {categories.map((category, index) => (
               <div
                 key={category.category_id}
                 onClick={() => navigate(`/category/${category.category_id}`)}
-                className="bg-white rounded-2xl border border-border cursor-pointer
+                className="bg-white rounded-xl border border-border cursor-pointer
                            hover:-translate-y-1 hover:shadow-lift
                            transition-all duration-300 ease-out overflow-hidden group animate-fade-in-up"
-                style={{ animationDelay: `${index * 30}ms` }}
+                style={{ animationDelay: `${Math.min(index, 20) * 20}ms` }}
               >
                 {/* Product Image */}
                 {category.image_url ? (
-                  <div className="w-full h-48 bg-gray-50 overflow-hidden">
+                  <div className="w-full aspect-square bg-gray-50 overflow-hidden">
                     <img
                       src={resolveImageUrl(category.image_url)}
                       alt={category.name}
                       loading="lazy"
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                 ) : (
-                  <div className="w-full h-48 bg-gray-50 flex items-center justify-center">
-                    <span className="text-6xl opacity-50">{category.icon}</span>
+                  <div className="w-full aspect-square bg-gray-50 flex items-center justify-center">
+                    <span className="text-5xl opacity-50">{category.icon}</span>
                   </div>
                 )}
 
                 {/* Content */}
-                <div className="p-5">
+                <div className="p-3">
                   {/* Product Name & Unit */}
-                  <h3 className="text-lg font-medium text-charcoal mb-1">
+                  <h3 className="text-sm font-medium text-charcoal mb-0.5 line-clamp-2 min-h-[2.5rem]">
                     {category.name}
                   </h3>
-                  <p className="text-sm text-muted mb-4">
+                  <p className="text-xs text-muted mb-2">
                     {category.unit}
                   </p>
 
                   {/* Price Display */}
-                  <div className="flex items-baseline gap-3 mb-2">
-                    <span className="text-2xl font-semibold text-charcoal">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-lg font-semibold text-charcoal">
                       {formatPrice(category.cheapest_price)}
                     </span>
                     {category.previous_price && category.previous_price > category.cheapest_price && (
-                      <span className="text-base text-muted line-through">
+                      <span className="text-xs text-muted line-through">
                         {formatPrice(category.previous_price)}
                       </span>
                     )}
                   </div>
 
                   {/* Store & Savings */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-charcoal-light">
+                  <div className="flex items-center justify-between flex-wrap gap-1">
+                    <span className="text-xs text-charcoal-light">
                       at {formatStoreName(category.cheapest_store)}
                     </span>
                     {category.previous_price && category.previous_price > category.cheapest_price && (
-                      <span className="inline-flex items-center px-2.5 py-1 text-xs font-medium text-sage bg-sage-light rounded-full">
+                      <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-sage bg-sage-light rounded-full">
                         Save {Math.round(((category.previous_price - category.cheapest_price) / category.previous_price) * 100)}%
                       </span>
                     )}

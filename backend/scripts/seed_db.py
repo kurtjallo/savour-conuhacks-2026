@@ -110,12 +110,32 @@ def load_products_from_csv():
 
     # Select diverse products - prioritize common grocery items
     priority_keywords = [
-        'milk', 'bread', 'egg', 'butter', 'cheese', 'yogurt', 'chicken', 'beef',
-        'pork', 'fish', 'salmon', 'shrimp', 'apple', 'banana', 'orange', 'tomato',
-        'potato', 'onion', 'carrot', 'lettuce', 'spinach', 'broccoli', 'pepper',
-        'rice', 'pasta', 'cereal', 'oat', 'flour', 'sugar', 'oil', 'coffee',
-        'tea', 'juice', 'water', 'soda', 'chips', 'cracker', 'cookie', 'chocolate',
-        'ice cream', 'pizza', 'bacon', 'sausage', 'ham', 'turkey', 'garlic', 'ginger'
+        # Dairy
+        'milk', 'butter', 'cheese', 'yogurt', 'cream', 'sour cream',
+        # Eggs
+        'egg',
+        # Bread & Bakery
+        'bread', 'bagel', 'muffin', 'croissant', 'bun', 'tortilla', 'pita',
+        # Fresh Produce - Fruits
+        'apple', 'banana', 'orange', 'grape', 'strawberry', 'blueberry', 'lemon', 'lime', 'avocado', 'mango', 'pear', 'peach',
+        # Fresh Produce - Vegetables
+        'tomato', 'potato', 'onion', 'carrot', 'lettuce', 'spinach', 'broccoli', 'pepper', 'cucumber', 'celery', 'mushroom', 'corn', 'zucchini', 'cabbage', 'kale', 'garlic', 'ginger',
+        # Proteins
+        'chicken', 'beef', 'pork', 'fish', 'salmon', 'shrimp', 'bacon', 'sausage', 'ham', 'turkey', 'ground', 'steak', 'tuna',
+        # Pantry Staples
+        'rice', 'pasta', 'flour', 'sugar', 'salt', 'oil', 'vinegar', 'sauce', 'ketchup', 'mustard', 'mayo', 'salsa',
+        # Canned Goods
+        'canned', 'beans', 'soup', 'tomato sauce', 'broth',
+        # Breakfast & Cereal
+        'cereal', 'oat', 'granola', 'pancake', 'syrup',
+        # Beverages
+        'coffee', 'tea', 'juice', 'water', 'soda', 'pop',
+        # Snacks
+        'chips', 'cracker', 'cookie', 'chocolate', 'nuts', 'popcorn', 'pretzel',
+        # Frozen
+        'ice cream', 'pizza', 'frozen', 'fries',
+        # Other
+        'honey', 'jam', 'peanut butter', 'almond'
     ]
 
     selected_products = []
@@ -123,11 +143,11 @@ def load_products_from_csv():
 
     # First pass: get products matching priority keywords
     for keyword in priority_keywords:
-        if len(selected_products) >= 50:
+        if len(selected_products) >= 100:
             break
         matches = df[df['title'].str.lower().str.contains(keyword, na=False)]
         for _, row in matches.iterrows():
-            if len(selected_products) >= 50:
+            if len(selected_products) >= 100:
                 break
             title = row['title']
             if title not in used_titles:
@@ -135,10 +155,10 @@ def load_products_from_csv():
                 used_titles.add(title)
 
     # Second pass: fill remaining slots with other products
-    if len(selected_products) < 50:
+    if len(selected_products) < 100:
         remaining = df[~df['title'].isin(used_titles)]
         for _, row in remaining.iterrows():
-            if len(selected_products) >= 50:
+            if len(selected_products) >= 100:
                 break
             selected_products.append(row)
 
