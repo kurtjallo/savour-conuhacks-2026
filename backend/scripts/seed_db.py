@@ -2,6 +2,7 @@
 """Seed script for InflationFighter MongoDB database."""
 
 import os
+import certifi
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
@@ -72,7 +73,7 @@ def seed_database():
 
     try:
         print("Connecting to MongoDB Atlas...")
-        client = MongoClient(uri)
+        client = MongoClient(uri, tlsCAFile=certifi.where())
         client.admin.command('ping')
         print("Connected!")
 
