@@ -166,9 +166,9 @@ export default function BasketScreen() {
         {/* Basket Items */}
         <section className="mb-10">
           <div className="space-y-4">
-            {items.map((item) => (
+            {items.map((item, index) => (
               <BasketItem
-                key={item.category_id}
+                key={`${item.category_id}-${index}`}
                 item={item}
                 onUpdateQuantity={updateQuantity}
                 onRemove={removeItem}

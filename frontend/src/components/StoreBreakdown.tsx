@@ -64,7 +64,7 @@ export default function StoreBreakdown({ items, total }: StoreBreakdownProps) {
               <div className="space-y-3">
                 {items.map((item) => (
                   <div
-                    key={item.category_id}
+                    key={`${item.category_id}-${item.store_id}`}
                     className="flex items-center justify-between text-sm"
                   >
                     <div className="flex items-center gap-2">
