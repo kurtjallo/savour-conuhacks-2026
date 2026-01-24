@@ -140,3 +140,46 @@
 .animate-scroll {
   animation: scroll 20s linear infinite;
 }
+
+/* Floating stats animations */
+@keyframes float-fade {
+  0%, 100% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  10%, 90% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes gentle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-float-fade {
+  animation: float-fade 4s ease-in-out infinite;
+}
+
+.animate-gentle-bounce {
+  animation: gentle-bounce 2s ease-in-out infinite;
+}
+
+.float-fade-delay-1 { animation-delay: 0s; }
+.float-fade-delay-2 { animation-delay: 1.5s; }
+.float-fade-delay-3 { animation-delay: 3s; }
+.float-fade-delay-4 { animation-delay: 4.5s; }

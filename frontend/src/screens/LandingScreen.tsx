@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import GroceryVisual from '../components/GroceryVisual';
 import BackgroundPattern from '../components/BackgroundPattern';
 import StoreLogoCarousel from '../components/StoreLogoCarousel';
+import FloatingStats from '../components/FloatingStats';
 
 export default function LandingScreen() {
   return (
@@ -26,13 +27,8 @@ export default function LandingScreen() {
         <main className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-center flex-1">
           {/* Left: Content */}
           <div className="space-y-6 animate-fade-in-up">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-100 rounded-full">
-              <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-              <span className="text-sm font-medium text-accent" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                Smart Savings
-              </span>
-            </div>
+            {/* Animated Stats */}
+            <FloatingStats />
 
             {/* Headline */}
             <div className="space-y-2">
