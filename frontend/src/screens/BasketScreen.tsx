@@ -7,6 +7,16 @@ import BasketItem from '../components/BasketItem';
 import SavingsCard from '../components/SavingsCard';
 import StoreBreakdown from '../components/StoreBreakdown';
 
+// Design system colors
+const colors = {
+  background: '#f8f7f6',
+  cardBorder: '#e8e6e3',
+  textPrimary: '#2e2c29',
+  textSecondary: '#6b6966',
+  accent: '#f35c1d',
+  savings: '#4a7c59',
+};
+
 export default function BasketScreen() {
   const { items, updateQuantity, removeItem, clearBasket } = useBasket();
   const [analysis, setAnalysis] = useState<BasketAnalysis | null>(null);
@@ -44,34 +54,40 @@ export default function BasketScreen() {
   // Empty basket state
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow-sm border-b border-gray-100">
-          <div className="max-w-4xl mx-auto px-4 py-4">
+      <div className="min-h-screen" style={{ backgroundColor: colors.background }}>
+        <header className="bg-white border-b" style={{ borderColor: colors.cardBorder }}>
+          <div className="max-w-4xl mx-auto px-6 py-5">
             <Link
               to="/"
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-2 transition-opacity hover:opacity-70"
+              style={{ color: colors.textSecondary }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
               </svg>
-              <span className="font-medium">Back</span>
+              <span className="text-sm font-medium">Back</span>
             </Link>
           </div>
         </header>
 
-        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <div className="text-8xl mb-6">🛒</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Your basket is empty</h1>
-          <p className="text-gray-500 mb-8">
-            Add some items to compare prices and find the best deals!
+        <div className="max-w-md mx-auto px-6 py-24 text-center">
+          <h1
+            className="text-2xl font-semibold mb-3"
+            style={{ color: colors.textPrimary }}
+          >
+            Your basket is empty
+          </h1>
+          <p
+            className="text-base mb-10"
+            style={{ color: colors.textSecondary }}
+          >
+            Start adding items to see your savings
           </p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-200"
+            className="inline-flex items-center justify-center px-8 py-3.5 rounded-lg font-medium text-white transition-opacity hover:opacity-90"
+            style={{ backgroundColor: colors.accent }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-            </svg>
             Browse Products
           </Link>
         </div>
@@ -80,42 +96,50 @@ export default function BasketScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: colors.background }}>
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
-            <span className="font-medium">Back</span>
-          </Link>
-          <h1 className="text-xl font-bold text-gray-900">Your Basket</h1>
-          <div className="w-16" /> {/* Spacer for centering */}
+      <header className="bg-white border-b sticky top-0 z-10" style={{ borderColor: colors.cardBorder }}>
+        <div className="max-w-4xl mx-auto px-6 py-5">
+          <div className="flex items-center justify-between">
+            <Link
+              to="/"
+              className="flex items-center gap-2 transition-opacity hover:opacity-70"
+              style={{ color: colors.textSecondary }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+              </svg>
+              <span className="text-sm font-medium">Back</span>
+            </Link>
+            <div className="text-center">
+              <h1
+                className="text-xl font-semibold"
+                style={{ color: colors.textPrimary }}
+              >
+                Your Basket
+              </h1>
+              <p
+                className="text-sm mt-0.5"
+                style={{ color: colors.textSecondary }}
+              >
+                {items.length} {items.length === 1 ? 'item' : 'items'}
+              </p>
+            </div>
+            <button
+              onClick={clearBasket}
+              className="text-sm font-medium transition-opacity hover:opacity-70"
+              style={{ color: colors.textSecondary }}
+            >
+              Clear all
+            </button>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-4xl mx-auto px-6 py-8">
         {/* Basket Items */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Items ({items.length})
-            </h2>
-            <button
-              onClick={clearBasket}
-              className="text-sm text-red-600 hover:text-red-700 font-medium flex items-center gap-1"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-              </svg>
-              Clear All
-            </button>
-          </div>
-          <div className="space-y-3">
+        <section className="mb-10">
+          <div className="space-y-4">
             {items.map((item) => (
               <BasketItem
                 key={item.category_id}
@@ -129,91 +153,139 @@ export default function BasketScreen() {
 
         {/* Loading state */}
         {loading && (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
-            <span className="ml-3 text-gray-600">Analyzing prices...</span>
+          <div className="flex items-center justify-center py-12">
+            <div
+              className="w-5 h-5 border-2 rounded-full animate-spin"
+              style={{ borderColor: colors.cardBorder, borderTopColor: colors.accent }}
+            />
+            <span className="ml-3 text-sm" style={{ color: colors.textSecondary }}>
+              Analyzing prices...
+            </span>
           </div>
         )}
 
         {/* Error state */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
-            <p>{error}</p>
+          <div
+            className="rounded-lg p-4 mb-8 border"
+            style={{
+              backgroundColor: '#fef2f2',
+              borderColor: '#fecaca',
+              color: '#991b1b'
+            }}
+          >
+            <p className="text-sm">{error}</p>
           </div>
         )}
 
         {/* Analysis Results */}
         {analysis && !loading && (
-          <>
-            {/* Savings Card - The star of the show! */}
+          <div className="space-y-8">
+            {/* Savings Card */}
             <SavingsCard
               savingsAmount={analysis.savings_vs_worst}
               savingsPercent={analysis.savings_percent}
               annualProjection={analysis.annual_projection}
             />
 
-            {/* Single Store Options */}
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Best Single Store */}
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-emerald-600">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                  </div>
-                  <h3 className="font-semibold text-gray-900">Best Single Store</h3>
-                </div>
-                <p className="text-2xl font-bold text-gray-900 capitalize">
-                  {analysis.single_store_best.store_name.replace('-', ' ')}
-                </p>
-                <p className="text-lg text-emerald-600 font-semibold">
-                  ${analysis.single_store_best.total.toFixed(2)}
-                </p>
-                <p className="text-sm text-gray-500 mt-1">
-                  If you only want to visit one store
-                </p>
-              </div>
+            {/* Strategy Section */}
+            <section>
+              <h2
+                className="text-lg font-semibold mb-5"
+                style={{ color: colors.textPrimary }}
+              >
+                Optimal Strategy
+              </h2>
 
-              {/* Worst Single Store (for comparison) */}
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-red-600">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-semibold text-gray-900">Worst Single Store</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {/* Best Single Store */}
+                <div
+                  className="bg-white rounded-xl p-6 border"
+                  style={{ borderColor: colors.cardBorder }}
+                >
+                  <p
+                    className="text-xs font-medium uppercase tracking-wider mb-3"
+                    style={{ color: colors.textSecondary }}
+                  >
+                    Single Store
+                  </p>
+                  <p
+                    className="text-xl font-semibold capitalize mb-1"
+                    style={{ color: colors.textPrimary }}
+                  >
+                    {analysis.single_store_best.store_name.replace('-', ' ')}
+                  </p>
+                  <p
+                    className="text-2xl font-semibold"
+                    style={{ color: colors.savings }}
+                  >
+                    ${analysis.single_store_best.total.toFixed(2)}
+                  </p>
+                  <p
+                    className="text-sm mt-2"
+                    style={{ color: colors.textSecondary }}
+                  >
+                    Best option for one stop
+                  </p>
                 </div>
-                <p className="text-2xl font-bold text-gray-900 capitalize">
-                  {analysis.single_store_worst.store_name.replace('-', ' ')}
-                </p>
-                <p className="text-lg text-red-600 font-semibold line-through">
-                  ${analysis.single_store_worst.total.toFixed(2)}
-                </p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Avoid this for your current basket
-                </p>
+
+                {/* Multi-Store Summary */}
+                <div
+                  className="bg-white rounded-xl p-6 border"
+                  style={{ borderColor: colors.cardBorder }}
+                >
+                  <p
+                    className="text-xs font-medium uppercase tracking-wider mb-3"
+                    style={{ color: colors.textSecondary }}
+                  >
+                    Multi-Store
+                  </p>
+                  <p
+                    className="text-xl font-semibold mb-1"
+                    style={{ color: colors.textPrimary }}
+                  >
+                    {analysis.multi_store_optimal.stores_needed.length} Stores
+                  </p>
+                  <p
+                    className="text-2xl font-semibold"
+                    style={{ color: colors.savings }}
+                  >
+                    ${analysis.multi_store_optimal.total.toFixed(2)}
+                  </p>
+                  <p
+                    className="text-sm mt-2"
+                    style={{ color: colors.textSecondary }}
+                  >
+                    Maximum savings
+                  </p>
+                </div>
               </div>
             </section>
 
             {/* Multi-Store Breakdown */}
             <StoreBreakdown multiStoreOptimal={analysis.multi_store_optimal} />
-          </>
-        )}
 
-        {/* Clear Basket Button (at bottom) */}
-        <div className="pt-4 pb-8">
-          <button
-            onClick={clearBasket}
-            className="w-full py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-            </svg>
-            Clear Basket
-          </button>
-        </div>
+            {/* Comparison Note */}
+            <div
+              className="bg-white rounded-xl p-5 border"
+              style={{ borderColor: colors.cardBorder }}
+            >
+              <p
+                className="text-sm"
+                style={{ color: colors.textSecondary }}
+              >
+                Compared to shopping at{' '}
+                <span className="font-medium capitalize" style={{ color: colors.textPrimary }}>
+                  {analysis.single_store_worst.store_name.replace('-', ' ')}
+                </span>{' '}
+                (${analysis.single_store_worst.total.toFixed(2)}), you save{' '}
+                <span className="font-medium" style={{ color: colors.savings }}>
+                  ${analysis.savings_vs_worst.toFixed(2)}
+                </span>
+              </p>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

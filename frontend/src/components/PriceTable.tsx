@@ -14,32 +14,6 @@ interface PriceRow {
   savingsPercent: number;
 }
 
-function getMedal(rank: number): string {
-  switch (rank) {
-    case 1:
-      return '1';
-    case 2:
-      return '2';
-    case 3:
-      return '3';
-    default:
-      return String(rank);
-  }
-}
-
-function getMedalEmoji(rank: number): string {
-  switch (rank) {
-    case 1:
-      return '\uD83E\uDD47';
-    case 2:
-      return '\uD83E\uDD48';
-    case 3:
-      return '\uD83E\uDD49';
-    default:
-      return '';
-  }
-}
-
 export default function PriceTable({ prices, stores, unit }: PriceTableProps) {
   // Build price rows with store names
   const priceRows: PriceRow[] = stores
@@ -64,58 +38,69 @@ export default function PriceTable({ prices, stores, unit }: PriceTableProps) {
   });
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
-      <table className="w-full">
-        <thead>
-          <tr className="bg-gray-50 border-b border-gray-200">
-            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Rank</th>
-            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Store</th>
-            <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">Price/{unit}</th>
-            <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">vs Highest</th>
-          </tr>
-        </thead>
-        <tbody>
-          {priceRows.map((row) => (
-            <tr
-              key={row.store_id}
-              className={`border-b border-gray-100 transition-colors ${
-                row.rank === 1 ? 'bg-green-50' : 'hover:bg-gray-50'
-              }`}
-            >
-              <td className="px-4 py-4">
-                <div className="flex items-center gap-2">
-                  {row.rank <= 3 ? (
-                    <span className="text-xl">{getMedalEmoji(row.rank)}</span>
-                  ) : (
-                    <span className="w-7 h-7 flex items-center justify-center bg-gray-200 rounded-full text-sm font-medium text-gray-600">
-                      {getMedal(row.rank)}
-                    </span>
-                  )}
-                </div>
-              </td>
-              <td className="px-4 py-4">
-                <span className={`font-medium ${row.rank === 1 ? 'text-green-700' : 'text-gray-800'}`}>
-                  {row.store_name}
+    <div className="space-y-2">
+      {priceRows.map((row) => (
+        <div
+          key={row.store_id}
+          className={`
+            group relative bg-white border rounded-xl px-5 py-4
+            transition-all duration-200
+            ${row.rank === 1
+              ? 'border-l-[3px] border-l-savour-savings border-savour-border bg-savour-savings-light/30'
+              : 'border-savour-border hover:border-savour-text-secondary/30'
+            }
+          `}
+        >
+          <div className="flex items-center justify-between">
+            {/* Left side: Rank + Store name */}
+            <div className="flex items-center gap-4">
+              <span className={`
+                text-xs font-medium w-5 text-center
+                ${row.rank === 1 ? 'text-savour-savings' : 'text-savour-text-secondary'}
+              `}>
+                {row.rank}
+              </span>
+              <span className={`
+                font-medium
+                ${row.rank === 1 ? 'text-savour-text' : 'text-savour-text'}
+              `}>
+                {row.store_name}
+              </span>
+            </div>
+
+            {/* Right side: Price + Savings */}
+            <div className="flex items-center gap-4">
+              {row.savingsPercent > 0 && (
+                <span className={`
+                  text-xs font-medium px-2.5 py-1 rounded-full
+                  ${row.rank === 1
+                    ? 'bg-savour-savings/10 text-savour-savings'
+                    : 'bg-savour-savings-light text-savour-savings'
+                  }
+                `}>
+                  Save {row.savingsPercent}%
                 </span>
-              </td>
-              <td className="px-4 py-4 text-right">
-                <span className={`font-semibold ${row.rank === 1 ? 'text-green-700' : 'text-gray-900'}`}>
-                  ${row.price.toFixed(2)}
-                </span>
-              </td>
-              <td className="px-4 py-4 text-right">
-                {row.savingsPercent > 0 ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                    Save {row.savingsPercent}%
-                  </span>
-                ) : (
-                  <span className="text-sm text-gray-400">-</span>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              )}
+              <span className={`
+                font-semibold tabular-nums
+                ${row.rank === 1 ? 'text-savour-savings text-lg' : 'text-savour-text'}
+              `}>
+                ${row.price.toFixed(2)}
+                <span className="text-savour-text-secondary text-xs font-normal ml-0.5">/{unit}</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Best price indicator */}
+          {row.rank === 1 && (
+            <div className="absolute -top-2 left-4">
+              <span className="text-[10px] font-medium uppercase tracking-wider text-savour-savings bg-white px-2 py-0.5 rounded">
+                Best price
+              </span>
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
