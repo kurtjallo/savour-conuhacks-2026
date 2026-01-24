@@ -1,4 +1,4 @@
-import type { Store, Category, BasketAnalysis } from './types';
+import type { Store, Category, BasketAnalysis, RecipeGenerateResponse } from './types';
 
 const API_BASE = "http://localhost:8000";
 
@@ -46,6 +46,30 @@ export async function analyzeBasket(
   });
   if (!response.ok) {
     throw new Error('Failed to analyze basket');
+  }
+  return response.json();
+}
+
+export async function generateRecipe(payload: {
+  ingredients: string[];
+  servings?: number;
+  cuisine?: string;
+  meal_type?: string;
+}): Promise<RecipeGenerateResponse> {
+  const response = await fetch(`${API_BASE}/api/recipes/generate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      ingredients: payload.ingredients,
+      servings: payload.servings ?? 2,
+      cuisine: payload.cuisine,
+      meal_type: payload.meal_type,
+    }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to generate recipe');
   }
   return response.json();
 }

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useBasket } from '../context/BasketContext';
-import { analyzeBasket } from '../lib/api';
-import type { BasketAnalysis } from '../lib/types';
+import { analyzeBasket, generateRecipe } from '../lib/api';
+import type { BasketAnalysis, RecipeGenerateResponse } from '../lib/types';
 import BasketItem from '../components/BasketItem';
 import SavingsCard from '../components/SavingsCard';
 import StoreBreakdown from '../components/StoreBreakdown';
@@ -22,11 +22,15 @@ export default function BasketScreen() {
   const [analysis, setAnalysis] = useState<BasketAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recipeLoading, setRecipeLoading] = useState(false);
+  const [recipeError, setRecipeError] = useState<string | null>(null);
+  const [recipe, setRecipe] = useState<RecipeGenerateResponse | null>(null);
 
   // Fetch analysis whenever basket items change
   useEffect(() => {
     if (items.length === 0) {
       setAnalysis(null);
+      setRecipe(null);
       return;
     }
 
@@ -50,6 +54,25 @@ export default function BasketScreen() {
 
     fetchAnalysis();
   }, [items]);
+
+  const handleGenerateRecipe = async () => {
+    setRecipeLoading(true);
+    setRecipeError(null);
+    try {
+      const ingredients = items.map((item) => item.name);
+      const result = await generateRecipe({
+        ingredients,
+        servings: 2,
+        meal_type: 'dinner',
+      });
+      setRecipe(result);
+    } catch (err) {
+      setRecipeError('Failed to generate recipe. Please try again.');
+      console.error('Recipe error:', err);
+    } finally {
+      setRecipeLoading(false);
+    }
+  };
 
   // Empty basket state
   if (items.length === 0) {
@@ -181,6 +204,69 @@ export default function BasketScreen() {
         {/* Analysis Results */}
         {analysis && !loading && (
           <div className="space-y-8">
+            {/* Recipe Generator */}
+            <section
+              className="bg-white rounded-xl p-6 border"
+              style={{ borderColor: colors.cardBorder }}
+            >
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2
+                    className="text-lg font-semibold"
+                    style={{ color: colors.textPrimary }}
+                  >
+                    Turn your basket into a recipe
+                  </h2>
+                  <p className="text-sm mt-1" style={{ color: colors.textSecondary }}>
+                    Uses your basket items and current deals to craft a recipe.
+                  </p>
+                </div>
+                <button
+                  onClick={handleGenerateRecipe}
+                  disabled={recipeLoading}
+                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                  style={{ backgroundColor: colors.accent }}
+                >
+                  {recipeLoading ? 'Generating…' : 'Generate Recipe'}
+                </button>
+              </div>
+
+              {recipeError && (
+                <div
+                  className="rounded-lg p-3 mt-4 border"
+                  style={{
+                    backgroundColor: '#fef2f2',
+                    borderColor: '#fecaca',
+                    color: '#991b1b'
+                  }}
+                >
+                  <p className="text-sm">{recipeError}</p>
+                </div>
+              )}
+
+              {recipe && (
+                <div className="mt-5 space-y-4">
+                  <div
+                    className="rounded-lg p-4 border whitespace-pre-line text-sm"
+                    style={{ borderColor: colors.cardBorder, color: colors.textPrimary }}
+                  >
+                    {recipe.recipe_text}
+                  </div>
+
+                  {recipe.rag_items.length > 0 && (
+                    <div className="text-xs" style={{ color: colors.textSecondary }}>
+                      <span className="font-semibold" style={{ color: colors.textPrimary }}>
+                        RAG items used:
+                      </span>{' '}
+                      {recipe.rag_items
+                        .map((item) => `${item.name} (${item.cheapest_store})`)
+                        .join(', ')}
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+
             {/* Savings Card */}
             <SavingsCard
               savingsAmount={analysis.savings_vs_worst}

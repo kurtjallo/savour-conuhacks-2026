@@ -1,11 +1,14 @@
 import os
+from typing import Any
+import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from database import stores_collection, categories_collection
 from models import (
     Store, StoresResponse, CategorySummary, CategoriesResponse,
     PriceEntry, CategoryDetail, BasketRequest, BasketAnalysis,
-    StoreTotal, MultiStoreItem, DealInfo
+    StoreTotal, MultiStoreItem, DealInfo,
+    RecipeGenerateRequest, RecipeGenerateResponse, RetrievedItem
 )
 
 app = FastAPI(
@@ -21,6 +24,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
 
 @app.get("/")
@@ -222,6 +229,158 @@ async def analyze_basket(request: BasketRequest):
         savings_vs_worst=savings_vs_worst,
         savings_percent=savings_percent,
         annual_projection=annual_projection
+    )
+
+
+def _normalize_terms(values: list[str]) -> list[str]:
+    seen = set()
+    cleaned = []
+    for value in values:
+        for term in value.split(","):
+            term = term.strip().lower()
+            if term and term not in seen:
+                cleaned.append(term)
+                seen.add(term)
+    return cleaned
+
+
+async def _retrieve_rag_items(request: RecipeGenerateRequest) -> list[RetrievedItem]:
+    terms = _normalize_terms(request.ingredients)
+    if request.cuisine:
+        terms.extend(_normalize_terms([request.cuisine]))
+    if request.meal_type:
+        terms.extend(_normalize_terms([request.meal_type]))
+
+    query = {}
+    if terms:
+        or_filters = []
+        for term in terms:
+            or_filters.append({"name": {"$regex": term, "$options": "i"}})
+            or_filters.append({"search_terms": {"$regex": term, "$options": "i"}})
+        query = {"$or": or_filters}
+
+    categories = await categories_collection.find(query).to_list(200)
+    stores = {s["store_id"]: s for s in await stores_collection.find({}).to_list(100)}
+
+    retrieved = []
+    for cat in categories:
+        prices = cat.get("prices", {})
+        if not prices:
+            continue
+
+        cheapest_store_id = min(prices, key=lambda x: prices[x])
+        cheapest_price = prices[cheapest_store_id]
+        deal_data = cat.get("deals", {}).get(cheapest_store_id)
+        deal = DealInfo(**deal_data) if deal_data else None
+
+        retrieved.append(RetrievedItem(
+            category_id=cat["category_id"],
+            name=cat["name"],
+            unit=cat.get("unit", ""),
+            cheapest_store=stores.get(cheapest_store_id, {}).get("name", cheapest_store_id),
+            cheapest_price=cheapest_price,
+            deal=deal
+        ))
+
+    retrieved.sort(key=lambda item: item.cheapest_price)
+    if not retrieved:
+        return []
+
+    return retrieved[: max(1, request.max_items)]
+
+
+def _build_rag_context(items: list[RetrievedItem], request: RecipeGenerateRequest) -> str:
+    if not items:
+        return "No matching grocery items found in the database."
+
+    lines = []
+    for item in items:
+        deal_line = ""
+        if request.use_deals and item.deal:
+            deal_line = f" Deal: ${item.deal.sale_price:.2f} (reg ${item.deal.regular_price:.2f}) until {item.deal.ends}."
+        lines.append(
+            f"- {item.name} ({item.unit}) at {item.cheapest_store}: ${item.cheapest_price:.2f}.{deal_line}"
+        )
+    return "\n".join(lines)
+
+
+def _build_recipe_prompt(request: RecipeGenerateRequest, rag_context: str) -> str:
+    constraints = [
+        f"Servings: {request.servings}."
+    ]
+    if request.cuisine:
+        constraints.append(f"Cuisine: {request.cuisine}.")
+    if request.meal_type:
+        constraints.append(f"Meal type: {request.meal_type}.")
+    if request.time_minutes:
+        constraints.append(f"Time limit: {request.time_minutes} minutes.")
+    if request.budget_cad:
+        constraints.append(f"Budget: ${request.budget_cad:.2f} CAD.")
+    if request.dietary:
+        constraints.append(f"Dietary: {', '.join(request.dietary)}.")
+    if request.exclude:
+        constraints.append(f"Exclude: {', '.join(request.exclude)}.")
+    if request.ingredients:
+        constraints.append(f"Requested ingredients: {', '.join(request.ingredients)}.")
+
+    constraints_text = " ".join(constraints)
+
+    return (
+        "You are a recipe assistant. Use the grocery context to craft a practical recipe. "
+        "Prefer items listed in the context and mention if a substitution is needed. "
+        "Return a concise recipe with a title, ingredient list, and numbered steps. "
+        "Include a short note on estimated cost drivers and how the deals affect the recipe.\n\n"
+        f"GROCERY CONTEXT:\n{rag_context}\n\n"
+        f"CONSTRAINTS:\n{constraints_text}"
+    )
+
+
+async def _call_gemini(prompt: str) -> str:
+    if not GEMINI_API_KEY:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
+
+    payload: dict[str, Any] = {
+        "contents": [
+            {"role": "user", "parts": [{"text": prompt}]}
+        ],
+        "generationConfig": {
+            "temperature": 0.7,
+            "maxOutputTokens": 800
+        }
+    }
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        response = await client.post(
+            GEMINI_URL,
+            params={"key": GEMINI_API_KEY},
+            json=payload
+        )
+
+    if response.status_code >= 400:
+        raise HTTPException(status_code=502, detail=f"Gemini API error: {response.text}")
+
+    data = response.json()
+    candidates = data.get("candidates", [])
+    if not candidates:
+        raise HTTPException(status_code=502, detail="Gemini API returned no candidates")
+
+    parts = candidates[0].get("content", {}).get("parts", [])
+    if not parts:
+        raise HTTPException(status_code=502, detail="Gemini API returned empty content")
+
+    return "".join(part.get("text", "") for part in parts).strip()
+
+
+@app.post("/api/recipes/generate", response_model=RecipeGenerateResponse)
+async def generate_recipe(request: RecipeGenerateRequest):
+    rag_items = await _retrieve_rag_items(request)
+    rag_context = _build_rag_context(rag_items, request)
+    prompt = _build_recipe_prompt(request, rag_context)
+    recipe_text = await _call_gemini(prompt)
+
+    return RecipeGenerateResponse(
+        recipe_text=recipe_text,
+        rag_items=rag_items
     )
 
 
