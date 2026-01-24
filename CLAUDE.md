@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-InflationFighter is a grocery price comparison app for Canadian shoppers. Users browse 15 common grocery items, compare prices across 5 major stores, build a basket, and see optimized shopping strategies with savings calculations.
+InflationFighter is a grocery price comparison mobile app for Canadian shoppers. Users browse 15 common grocery items, compare prices across 5 major stores, build a basket, and see optimized shopping strategies with savings calculations.
 
 **Core value:** Show users exactly how much they can save by shopping smarter — with real numbers, not vague advice.
 
@@ -12,8 +12,8 @@ InflationFighter is a grocery price comparison app for Canadian shoppers. Users 
 |-------|------------|
 | Backend | Python FastAPI |
 | Database | MongoDB Atlas |
-| Frontend | Next.js 14 + TypeScript + Tailwind CSS |
-| Deployment | Railway (backend) + Vercel (frontend) |
+| Mobile | React Native / Expo + TypeScript |
+| Deployment | Railway (backend) + Expo/EAS (mobile) |
 
 ## Project Structure
 
@@ -27,24 +27,27 @@ groceryPriec/
 │   ├── scripts/
 │   │   └── seed_db.py       # Database seeding script
 │   └── Procfile             # Railway deployment
-├── frontend/
+├── mobile/
+│   ├── App.tsx              # Main app with navigation
 │   ├── src/
-│   │   ├── app/
-│   │   │   ├── page.tsx             # Home page (hero + category grid)
-│   │   │   ├── layout.tsx           # Root layout with BasketProvider
-│   │   │   ├── basket/page.tsx      # Basket with savings analysis
-│   │   │   └── category/[id]/page.tsx  # Price comparison table
+│   │   ├── screens/
+│   │   │   ├── HomeScreen.tsx      # Category grid + search
+│   │   │   ├── CategoryScreen.tsx  # Price comparison table
+│   │   │   └── BasketScreen.tsx    # Basket with optimization
 │   │   ├── components/
-│   │   │   ├── Header.tsx           # Nav with basket count
-│   │   │   ├── SearchBar.tsx        # Search input
-│   │   │   ├── CategoryCard.tsx     # Product card
-│   │   │   └── AddToBasket.tsx      # Quantity selector
+│   │   │   ├── CategoryCard.tsx    # Product card
+│   │   │   ├── SearchBar.tsx       # Search input
+│   │   │   └── AddToBasket.tsx     # Quantity selector
 │   │   ├── context/
-│   │   │   └── BasketContext.tsx    # Basket state + localStorage
-│   │   └── lib/
-│   │       ├── api.ts               # API client functions
-│   │       └── types.ts             # TypeScript interfaces
-│   └── .env.local                   # NEXT_PUBLIC_API_URL
+│   │   │   └── BasketContext.tsx   # Basket state + AsyncStorage
+│   │   ├── lib/
+│   │   │   ├── api.ts              # API client functions
+│   │   │   ├── types.ts            # TypeScript interfaces
+│   │   │   ├── icons.ts            # Emoji icon mapping
+│   │   │   └── theme.ts            # Colors, spacing, fonts
+│   │   └── navigation/
+│   │       └── types.ts            # Navigation type definitions
+│   └── package.json
 └── .planning/                       # GSD planning files
 ```
 
@@ -59,11 +62,12 @@ python scripts/seed_db.py  # Seed database (once)
 uvicorn main:app --reload  # Runs on :8000
 ```
 
-### Frontend
+### Mobile
 ```bash
-cd frontend
+cd mobile
 npm install
-npm run dev  # Runs on :3000
+npx expo start
+# Press 'i' for iOS Simulator, 'a' for Android Emulator
 ```
 
 ## API Endpoints
@@ -101,10 +105,11 @@ Returns `single_store_best`, `single_store_worst`, `multi_store_optimal`, `savin
 
 ## Key Patterns
 
-1. **Basket persistence**: Uses localStorage via BasketContext
-2. **API base URL**: Set via `NEXT_PUBLIC_API_URL` environment variable
+1. **Basket persistence**: Uses AsyncStorage via BasketContext
+2. **API base URL**: Configured in `mobile/src/lib/api.ts` (localhost:8000 for dev)
 3. **Price calculations**: Cheapest/most expensive computed on the fly from prices object
-4. **Icons**: Mapped from icon string to emoji in CategoryCard and category page
+4. **Icons**: Mapped from icon string to emoji in `mobile/src/lib/icons.ts`
+5. **Navigation**: React Navigation with Stack navigator (Home → Category → Basket)
 
 ## Environment Variables
 
@@ -113,12 +118,10 @@ Returns `single_store_best`, `single_store_worst`, `multi_store_optimal`, `savin
 MONGODB_URI=mongodb+srv://...
 ```
 
-### Frontend (.env.local)
-```
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
+### Mobile
+API_BASE is configured in `mobile/src/lib/api.ts`. For physical device testing, update to your computer's IP address.
 
 ## Deployment
 
 - **Backend**: Push to GitHub, deploy on Railway with `MONGODB_URI` env var
-- **Frontend**: Deploy on Vercel with `NEXT_PUBLIC_API_URL` pointing to Railway URL
+- **Mobile**: Use Expo EAS Build for iOS/Android builds
