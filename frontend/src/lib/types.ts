@@ -9,6 +9,7 @@ export interface Category {
   name: string;
   icon: string;
   unit: string;
+  image_url?: string;
   prices: Record<string, number>;
   cheapest_store: string;
   cheapest_price: number;

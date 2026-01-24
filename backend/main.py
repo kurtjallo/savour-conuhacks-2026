@@ -60,6 +60,7 @@ async def get_categories():
             name=cat["name"],
             icon=cat.get("icon", ""),
             unit=cat.get("unit", ""),
+            image_url=cat.get("image_url"),
             cheapest_store=cheapest_store_id,
             cheapest_price=cheapest_price,
             most_expensive_price=most_expensive_price,
@@ -96,6 +97,7 @@ async def search_categories(q: str = Query(..., min_length=1)):
             name=cat["name"],
             icon=cat.get("icon", ""),
             unit=cat.get("unit", ""),
+            image_url=cat.get("image_url"),
             cheapest_store=cheapest_store_id,
             cheapest_price=cheapest_price,
             most_expensive_price=most_expensive_price,
@@ -139,6 +141,7 @@ async def get_category(category_id: str):
         name=category["name"],
         icon=category.get("icon", ""),
         unit=category.get("unit", ""),
+        image_url=category.get("image_url"),
         unit_qty=category.get("unit_qty"),
         standard_unit=category.get("standard_unit"),
         prices=price_entries

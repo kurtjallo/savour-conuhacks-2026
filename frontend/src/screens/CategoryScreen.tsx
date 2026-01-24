@@ -139,12 +139,23 @@ export default function CategoryScreen() {
       {/* Main Content */}
       <main className="max-w-2xl mx-auto px-6 py-10">
         {/* Category Header */}
-        <div className="mb-10">
-          <div className="flex items-center gap-4 mb-2">
-            <span className="text-3xl opacity-60">{category.icon}</span>
-            <h1 className="text-2xl font-semibold text-savour-text tracking-tight">{category.name}</h1>
-          </div>
-          <p className="text-savour-text-secondary text-sm ml-[52px]">per {category.unit}</p>
+        <div className="mb-10 text-center">
+          {/* Product Image or Icon */}
+          {category.image_url ? (
+            <div className="w-40 h-40 mx-auto mb-6 bg-white rounded-2xl shadow-sm overflow-hidden border border-savour-border hover:shadow-md transition-shadow duration-300">
+              <img
+                src={category.image_url}
+                alt={category.name}
+                className="w-40 h-40 object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-40 h-40 mx-auto mb-6 bg-gray-50 rounded-2xl flex items-center justify-center border border-savour-border">
+              <span className="text-6xl opacity-60">{category.icon}</span>
+            </div>
+          )}
+          <h1 className="text-2xl font-semibold text-savour-text tracking-tight mb-1">{category.name}</h1>
+          <p className="text-savour-text-secondary text-sm">per {category.unit}</p>
         </div>
 
         {/* Price Comparison Section */}

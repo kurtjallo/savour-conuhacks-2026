@@ -23,6 +23,7 @@ class CategorySummary(BaseModel):
     name: str
     icon: str
     unit: str
+    image_url: Optional[str] = None
     cheapest_store: str
     cheapest_price: float
     most_expensive_price: float
@@ -46,6 +47,7 @@ class CategoryDetail(BaseModel):
     name: str
     icon: str
     unit: str
+    image_url: Optional[str] = None
     unit_qty: Optional[float] = None
     standard_unit: Optional[str] = None
     prices: list[PriceEntry]

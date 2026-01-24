@@ -44,48 +44,62 @@ export default function CategoryCard({ category }: CategoryCardProps) {
   return (
     <div
       onClick={handleClick}
-      className="bg-white rounded-2xl p-5 border border-border cursor-pointer
+      className="bg-white rounded-2xl border border-border cursor-pointer
                  hover:-translate-y-1 hover:shadow-lift
-                 transition-all duration-300 ease-out flex flex-col h-full"
+                 transition-all duration-300 ease-out flex flex-col h-full overflow-hidden group"
     >
-      {/* Icon - smaller and muted */}
-      <div className="mb-4">
-        <span className="text-2xl opacity-70" role="img" aria-label={category.name}>
-          {getIcon(category.icon)}
-        </span>
-      </div>
-
-      {/* Product name */}
-      <h3 className="text-base font-medium text-charcoal mb-1">
-        {category.name}
-      </h3>
-
-      {/* Unit */}
-      <p className="text-sm text-muted mb-4">
-        {category.unit}
-      </p>
-
-      {/* Price and savings */}
-      <div className="mt-auto pt-3 border-t border-border/50">
-        <div className="flex items-baseline justify-between">
-          <div>
-            <span className="text-xl font-semibold text-charcoal">
-              {formatPrice(category.cheapest_price)}
-            </span>
-            <span className="text-sm text-muted ml-1">
-              at {formatStoreName(category.cheapest_store)}
-            </span>
-          </div>
+      {/* Product Image or Icon */}
+      {category.image_url ? (
+        <div className="w-full h-32 bg-white flex items-center justify-center overflow-hidden">
+          <img
+            src={category.image_url}
+            alt={category.name}
+            loading="lazy"
+            className="w-full h-32 object-cover rounded-t-xl group-hover:scale-105 transition-transform duration-300"
+          />
         </div>
+      ) : (
+        <div className="w-full h-32 bg-gray-50 flex items-center justify-center rounded-t-xl">
+          <span className="text-4xl opacity-70" role="img" aria-label={category.name}>
+            {getIcon(category.icon)}
+          </span>
+        </div>
+      )}
 
-        {/* Savings badge */}
-        {savings && savings > 0 && (
-          <div className="mt-2">
-            <span className="inline-flex items-center px-2.5 py-1 text-xs font-medium text-sage bg-sage-light rounded-full">
-              Save {savings}%
-            </span>
+      {/* Content area with padding */}
+      <div className="p-5 flex flex-col flex-1">
+        {/* Product name */}
+        <h3 className="text-base font-medium text-charcoal mb-1">
+          {category.name}
+        </h3>
+
+        {/* Unit */}
+        <p className="text-sm text-muted mb-4">
+          {category.unit}
+        </p>
+
+        {/* Price and savings */}
+        <div className="mt-auto pt-3 border-t border-border/50">
+          <div className="flex items-baseline justify-between">
+            <div>
+              <span className="text-xl font-semibold text-charcoal">
+                {formatPrice(category.cheapest_price)}
+              </span>
+              <span className="text-sm text-muted ml-1">
+                at {formatStoreName(category.cheapest_store)}
+              </span>
+            </div>
           </div>
-        )}
+
+          {/* Savings badge */}
+          {savings && savings > 0 && (
+            <div className="mt-2">
+              <span className="inline-flex items-center px-2.5 py-1 text-xs font-medium text-sage bg-sage-light rounded-full">
+                Save {savings}%
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
