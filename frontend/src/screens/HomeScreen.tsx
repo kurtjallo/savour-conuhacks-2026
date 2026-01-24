@@ -124,7 +124,7 @@ export default function HomeScreen() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6">
               {filteredCategories.map((category, index) => (
                 <div
-                  key={category.category_id}
+                  key={`${category.category_id}-${index}`}
                   className="animate-fade-in-up"
                   style={{ animationDelay: `${150 + index * 50}ms` }}
                 >

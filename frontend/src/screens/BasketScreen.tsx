@@ -25,6 +25,9 @@ export default function BasketScreen() {
   const [recipeLoading, setRecipeLoading] = useState(false);
   const [recipeError, setRecipeError] = useState<string | null>(null);
   const [recipe, setRecipe] = useState<RecipeGenerateResponse | null>(null);
+  const storesNeededCount = analysis
+    ? new Set(analysis.multi_store_optimal.map((item) => item.store_id)).size
+    : 0;
 
   // Fetch analysis whenever basket items change
   useEffect(() => {
@@ -330,13 +333,13 @@ export default function BasketScreen() {
                     className="text-xl font-semibold mb-1"
                     style={{ color: colors.textPrimary }}
                   >
-                    {analysis.multi_store_optimal.stores_needed.length} Stores
+                    {storesNeededCount} Stores
                   </p>
                   <p
                     className="text-2xl font-semibold"
                     style={{ color: colors.savings }}
                   >
-                    ${analysis.multi_store_optimal.total.toFixed(2)}
+                    ${analysis.multi_store_total.toFixed(2)}
                   </p>
                   <p
                     className="text-sm mt-2"
@@ -349,7 +352,7 @@ export default function BasketScreen() {
             </section>
 
             {/* Multi-Store Breakdown */}
-            <StoreBreakdown multiStoreOptimal={analysis.multi_store_optimal} />
+            <StoreBreakdown items={analysis.multi_store_optimal} total={analysis.multi_store_total} />
 
             {/* Comparison Note */}
             <div

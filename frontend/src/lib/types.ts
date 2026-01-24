@@ -37,21 +37,17 @@ export interface MultiStoreItem {
   category_id: string;
   name: string;
   quantity: number;
-  best_store: string;
-  unit_price: number;
-  subtotal: number;
-}
-
-export interface MultiStoreOptimal {
-  items: MultiStoreItem[];
-  total: number;
-  stores_needed: string[];
+  store_id: string;
+  store_name: string;
+  price: number;
+  color: string;
 }
 
 export interface BasketAnalysis {
   single_store_best: StoreTotal;
   single_store_worst: StoreTotal;
-  multi_store_optimal: MultiStoreOptimal;
+  multi_store_optimal: MultiStoreItem[];
+  multi_store_total: number;
   savings_vs_worst: number;
   savings_percent: number;
   annual_projection: number;

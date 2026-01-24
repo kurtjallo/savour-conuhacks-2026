@@ -1,4 +1,4 @@
-import type { MultiStoreOptimal } from '../lib/types';
+import type { MultiStoreItem } from '../lib/types';
 
 // Design system colors
 const colors = {
@@ -8,25 +8,26 @@ const colors = {
 };
 
 interface StoreBreakdownProps {
-  multiStoreOptimal: MultiStoreOptimal;
+  items: MultiStoreItem[];
+  total: number;
 }
 
-export default function StoreBreakdown({ multiStoreOptimal }: StoreBreakdownProps) {
+export default function StoreBreakdown({ items, total }: StoreBreakdownProps) {
   // Group items by store
-  const itemsByStore = multiStoreOptimal.items.reduce((acc, item) => {
-    const store = item.best_store;
+  const itemsByStore = items.reduce((acc, item) => {
+    const store = item.store_id;
     if (!acc[store]) {
       acc[store] = [];
     }
     acc[store].push(item);
     return acc;
-  }, {} as Record<string, typeof multiStoreOptimal.items>);
+  }, {} as Record<string, MultiStoreItem[]>);
 
   // Calculate subtotal per store
   const storeSubtotals = Object.entries(itemsByStore).map(([store, items]) => ({
     store,
     items,
-    subtotal: items.reduce((sum, item) => sum + item.subtotal, 0),
+    subtotal: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
   }));
 
   return (
@@ -50,7 +51,7 @@ export default function StoreBreakdown({ multiStoreOptimal }: StoreBreakdownProp
                   className="font-medium capitalize"
                   style={{ color: colors.textPrimary }}
                 >
-                  {store.replace('-', ' ')}
+                  {items[0]?.store_name?.replace('-', ' ') ?? store.replace('-', ' ')}
                 </h3>
                 <span
                   className="font-medium"
@@ -75,7 +76,7 @@ export default function StoreBreakdown({ multiStoreOptimal }: StoreBreakdownProp
                       </span>
                     </div>
                     <span style={{ color: colors.textSecondary }}>
-                      ${item.subtotal.toFixed(2)}
+                      ${(item.price * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 ))}
@@ -103,7 +104,7 @@ export default function StoreBreakdown({ multiStoreOptimal }: StoreBreakdownProp
               className="text-xl font-semibold"
               style={{ color: colors.textPrimary }}
             >
-              ${multiStoreOptimal.total.toFixed(2)}
+              ${total.toFixed(2)}
             </span>
           </div>
         </div>
