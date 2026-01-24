@@ -6,39 +6,38 @@ export default function Header() {
   const { totalCount } = useBasket();
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-cream/80 backdrop-blur-md border-b border-border/50">
+      <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          className="hover:opacity-70 transition-opacity duration-200"
         >
-          <span className="text-2xl">💰</span>
-          <h1 className="text-xl font-bold text-green-600">
-            InflationFighter
+          <h1 className="text-xl font-semibold tracking-wide text-charcoal">
+            Savour
           </h1>
         </button>
 
         <button
           onClick={() => navigate('/basket')}
-          className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="relative p-2.5 -mr-2.5 rounded-lg hover:bg-cream transition-colors duration-200"
           aria-label={`View basket with ${totalCount} items`}
         >
           <svg
-            className="w-6 h-6 text-gray-700"
+            className="w-5 h-5 text-charcoal"
             fill="none"
             stroke="currentColor"
+            strokeWidth={1.5}
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+              d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
             />
           </svg>
           {totalCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-500 rounded-full">
+            <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-semibold text-white bg-accent rounded-full">
               {totalCount > 99 ? '99+' : totalCount}
             </span>
           )}

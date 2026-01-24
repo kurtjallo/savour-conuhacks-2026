@@ -27,40 +27,64 @@ export default function CategoryCard({ category }: CategoryCardProps) {
     return storeNames[storeId] || storeId;
   };
 
+  const calculateSavings = (): number | null => {
+    if (category.most_expensive_price > category.cheapest_price) {
+      const savings = ((category.most_expensive_price - category.cheapest_price) / category.most_expensive_price) * 100;
+      return Math.round(savings);
+    }
+    return null;
+  };
+
   const handleClick = () => {
     navigate(`/category/${category.category_id}`);
   };
 
+  const savings = calculateSavings();
+
   return (
     <div
       onClick={handleClick}
-      className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md hover:border-green-200 hover:scale-[1.02] transition-all duration-200 flex flex-col"
+      className="bg-white rounded-2xl p-5 border border-border cursor-pointer
+                 hover:-translate-y-1 hover:shadow-lift
+                 transition-all duration-300 ease-out flex flex-col h-full"
     >
-      <div className="flex items-start justify-between mb-3">
-        <span className="text-4xl" role="img" aria-label={category.name}>
+      {/* Icon - smaller and muted */}
+      <div className="mb-4">
+        <span className="text-2xl opacity-70" role="img" aria-label={category.name}>
           {getIcon(category.icon)}
-        </span>
-        <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
-          Best at {formatStoreName(category.cheapest_store)}
         </span>
       </div>
 
-      <h3 className="text-lg font-semibold text-gray-800 mb-1">
+      {/* Product name */}
+      <h3 className="text-base font-medium text-charcoal mb-1">
         {category.name}
       </h3>
 
-      <p className="text-sm text-gray-500 mb-3">
+      {/* Unit */}
+      <p className="text-sm text-muted mb-4">
         {category.unit}
       </p>
 
-      <div className="mt-auto">
-        <p className="text-2xl font-bold text-green-600">
-          {formatPrice(category.cheapest_price)}
-        </p>
-        {category.most_expensive_price > category.cheapest_price && (
-          <p className="text-xs text-gray-400 line-through">
-            {formatPrice(category.most_expensive_price)}
-          </p>
+      {/* Price and savings */}
+      <div className="mt-auto pt-3 border-t border-border/50">
+        <div className="flex items-baseline justify-between">
+          <div>
+            <span className="text-xl font-semibold text-charcoal">
+              {formatPrice(category.cheapest_price)}
+            </span>
+            <span className="text-sm text-muted ml-1">
+              at {formatStoreName(category.cheapest_store)}
+            </span>
+          </div>
+        </div>
+
+        {/* Savings badge */}
+        {savings && savings > 0 && (
+          <div className="mt-2">
+            <span className="inline-flex items-center px-2.5 py-1 text-xs font-medium text-sage bg-sage-light rounded-full">
+              Save {savings}%
+            </span>
+          </div>
         )}
       </div>
     </div>

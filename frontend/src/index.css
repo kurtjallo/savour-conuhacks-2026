@@ -1,27 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  min-height: 100vh;
+@layer base {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-cream text-charcoal font-sans;
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
 }
 
-#root {
-  min-height: 100vh;
+@layer components {
+  .card {
+    @apply bg-white rounded-2xl shadow-subtle border border-border;
+  }
+
+  .btn-primary {
+    @apply bg-accent text-white font-medium px-6 py-3 rounded-xl
+           hover:bg-accent/90 transition-all duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-charcoal font-medium px-6 py-3 rounded-xl
+           border border-border hover:bg-cream transition-all duration-200;
+  }
+
+  .text-savings {
+    @apply text-sage font-medium;
+  }
+}
+
+/* Animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translate(-50%, 20px);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, 0);
   }
 }
 
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+  animation: fade-in 0.4s ease-out forwards;
 }
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+/* Staggered delays for grid items */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }
+.stagger-7 { animation-delay: 350ms; }
+.stagger-8 { animation-delay: 400ms; }
