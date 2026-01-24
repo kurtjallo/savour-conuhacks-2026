@@ -1,84 +1,90 @@
-# Roadmap: InflationFighter
+# Roadmap: InflationFighter Mobile
 
 ## Overview
 
-Build a grocery price comparison app in ~23 hours for ConUHacks. Start with data and backend, build frontend progressively, deploy and polish for demo. Each phase delivers something testable.
+Convert the Next.js web frontend to a React Native/Expo mobile app. Backend stays unchanged. Each phase delivers testable mobile functionality.
 
 ## Phases
 
-- [ ] **Phase 1: Data Setup** — MongoDB + seed data for 5 stores and 15 products
-- [ ] **Phase 2: Backend API** — FastAPI with all 5 endpoints
-- [ ] **Phase 3: Frontend Browse** — Home page, category grid, price comparison
-- [ ] **Phase 4: Basket Optimization** — Basket builder with savings analysis
-- [ ] **Phase 5: Deploy & Polish** — Railway + Vercel deployment, mobile responsive
+- [x] **Phase 1: Expo Project Setup** — Initialize Expo TypeScript with navigation and API client
+- [x] **Phase 2: Core Components & Context** — BasketContext + reusable UI components
+- [x] **Phase 3: Home Screen** — Category browsing with search
+- [x] **Phase 4: Category Detail Screen** — Price comparison table with add to basket
+- [x] **Phase 5: Basket Screen** — Optimization analysis and savings display
 
 ## Phase Details
 
-### Phase 1: Data Setup
-**Goal**: MongoDB Atlas connected with stores and categories collections populated
+### Phase 1: Expo Project Setup
+**Goal**: Expo TypeScript project with navigation and backend connection
 **Depends on**: Nothing (first phase)
-**Requirements**: DATA-01, DATA-02, DATA-03
 **Success Criteria** (what must be TRUE):
-  1. MongoDB Atlas cluster accessible from local development
-  2. `stores` collection has 5 store documents with name, color, store_id
-  3. `categories` collection has 15 product documents with prices from all 5 stores
-  4. Can query data via MongoDB Compass or shell
+  1. Expo project initialized in `mobile/` with TypeScript template
+  2. React Navigation configured with Stack navigator
+  3. AsyncStorage package installed
+  4. API client configured pointing to backend URL
+  5. TypeScript types defined (matching frontend/src/lib/types.ts)
+  6. App runs on simulator/emulator
 **Plans**: TBD
 
-### Phase 2: Backend API
-**Goal**: FastAPI server with all endpoints returning real data from MongoDB
+### Phase 2: Core Components & Context
+**Goal**: Reusable components and basket state management
 **Depends on**: Phase 1
-**Requirements**: API-01, API-02, API-03, API-04, API-05
 **Success Criteria** (what must be TRUE):
-  1. GET /api/stores returns all 5 stores
-  2. GET /api/categories returns all 15 categories with cheapest price calculated
-  3. GET /api/categories/search?q=eggs returns matching categories
-  4. GET /api/categories/{id} returns full price breakdown ranked by price
-  5. POST /api/basket/analyze returns single-store best, multi-store optimal, and savings
+  1. BasketContext provides add/remove/update/clear functions
+  2. Basket state persists to AsyncStorage
+  3. Header component shows basket count badge
+  4. CategoryCard component displays product with price
+  5. AddToBasket component with quantity +/- buttons
+  6. SearchBar component with text input
 **Plans**: TBD
 
-### Phase 3: Frontend Browse
-**Goal**: Users can browse categories and see price comparisons
+### Phase 3: Home Screen
+**Goal**: Users can browse categories and search
 **Depends on**: Phase 2
-**Requirements**: UI-01, UI-02, UI-03, UI-04, UI-05
 **Success Criteria** (what must be TRUE):
-  1. Home page renders with hero and search bar
-  2. Category grid displays all 15 categories as cards
-  3. Each card shows icon, name, cheapest price, savings %
-  4. Clicking a card shows full price comparison table
-  5. "Add to basket" button works with quantity selector
+  1. Home screen fetches and displays all 15 categories
+  2. FlatList renders CategoryCard grid (2 columns)
+  3. Search filters categories by name
+  4. Tapping a card navigates to category detail
+  5. Pull-to-refresh reloads categories
+  6. Loading state while fetching
 **Plans**: TBD
 
-### Phase 4: Basket Optimization
-**Goal**: Users can build a basket and see optimized shopping strategies
+### Phase 4: Category Detail Screen
+**Goal**: Price comparison table for individual categories
 **Depends on**: Phase 3
-**Requirements**: UI-06, UI-07, UI-08, UI-09, UI-10
 **Success Criteria** (what must be TRUE):
-  1. Basket page shows all added items with quantities
-  2. Analysis displays: best single store, multi-store optimal, worst case
-  3. Savings percentage and annual projection displayed prominently
-  4. Basket persists across page refreshes (localStorage)
-  5. UI works on mobile viewport
+  1. Category detail screen shows product name and icon
+  2. Displays all 5 store prices ranked cheapest to most expensive
+  3. Medal indicators (🥇🥈🥉) for top 3
+  4. Add to basket with quantity selector
+  5. Back navigation to home
 **Plans**: TBD
 
-### Phase 5: Deploy & Polish
-**Goal**: Live app accessible via public URLs, demo-ready
+### Phase 5: Basket Screen
+**Goal**: Basket with optimization analysis
 **Depends on**: Phase 4
-**Requirements**: DEP-01, DEP-02, DEP-03
 **Success Criteria** (what must be TRUE):
-  1. Backend running on Railway with public URL
-  2. Frontend running on Vercel with public URL
-  3. Frontend successfully calls Railway backend
-  4. Full user flow works: browse → add to basket → see savings
-  5. No console errors, loading states work, mobile responsive
+  1. Basket screen lists all items with quantities
+  2. Can adjust quantity or remove items
+  3. Calls POST /api/basket/analyze with basket items
+  4. Displays single-store best option with total
+  5. Displays multi-store optimal with breakdown
+  6. Shows savings % and annual projection
+  7. Clear basket button
 **Plans**: TBD
 
 ## Progress
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Data Setup | 0/TBD | Not started | - |
-| 2. Backend API | 0/TBD | Not started | - |
-| 3. Frontend Browse | 0/TBD | Not started | - |
-| 4. Basket Optimization | 0/TBD | Not started | - |
-| 5. Deploy & Polish | 0/TBD | Not started | - |
+| Phase | Status | Completed |
+|-------|--------|-----------|
+| 1. Expo Project Setup | ✅ Complete | 2025-01-24 |
+| 2. Core Components & Context | ✅ Complete | 2025-01-24 |
+| 3. Home Screen | ✅ Complete | 2025-01-24 |
+| 4. Category Detail Screen | ✅ Complete | 2025-01-24 |
+| 5. Basket Screen | ✅ Complete | 2025-01-24 |
+
+---
+*Created: 2025-01-24*
+*Completed: 2025-01-24*
+*Milestone: React Native/Expo Conversion*

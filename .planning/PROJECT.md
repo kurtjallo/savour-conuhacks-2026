@@ -48,10 +48,10 @@ Show users exactly how much they can save by shopping smarter — with real numb
 
 ## Constraints
 
-- **Tech stack**: Python FastAPI (backend) + MongoDB Atlas (database) + Next.js + Tailwind (frontend) — chosen for rapid development and free hosting tiers
-- **Timeline**: ~23 hours total, demo-ready required
-- **Deployment**: Railway (backend), Vercel (frontend), MongoDB Atlas (database) — all accounts already configured
-- **Solo developer**: Sequential work only, no parallelization of human effort
+- **Tech stack**: Python FastAPI (backend) + MongoDB Atlas (database) + React Native/Expo TypeScript (mobile) — converting from Next.js to native mobile app
+- **Navigation**: React Navigation for mobile navigation
+- **Storage**: AsyncStorage for basket persistence (replacing localStorage)
+- **Deployment**: Railway (backend), Expo/EAS Build (mobile) — backend unchanged
 - **Data**: Hardcoded prices acceptable for MVP; no scraping
 
 ## Key Decisions
