@@ -2,6 +2,20 @@ import type { Store, Category, CategoryDetail, BasketAnalysis, RecipeGenerateRes
 
 const API_BASE = "http://localhost:8000";
 
+/**
+ * Resolves image URLs - prepends API_BASE to relative URLs (e.g. /static/images/...)
+ * while keeping absolute URLs (e.g. https://...) unchanged.
+ */
+export function resolveImageUrl(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  // If it's already an absolute URL, return as-is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  // Relative URL - prepend API_BASE
+  return `${API_BASE}${url}`;
+}
+
 export async function getStores(): Promise<Store[]> {
   const response = await fetch(`${API_BASE}/api/stores`);
   if (!response.ok) {

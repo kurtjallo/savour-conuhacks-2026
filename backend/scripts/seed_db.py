@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Seed script for InflationFighter MongoDB database."""
+"""Seed script for InflationFighter MongoDB database using Loblaws CSV data."""
 
 import os
+import re
+import ast
+import random
 import certifi
+import pandas as pd
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
@@ -16,193 +20,180 @@ STORES = [
     {"store_id": "metro", "name": "Metro", "color": "#003DA5"}
 ]
 
-# Map category_id to grocery product images (Unsplash - free to use)
-IMAGE_URLS = {
-    "eggs": "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400&q=80",
-    "milk": "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&q=80",
-    "bread": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80",
-    "butter": "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&q=80",
-    "apples": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&q=80",
-    "bananas": "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&q=80",
-    "potatoes": "https://images.unsplash.com/photo-1518977676601-b53f82ber?w=400&q=80",
-    "onions": "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80",
-    "chicken": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&q=80",
-    "ground-beef": "https://images.unsplash.com/photo-1602470520998-f4a52199a3d6?w=400&q=80",
-    "pasta": "https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=400&q=80",
-    "rice": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80",
-    "cheese": "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400&q=80",
-    "canned-tomatoes": "https://images.unsplash.com/photo-1546548970-71785318a17b?w=400&q=80",
-    "cereal": "https://images.unsplash.com/photo-1521483451569-e33803c0330c?w=400&q=80",
-    "yogurt": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
-    "orange-juice": "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80",
-    "coffee": "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&q=80",
-    "sugar": "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400&q=80",
-    "flour": "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&q=80",
-    "cooking-oil": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80",
-    "frozen-pizza": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",
-    "ice-cream": "https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=400&q=80",
-    "bacon": "https://images.unsplash.com/photo-1606851091851-e8c8c0fca5ba?w=400&q=80",
-    "lettuce": "https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=400&q=80"
-}
-
-# unit_qty: quantity in standard_unit (kg for weight, L for volume, count for discrete items)
-# standard_unit: the base unit for price-per-unit calculation
-CATEGORIES = [
-    {"category_id": "eggs", "name": "Eggs", "icon": "egg", "unit": "dozen",
-     "unit_qty": 12, "standard_unit": "egg",
-     "image_url": IMAGE_URLS.get("eggs", ""),
-     "search_terms": ["eggs", "egg", "dozen eggs"],
-     "prices": {"nofrills": 4.49, "freshco": 4.29, "walmart": 4.47, "loblaws": 5.29, "metro": 5.49},
-     "deals": {"nofrills": {"sale_price": 3.49, "regular_price": 4.49, "ends": "2025-02-07"}},
-     "previous_price": 5.99},
-    {"category_id": "milk", "name": "Milk (2%)", "icon": "milk", "unit": "4L",
-     "unit_qty": 4, "standard_unit": "L",
-     "image_url": IMAGE_URLS.get("milk", ""),
-     "search_terms": ["milk", "2% milk", "4L milk"],
-     "prices": {"nofrills": 5.49, "freshco": 5.49, "walmart": 5.47, "loblaws": 5.99, "metro": 6.29},
-     "deals": {"walmart": {"sale_price": 4.97, "regular_price": 5.47, "ends": "2025-02-05"}},
-     "previous_price": 6.99},
-    {"category_id": "bread", "name": "Bread", "icon": "bread-slice", "unit": "loaf",
-     "unit_qty": 1, "standard_unit": "loaf",
-     "image_url": IMAGE_URLS.get("bread", ""),
-     "search_terms": ["bread", "white bread", "loaf"],
-     "prices": {"nofrills": 2.49, "freshco": 2.29, "walmart": 2.47, "loblaws": 3.49, "metro": 3.29},
-     "previous_price": 3.79},
-    {"category_id": "butter", "name": "Butter", "icon": "cube", "unit": "454g",
-     "unit_qty": 0.454, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("butter", ""),
-     "search_terms": ["butter", "salted butter"],
-     "prices": {"nofrills": 5.99, "freshco": 5.79, "walmart": 5.97, "loblaws": 6.99, "metro": 6.79},
-     "previous_price": 7.49},
-    {"category_id": "apples", "name": "Apples", "icon": "apple-whole", "unit": "per lb",
-     "unit_qty": 0.4536, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("apples", ""),
-     "search_terms": ["apples", "apple", "gala", "red apples"],
-     "prices": {"nofrills": 1.49, "freshco": 1.29, "walmart": 1.47, "loblaws": 1.99, "metro": 1.79},
-     "previous_price": 2.29},
-    {"category_id": "bananas", "name": "Bananas", "icon": "banana", "unit": "per lb",
-     "unit_qty": 0.4536, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("bananas", ""),
-     "search_terms": ["bananas", "banana"],
-     "prices": {"nofrills": 0.69, "freshco": 0.59, "walmart": 0.67, "loblaws": 0.79, "metro": 0.74},
-     "previous_price": 0.89},
-    {"category_id": "potatoes", "name": "Potatoes", "icon": "potato", "unit": "10lb bag",
-     "unit_qty": 4.536, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("potatoes", ""),
-     "search_terms": ["potatoes", "potato", "russet"],
-     "prices": {"nofrills": 4.99, "freshco": 4.49, "walmart": 4.97, "loblaws": 6.99, "metro": 5.99},
-     "previous_price": 7.49},
-    {"category_id": "onions", "name": "Onions", "icon": "onion", "unit": "3lb bag",
-     "unit_qty": 1.361, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("onions", ""),
-     "search_terms": ["onions", "onion", "yellow onions"],
-     "prices": {"nofrills": 2.99, "freshco": 2.49, "walmart": 2.97, "loblaws": 3.99, "metro": 3.49},
-     "previous_price": 4.29},
-    {"category_id": "chicken", "name": "Chicken Breast", "icon": "drumstick-bite", "unit": "per kg",
-     "unit_qty": 1, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("chicken", ""),
-     "search_terms": ["chicken", "chicken breast", "boneless chicken"],
-     "prices": {"nofrills": 13.21, "freshco": 11.00, "walmart": 12.10, "loblaws": 15.39, "metro": 14.30},
-     "deals": {"loblaws": {"sale_price": 11.99, "regular_price": 15.39, "ends": "2025-02-03"}},
-     "previous_price": 16.99},
-    {"category_id": "ground-beef", "name": "Ground Beef", "icon": "burger", "unit": "per kg",
-     "unit_qty": 1, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("ground-beef", ""),
-     "search_terms": ["ground beef", "beef", "lean ground beef"],
-     "prices": {"nofrills": 11.00, "freshco": 9.90, "walmart": 10.56, "loblaws": 13.21, "metro": 12.10},
-     "previous_price": 14.49},
-    {"category_id": "pasta", "name": "Pasta", "icon": "utensils", "unit": "900g",
-     "unit_qty": 0.9, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("pasta", ""),
-     "search_terms": ["pasta", "spaghetti", "penne"],
-     "prices": {"nofrills": 1.99, "freshco": 1.79, "walmart": 1.97, "loblaws": 2.99, "metro": 2.49},
-     "previous_price": 3.29},
-    {"category_id": "rice", "name": "Rice", "icon": "bowl-rice", "unit": "2kg",
-     "unit_qty": 2, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("rice", ""),
-     "search_terms": ["rice", "white rice", "long grain"],
-     "prices": {"nofrills": 4.49, "freshco": 3.99, "walmart": 4.27, "loblaws": 5.99, "metro": 5.49},
-     "previous_price": 6.49},
-    {"category_id": "cheese", "name": "Cheese", "icon": "cheese", "unit": "400g block",
-     "unit_qty": 0.4, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("cheese", ""),
-     "search_terms": ["cheese", "cheddar", "marble cheese"],
-     "prices": {"nofrills": 6.49, "freshco": 5.99, "walmart": 6.27, "loblaws": 7.99, "metro": 7.49},
-     "deals": {"metro": {"sale_price": 5.99, "regular_price": 7.49, "ends": "2025-02-10"}},
-     "previous_price": 8.49},
-    {"category_id": "canned-tomatoes", "name": "Canned Tomatoes", "icon": "jar", "unit": "796ml",
-     "unit_qty": 0.796, "standard_unit": "L",
-     "image_url": IMAGE_URLS.get("canned-tomatoes", ""),
-     "search_terms": ["canned tomatoes", "diced tomatoes", "tomatoes"],
-     "prices": {"nofrills": 1.29, "freshco": 0.99, "walmart": 1.27, "loblaws": 1.99, "metro": 1.79},
-     "previous_price": 2.29},
-    {"category_id": "cereal", "name": "Cereal", "icon": "bowl-food", "unit": "500g box",
-     "unit_qty": 0.5, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("cereal", ""),
-     "search_terms": ["cereal", "breakfast cereal", "cheerios"],
-     "prices": {"nofrills": 4.49, "freshco": 3.99, "walmart": 4.27, "loblaws": 5.99, "metro": 5.29},
-     "previous_price": 6.49},
-    {"category_id": "yogurt", "name": "Yogurt", "icon": "yogurt", "unit": "500g tub",
-     "unit_qty": 0.5, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("yogurt", ""),
-     "search_terms": ["yogurt", "greek yogurt", "plain yogurt"],
-     "prices": {"nofrills": 3.99, "freshco": 3.79, "walmart": 3.97, "loblaws": 4.99, "metro": 4.79},
-     "previous_price": 5.49},
-    {"category_id": "orange-juice", "name": "Orange Juice", "icon": "orange-juice", "unit": "1.89L carton",
-     "unit_qty": 1.89, "standard_unit": "L",
-     "image_url": IMAGE_URLS.get("orange-juice", ""),
-     "search_terms": ["orange juice", "oj", "juice", "tropicana"],
-     "prices": {"nofrills": 4.49, "freshco": 4.29, "walmart": 4.47, "loblaws": 5.49, "metro": 5.29},
-     "previous_price": 5.99},
-    {"category_id": "coffee", "name": "Coffee", "icon": "coffee", "unit": "340g ground",
-     "unit_qty": 0.34, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("coffee", ""),
-     "search_terms": ["coffee", "ground coffee", "folgers", "maxwell house"],
-     "prices": {"nofrills": 8.99, "freshco": 8.49, "walmart": 8.97, "loblaws": 10.99, "metro": 10.49},
-     "previous_price": 11.99},
-    {"category_id": "sugar", "name": "Sugar", "icon": "sugar", "unit": "2kg bag",
-     "unit_qty": 2, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("sugar", ""),
-     "search_terms": ["sugar", "white sugar", "granulated sugar"],
-     "prices": {"nofrills": 3.49, "freshco": 3.29, "walmart": 3.47, "loblaws": 4.49, "metro": 4.29},
-     "previous_price": 4.99},
-    {"category_id": "flour", "name": "Flour", "icon": "flour", "unit": "2.5kg bag",
-     "unit_qty": 2.5, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("flour", ""),
-     "search_terms": ["flour", "all purpose flour", "baking flour", "white flour"],
-     "prices": {"nofrills": 4.49, "freshco": 4.29, "walmart": 4.47, "loblaws": 5.49, "metro": 5.29},
-     "previous_price": 5.99},
-    {"category_id": "cooking-oil", "name": "Cooking Oil", "icon": "cooking-oil", "unit": "1L vegetable oil",
-     "unit_qty": 1, "standard_unit": "L",
-     "image_url": IMAGE_URLS.get("cooking-oil", ""),
-     "search_terms": ["cooking oil", "vegetable oil", "canola oil", "oil"],
-     "prices": {"nofrills": 4.29, "freshco": 3.99, "walmart": 4.27, "loblaws": 5.29, "metro": 4.99},
-     "previous_price": 5.79},
-    {"category_id": "frozen-pizza", "name": "Frozen Pizza", "icon": "frozen-pizza", "unit": "single pizza",
-     "unit_qty": 1, "standard_unit": "pizza",
-     "image_url": IMAGE_URLS.get("frozen-pizza", ""),
-     "search_terms": ["frozen pizza", "pizza", "delissio", "dr oetker"],
-     "prices": {"nofrills": 5.99, "freshco": 5.49, "walmart": 5.97, "loblaws": 7.99, "metro": 7.49},
-     "previous_price": 8.49},
-    {"category_id": "ice-cream", "name": "Ice Cream", "icon": "ice-cream", "unit": "1.5L tub",
-     "unit_qty": 1.5, "standard_unit": "L",
-     "image_url": IMAGE_URLS.get("ice-cream", ""),
-     "search_terms": ["ice cream", "frozen dessert", "breyers", "chapman's"],
-     "prices": {"nofrills": 4.99, "freshco": 4.79, "walmart": 4.97, "loblaws": 6.49, "metro": 5.99},
-     "previous_price": 6.99},
-    {"category_id": "bacon", "name": "Bacon", "icon": "bacon", "unit": "375g pack",
-     "unit_qty": 0.375, "standard_unit": "kg",
-     "image_url": IMAGE_URLS.get("bacon", ""),
-     "search_terms": ["bacon", "pork bacon", "breakfast bacon", "maple leaf"],
-     "prices": {"nofrills": 6.99, "freshco": 6.49, "walmart": 6.97, "loblaws": 8.49, "metro": 7.99},
-     "previous_price": 9.49},
-    {"category_id": "lettuce", "name": "Lettuce", "icon": "lettuce", "unit": "1 head",
-     "unit_qty": 1, "standard_unit": "head",
-     "image_url": IMAGE_URLS.get("lettuce", ""),
-     "search_terms": ["lettuce", "iceberg lettuce", "romaine", "salad"],
-     "prices": {"nofrills": 2.49, "freshco": 2.29, "walmart": 2.47, "loblaws": 3.49, "metro": 2.99},
-     "previous_price": 3.79}
+# Product IDs to select from CSV (diverse grocery items)
+SELECTED_PRODUCT_IDS = [
+    "20091825001_EA",   # Cilantro
+    "20143381001_KG",   # Roma Tomatoes
+    "20179038001_KG",   # Ginger
+    "21004355001_EA",   # Garlic Bulbs
+    "20834587001_EA",   # Milk 2%
+    "20309069001_EA",   # French Bread
+    "20526997001_KG",   # Bananas
+    "20088245001_EA",   # Potatoes
+    "20088533001_EA",   # Red Onions
+    "20174029001_KG",   # Apples
+    "20825986001_EA",   # Yogurt
+    "20128503001_EA",   # Orange Juice
+    "20066884001_EA",   # Cereal
+    "20311706001_EA",   # Coffee
+    "20024942001_EA",   # Sugar
+    "20024935001_EA",   # Flour
+    "20024950001_EA",   # Cooking Oil
+    "20307418001_EA",   # Frozen Pizza
+    "20164997001_EA",   # Ice Cream
+    "20044563001_EA",   # Bacon
+    "20088379001_EA",   # Lettuce
+    "20071822001_EA",   # Butter
+    "20306553001_EA",   # Pasta
+    "20069211001_EA",   # Rice
+    "20800659001_EA",   # Cheese
 ]
+
+
+def extract_image_url(product_image_str):
+    """Extract the main image URL from the productImage JSON string."""
+    if pd.isna(product_image_str) or not product_image_str:
+        return ""
+    try:
+        # Parse the JSON-like string
+        images = ast.literal_eval(product_image_str)
+        if images and len(images) > 0:
+            # Get the largeUrl or imageUrl
+            return images[0].get('largeUrl') or images[0].get('imageUrl', '')
+    except (ValueError, SyntaxError):
+        pass
+    return ""
+
+
+def generate_store_prices(loblaws_price):
+    """Generate realistic prices for all stores based on Loblaws price."""
+    if not loblaws_price or loblaws_price <= 0:
+        loblaws_price = 2.99
+
+    # No Frills and FreshCo are typically cheapest (5-15% less)
+    # Walmart is competitive (3-10% less)
+    # Metro is typically similar or slightly higher (0-10% more)
+    prices = {
+        "nofrills": round(loblaws_price * random.uniform(0.85, 0.95), 2),
+        "freshco": round(loblaws_price * random.uniform(0.82, 0.92), 2),
+        "walmart": round(loblaws_price * random.uniform(0.88, 0.97), 2),
+        "loblaws": round(loblaws_price, 2),
+        "metro": round(loblaws_price * random.uniform(0.95, 1.10), 2),
+    }
+    return prices
+
+
+def slugify(text):
+    """Convert text to URL-friendly slug."""
+    text = text.lower().strip()
+    text = re.sub(r'[^\w\s-]', '', text)
+    text = re.sub(r'[-\s]+', '-', text)
+    return text[:50]
+
+
+def load_products_from_csv():
+    """Load products from Loblaws CSV file."""
+    csv_path = os.path.join(os.path.dirname(__file__), '..', 'grocery_data_jan_2025.csv')
+
+    if not os.path.exists(csv_path):
+        print(f"ERROR: CSV file not found at {csv_path}")
+        return []
+
+    df = pd.read_csv(csv_path)
+    print(f"Loaded {len(df)} products from CSV")
+
+    # Filter for products with valid titles, prices, and images
+    df = df[df['title'].notna() & (df['pricing.price'].notna()) & (df['productImage'].notna())]
+
+    # Remove duplicates by title
+    df = df.drop_duplicates(subset=['title'])
+
+    # Select diverse products - prioritize common grocery items
+    priority_keywords = [
+        'milk', 'bread', 'egg', 'butter', 'cheese', 'yogurt', 'chicken', 'beef',
+        'pork', 'fish', 'salmon', 'shrimp', 'apple', 'banana', 'orange', 'tomato',
+        'potato', 'onion', 'carrot', 'lettuce', 'spinach', 'broccoli', 'pepper',
+        'rice', 'pasta', 'cereal', 'oat', 'flour', 'sugar', 'oil', 'coffee',
+        'tea', 'juice', 'water', 'soda', 'chips', 'cracker', 'cookie', 'chocolate',
+        'ice cream', 'pizza', 'bacon', 'sausage', 'ham', 'turkey', 'garlic', 'ginger'
+    ]
+
+    selected_products = []
+    used_titles = set()
+
+    # First pass: get products matching priority keywords
+    for keyword in priority_keywords:
+        if len(selected_products) >= 50:
+            break
+        matches = df[df['title'].str.lower().str.contains(keyword, na=False)]
+        for _, row in matches.iterrows():
+            if len(selected_products) >= 50:
+                break
+            title = row['title']
+            if title not in used_titles:
+                selected_products.append(row)
+                used_titles.add(title)
+
+    # Second pass: fill remaining slots with other products
+    if len(selected_products) < 50:
+        remaining = df[~df['title'].isin(used_titles)]
+        for _, row in remaining.iterrows():
+            if len(selected_products) >= 50:
+                break
+            selected_products.append(row)
+
+    print(f"Selected {len(selected_products)} diverse products")
+    return selected_products
+
+
+def create_categories_from_csv():
+    """Create category documents from CSV data."""
+    products = load_products_from_csv()
+    categories = []
+
+    for row in products:
+        title = row['title']
+        loblaws_price = float(row['pricing.price']) if pd.notna(row['pricing.price']) else 2.99
+        image_url = extract_image_url(row['productImage'])
+        package_sizing = row['packageSizing'] if pd.notna(row['packageSizing']) else "1 ea"
+        brand = row['brand'] if pd.notna(row['brand']) else ""
+
+        # Create category_id from title
+        category_id = slugify(title)
+
+        # Generate prices for all stores
+        prices = generate_store_prices(loblaws_price)
+
+        # Find cheapest store
+        cheapest_store = min(prices, key=prices.get)
+
+        # Generate previous price (10-25% higher than current Loblaws price)
+        previous_price = round(loblaws_price * random.uniform(1.10, 1.25), 2)
+
+        # Create search terms
+        search_terms = [title.lower()]
+        if brand:
+            search_terms.append(brand.lower())
+        # Add individual words from title
+        for word in title.lower().split():
+            if len(word) > 2 and word not in search_terms:
+                search_terms.append(word)
+
+        category = {
+            "category_id": category_id,
+            "name": title,
+            "brand": brand,
+            "icon": "shopping-basket",  # Default icon
+            "unit": package_sizing.split(',')[0] if ',' in package_sizing else package_sizing,
+            "image_url": image_url,
+            "search_terms": search_terms[:5],  # Limit to 5 search terms
+            "prices": prices,
+            "previous_price": previous_price,
+        }
+
+        categories.append(category)
+
+    return categories
 
 
 def seed_database():
@@ -226,23 +217,34 @@ def seed_database():
         print(f"Inserting {len(STORES)} stores...")
         db.stores.insert_many(STORES)
 
-        print(f"Inserting {len(CATEGORIES)} categories...")
-        db.categories.insert_many(CATEGORIES)
+        print("\nLoading products from Loblaws CSV...")
+        categories = create_categories_from_csv()
+
+        if not categories:
+            print("ERROR: No categories created from CSV")
+            return False
+
+        print(f"Inserting {len(categories)} categories...")
+        db.categories.insert_many(categories)
 
         print(f"\nVerification:")
         print(f"  stores: {db.stores.count_documents({})} documents")
         print(f"  categories: {db.categories.count_documents({})} documents")
 
-        eggs = db.categories.find_one({"category_id": "eggs"})
-        if eggs:
-            cheapest = min(eggs["prices"].items(), key=lambda x: x[1])
-            print(f"  Sample: Eggs cheapest at {cheapest[0]}: ${cheapest[1]:.2f}")
+        # Show sample products
+        print("\nSample products:")
+        for cat in list(db.categories.find().limit(5)):
+            cheapest = min(cat["prices"].items(), key=lambda x: x[1])
+            print(f"  {cat['name'][:40]}: ${cheapest[1]:.2f} at {cheapest[0]}")
+            print(f"    Image: {cat['image_url'][:60]}...")
 
         print("\nDATABASE SEEDED SUCCESSFULLY!")
         return True
 
     except Exception as e:
         print(f"ERROR: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 

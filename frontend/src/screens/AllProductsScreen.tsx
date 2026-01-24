@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { getCategories } from '../lib/api';
+import { getCategories, resolveImageUrl } from '../lib/api';
 import type { Category } from '../lib/types';
 import { useBasket } from '../context/BasketContext';
 
@@ -168,7 +168,7 @@ export default function AllProductsScreen() {
                 {category.image_url ? (
                   <div className="w-full h-48 bg-gray-50 overflow-hidden">
                     <img
-                      src={category.image_url}
+                      src={resolveImageUrl(category.image_url)}
                       alt={category.name}
                       loading="lazy"
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"

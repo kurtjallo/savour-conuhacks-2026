@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import type { Category } from '../lib/types';
 import { getIcon } from '../lib/icons';
+import { resolveImageUrl } from '../lib/api';
 
 interface CategoryCardProps {
   category: Category;
@@ -52,7 +53,7 @@ export default function CategoryCard({ category }: CategoryCardProps) {
       {category.image_url ? (
         <div className="w-full h-32 bg-white flex items-center justify-center overflow-hidden">
           <img
-            src={category.image_url}
+            src={resolveImageUrl(category.image_url)}
             alt={category.name}
             loading="lazy"
             className="w-full h-32 object-cover rounded-t-xl group-hover:scale-105 transition-transform duration-300"

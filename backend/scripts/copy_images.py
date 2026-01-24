@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
 """
-Copy sample images from Kaggle dataset to static folder
+Copy sample images from Kaggle dataset to static folder.
+Maps app category_id to Kaggle dataset image paths.
+For items not in Kaggle dataset, Unsplash URLs are used in seed_db.py.
 """
 import shutil
 import os
 from pathlib import Path
 
 # Mapping from our category_id to Kaggle dataset paths
+# Only categories with matching Kaggle images are included here
 CATEGORY_MAPPING = {
+    # Fruits
     "bananas": "GroceryStoreDataset/dataset/test/Fruit/Banana",
     "apples": "GroceryStoreDataset/dataset/test/Fruit/Apple/Royal-Gala",
-    "onions": "GroceryStoreDataset/dataset/test/Vegetables/Onion",
-    "potatoes": "GroceryStoreDataset/dataset/test/Vegetables/Potato",
-    "carrots": "GroceryStoreDataset/dataset/test/Vegetables/Carrots",
-    "milk": "GroceryStoreDataset/dataset/test/Packages/Milk",
-    "yogurt": "GroceryStoreDataset/dataset/test/Packages/Yoghurt",
-    "orange-juice": "GroceryStoreDataset/dataset/test/Packages/Juice",
-    "lettuce": "GroceryStoreDataset/dataset/test/Vegetables/Cabbage",  # closest match
-    # Add remaining categories with closest matches
+
+    # Vegetables
+    "onions": "GroceryStoreDataset/dataset/test/Vegetables/Onion/Yellow-Onion",
+    "potatoes": "GroceryStoreDataset/dataset/test/Vegetables/Potato/Solid-Potato",
+    "lettuce": "GroceryStoreDataset/dataset/test/Vegetables/Cabbage",
+
+    # Packages - images are in brand subdirectories
+    "milk": "GroceryStoreDataset/dataset/test/Packages/Milk/Arla-Standard-Milk",
+    "yogurt": "GroceryStoreDataset/dataset/test/Packages/Yoghurt/Yoggi-Vanilla-Yoghurt",
+    "orange-juice": "GroceryStoreDataset/dataset/test/Packages/Juice/Bravo-Orange-Juice",
 }
 
 def copy_images():
