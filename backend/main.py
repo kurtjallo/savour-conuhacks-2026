@@ -3,6 +3,7 @@ from typing import Any
 import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from database import stores_collection, categories_collection
 from models import (
     Store, StoresResponse, CategorySummary, CategoriesResponse,
@@ -24,6 +25,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount static files for local images
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = "gemini-2.5-flash"

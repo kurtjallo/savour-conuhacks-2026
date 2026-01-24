@@ -34,3 +34,7 @@ dist/
 ### OS
 .DS_Store
 Thumbs.db
+
+# Kaggle dataset
+GroceryStoreDataset/
+grocery-store-dataset.zip
