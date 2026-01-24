@@ -15,7 +15,8 @@ export async function getCategories(): Promise<Category[]> {
   if (!response.ok) {
     throw new Error('Failed to fetch categories');
   }
-  return response.json();
+  const data = await response.json();
+  return data.categories || data;
 }
 
 export async function searchCategories(q: string): Promise<Category[]> {
@@ -23,7 +24,8 @@ export async function searchCategories(q: string): Promise<Category[]> {
   if (!response.ok) {
     throw new Error('Failed to search categories');
   }
-  return response.json();
+  const data = await response.json();
+  return data.categories || data;
 }
 
 export async function getCategory(id: string): Promise<Category> {

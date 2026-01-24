@@ -3,6 +3,7 @@ import { BasketProvider } from './context/BasketContext';
 import HomeScreen from './screens/HomeScreen';
 import CategoryScreen from './screens/CategoryScreen';
 import BasketScreen from './screens/BasketScreen';
+import AllProductsScreen from './screens/AllProductsScreen';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomeScreen />} />
+          <Route path="/products" element={<AllProductsScreen />} />
           <Route path="/category/:id" element={<CategoryScreen />} />
           <Route path="/basket" element={<BasketScreen />} />
         </Routes>

@@ -15,6 +15,7 @@ export interface Category {
   cheapest_price: number;
   most_expensive_store: string;
   most_expensive_price: number;
+  previous_price?: number;
 }
 
 export interface BasketItem {

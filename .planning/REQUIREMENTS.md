@@ -13,17 +13,17 @@
 
 ### All Products Page
 
-- [ ] **PROD-01**: Create `/products` route in React Router
-- [ ] **PROD-02**: All Products page displays 15 products in responsive grid
-- [ ] **PROD-03**: Product card shows product image
-- [ ] **PROD-04**: Product card shows product name
-- [ ] **PROD-05**: Product card shows current cheapest price across all stores
-- [ ] **PROD-06**: Product card shows previous price with strikethrough styling
-- [ ] **PROD-07**: UI matches existing app design (Tailwind, colors, spacing)
+- [x] **PROD-01**: Create `/products` route in React Router
+- [x] **PROD-02**: All Products page displays 15 products in responsive grid
+- [x] **PROD-03**: Product card shows product image
+- [x] **PROD-04**: Product card shows product name
+- [x] **PROD-05**: Product card shows current cheapest price across all stores
+- [x] **PROD-06**: Product card shows previous price with strikethrough styling
+- [x] **PROD-07**: UI matches existing app design (Tailwind, colors, spacing)
 
 ### Navigation
 
-- [ ] **NAV-01**: Add "All Products" link to app navigation
+- [x] **NAV-01**: Add "All Products" link to app navigation
 
 ## v1.1 Requirements (Web Migration) — Complete
 
@@ -72,14 +72,14 @@
 | DATA-01 | Phase 9: Price History Data | Complete |
 | DATA-02 | Phase 9: Price History Data | Complete |
 | DATA-03 | Phase 9: Price History Data | Complete |
-| PROD-01 | Phase 10: All Products Page | Pending |
-| PROD-02 | Phase 10: All Products Page | Pending |
-| PROD-03 | Phase 10: All Products Page | Pending |
-| PROD-04 | Phase 10: All Products Page | Pending |
-| PROD-05 | Phase 10: All Products Page | Pending |
-| PROD-06 | Phase 10: All Products Page | Pending |
-| PROD-07 | Phase 10: All Products Page | Pending |
-| NAV-01 | Phase 10: All Products Page | Pending |
+| PROD-01 | Phase 10: All Products Page | Complete |
+| PROD-02 | Phase 10: All Products Page | Complete |
+| PROD-03 | Phase 10: All Products Page | Complete |
+| PROD-04 | Phase 10: All Products Page | Complete |
+| PROD-05 | Phase 10: All Products Page | Complete |
+| PROD-06 | Phase 10: All Products Page | Complete |
+| PROD-07 | Phase 10: All Products Page | Complete |
+| NAV-01 | Phase 10: All Products Page | Complete |
 
 **Coverage:**
 - v1.2 requirements: 11 total
