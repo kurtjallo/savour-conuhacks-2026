@@ -1,13 +1,14 @@
-# Roadmap: InflationFighter Web Migration
+# Roadmap: InflationFighter
 
 ## Overview
 
-Migrate from React Native/Expo mobile app to React/Vite web app. Remove all mobile code, create web frontend with same features: category browsing, price comparison, basket optimization. Backend stays unchanged.
+Grocery price comparison app for Canadian shoppers. Browse products, compare prices across stores, build baskets, and see optimized shopping strategies with savings calculations.
 
 ## Milestones
 
 - ✅ **v1.0 Mobile App** - Phases 1-5 (completed 2025-01-24)
 - ✅ **v1.1 Web Migration** - Phases 6-8 (completed 2026-01-24)
+- 🚧 **v1.2 All Products Page** - Phases 9-10 (in progress)
 
 ## Phases
 
@@ -48,6 +49,39 @@ Migrate from React Native/Expo mobile app to React/Vite web app. Remove all mobi
 
 </details>
 
+### 🚧 v1.2 All Products Page (In Progress)
+
+**Milestone Goal:** Add dedicated All Products page with images, price history tracking
+
+#### Phase 9: Price History Data ✅
+**Goal**: Add previous_price field to database and API
+**Depends on**: Phase 8
+**Requirements**: DATA-01, DATA-02, DATA-03
+**Success Criteria** (what must be TRUE):
+  1. ✓ Categories in database have previous_price field
+  2. ✓ All 25 categories have sample previous prices seeded
+  3. ✓ API returns previous_price in category responses
+**Status**: Complete
+**Plans**: 1 plan
+
+Plans:
+- [x] 09-01: Schema and seed updates
+
+#### Phase 10: All Products Page
+**Goal**: Create All Products page with product grid, images, and price display
+**Depends on**: Phase 9
+**Requirements**: PROD-01, PROD-02, PROD-03, PROD-04, PROD-05, PROD-06, PROD-07, NAV-01
+**Success Criteria** (what must be TRUE):
+  1. User can navigate to /products from app navigation
+  2. All 15 products display in responsive grid
+  3. Each product shows image, name, current cheapest price
+  4. Previous price displays with strikethrough styling
+  5. UI matches existing app design (Tailwind, colors, spacing)
+**Plans**: TBD
+
+Plans:
+- [ ] 10-01: All Products page implementation
+
 ## Progress
 
 | Phase | Milestone | Status | Completed |
@@ -56,8 +90,10 @@ Migrate from React Native/Expo mobile app to React/Vite web app. Remove all mobi
 | 6. Cleanup Mobile | v1.1 | Complete | 2026-01-24 |
 | 7. Web Foundation | v1.1 | Complete | 2026-01-24 |
 | 8. Web UI | v1.1 | Complete | 2026-01-24 |
+| 9. Price History Data | v1.2 | Complete | 2026-01-24 |
+| 10. All Products Page | v1.2 | Not started | - |
 
 ---
 *Created: 2026-01-24*
-*Completed: 2026-01-24*
-*Milestone: Web Migration from React Native*
+*Last updated: 2026-01-24*
+*Current milestone: v1.2 All Products Page*

@@ -8,29 +8,42 @@ A grocery price comparison app that shows Canadians where to shop to save money.
 
 Show users exactly how much they can save by shopping smarter — with real numbers, not vague advice.
 
+## Current Milestone: v1.2 All Products Page
+
+**Goal:** Add a dedicated "All Products" page that displays every product with images, names, current cheapest price, and historical price changes.
+
+**Target features:**
+- All Products page showing all 15 items in a visual grid
+- Product images, names, current cheapest price displayed per card
+- Price history tracking (previous price vs current price)
+- Visual indicator for price changes (up/down)
+
 ## Requirements
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Browse 15 product categories with prices from 5 stores — v1.0
+- ✓ Search categories by name — v1.0
+- ✓ View price comparison for each category — v1.0
+- ✓ Add items to basket with quantity — v1.0
+- ✓ Basket persists across page refreshes — v1.0
+- ✓ Analyze basket optimization — v1.0
+- ✓ Mobile-responsive web UI — v1.1
 
 ### Active
 
-- [ ] Browse 15 product categories with prices from 5 stores
-- [ ] Search categories by name
-- [ ] View price comparison for each category (ranked cheapest to most expensive)
-- [ ] Add items to basket with quantity
-- [ ] Basket persists across page refreshes (localStorage)
-- [ ] Analyze basket: best single store vs multi-store optimal vs worst case
-- [ ] Calculate savings percentage and annual savings projection
-- [ ] Mobile-responsive UI for demo flexibility
+- [ ] All Products page with visual product grid
+- [ ] Display product images on All Products page
+- [ ] Show current cheapest price per product
+- [ ] Track and display previous prices (price history)
+- [ ] Visual price change indicators
 
 ### Out of Scope
 
 - Real-time price scraping — legal concerns, manual/hardcoded data for MVP
 - User accounts / authentication — not needed for demo
 - Store location / proximity routing — adds complexity, not core value
-- Price history charts — stretch goal, cut for time
+- Price history charts — could be future enhancement, not in v1.2
 - Receipt scanning — post-hackathon feature
 - Price alerts / notifications — post-hackathon feature
 
@@ -58,12 +71,13 @@ Show users exactly how much they can save by shopping smarter — with real numb
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Python FastAPI over Node.js backend | Easier JSON handling, quick API development | ✅ Working |
-| MongoDB over PostgreSQL | Flexible schema for product data, free Atlas tier | ✅ Working |
-| Hardcoded prices for MVP | Avoid legal issues with scraping, faster development | ✅ Working |
-| 15 products × 5 stores | Enough variety for compelling demo without data collection overload | ✅ Working |
-| Single-store + multi-store optimization | Shows value of both convenience and maximum savings | ✅ Working |
-| React/Vite over React Native | Web is simpler than mobile, faster development, easier to demo | — Active |
+| Python FastAPI over Node.js backend | Easier JSON handling, quick API development | ✓ Working |
+| MongoDB over PostgreSQL | Flexible schema for product data, free Atlas tier | ✓ Working |
+| Hardcoded prices for MVP | Avoid legal issues with scraping, faster development | ✓ Working |
+| 15 products × 5 stores | Enough variety for compelling demo without data collection overload | ✓ Working |
+| Single-store + multi-store optimization | Shows value of both convenience and maximum savings | ✓ Working |
+| React/Vite over React Native | Web is simpler than mobile, faster development, easier to demo | ✓ Working |
+| Price history in MongoDB | Store previous_prices array per category for history tracking | — Pending |
 
 ---
-*Last updated: 2026-01-24 — Migrating from React Native to web*
+*Last updated: 2026-01-24 — Starting milestone v1.2 All Products Page*
