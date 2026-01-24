@@ -1,8 +1,15 @@
 import { Category, CategoryDetail, Store, BasketAnalysis } from './types';
 
-// For development: use your computer's IP address instead of localhost
-// Run `ipconfig getifaddr en0` on Mac to get your IP
-const API_BASE = 'http://localhost:8000';
+// API Configuration:
+// - Simulator: Can use http://localhost:8000 or http://YOUR_IP:8000
+// - Physical device (Expo Go): MUST use HTTPS (ngrok tunnel)
+//   Run: ngrok http 8000
+//   Then set: EXPO_PUBLIC_API_URL=https://YOUR-NGROK-URL.ngrok-free.app
+//
+// Note: Expo Go ignores ATS exceptions in app.json, so HTTPS is required
+// for physical iOS devices. Use a development build (expo-dev-client) if
+// you need custom ATS settings without ngrok.
+const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
 export async function getStores(): Promise<Store[]> {
   const res = await fetch(`${API_BASE}/api/stores`);

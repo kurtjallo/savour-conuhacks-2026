@@ -15,11 +15,18 @@ export interface Category {
   savings_percent: number;
 }
 
+export interface DealInfo {
+  sale_price: number;
+  regular_price: number;
+  ends: string; // Date string like "2025-01-31"
+}
+
 export interface PriceEntry {
   store_id: string;
   store_name: string;
   price: number;
   color: string;
+  deal?: DealInfo;
 }
 
 export interface CategoryDetail {
@@ -27,6 +34,8 @@ export interface CategoryDetail {
   name: string;
   icon: string;
   unit: string;
+  unit_qty?: number;
+  standard_unit?: string;
   prices: PriceEntry[];
 }
 
@@ -52,6 +61,7 @@ export interface MultiStoreItem {
   store_name: string;
   price: number;
   quantity: number;
+  color: string;
 }
 
 export interface BasketAnalysis {

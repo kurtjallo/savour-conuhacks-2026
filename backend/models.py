@@ -8,6 +8,12 @@ class Store(BaseModel):
     color: str
 
 
+class DealInfo(BaseModel):
+    sale_price: float
+    regular_price: float
+    ends: str  # Date string like "2025-01-31"
+
+
 class StoresResponse(BaseModel):
     stores: list[Store]
 
@@ -32,6 +38,7 @@ class PriceEntry(BaseModel):
     store_name: str
     price: float
     color: str
+    deal: Optional[DealInfo] = None
 
 
 class CategoryDetail(BaseModel):
@@ -39,6 +46,8 @@ class CategoryDetail(BaseModel):
     name: str
     icon: str
     unit: str
+    unit_qty: Optional[float] = None
+    standard_unit: Optional[str] = None
     prices: list[PriceEntry]
 
 
@@ -65,6 +74,7 @@ class MultiStoreItem(BaseModel):
     store_name: str
     price: float
     quantity: int
+    color: str
 
 
 class BasketAnalysis(BaseModel):

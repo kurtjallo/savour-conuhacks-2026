@@ -1,63 +1,73 @@
-import React from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { colors, spacing, fontSizes } from '../lib/theme';
+import React, { useRef } from 'react';
+import { View, TextInput, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { spacing, fontSizes } from '../lib/theme';
 
 interface Props {
   value: string;
   onChangeText: (text: string) => void;
-  onSubmit: () => void;
   placeholder?: string;
+  onClear?: () => void;
 }
 
-export default function SearchBar({ value, onChangeText, onSubmit, placeholder }: Props) {
+export default function SearchBar({ value, onChangeText, placeholder, onClear }: Props) {
+  const inputRef = useRef<TextInput>(null);
+
+  const handleClear = () => {
+    onChangeText('');
+    onClear?.();
+    inputRef.current?.focus();
+  };
+
+  const handleContainerPress = () => {
+    inputRef.current?.focus();
+  };
+
   return (
-    <View style={styles.container}>
+    <Pressable style={styles.container} onPress={handleContainerPress}>
+      <Ionicons name="search" size={20} color="#9CA3AF" style={styles.searchIcon} />
       <TextInput
+        ref={inputRef}
         style={styles.input}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder || 'Search for eggs, milk, bread...'}
-        placeholderTextColor={colors.textSecondary}
+        placeholderTextColor="#9CA3AF"
         returnKeyType="search"
-        onSubmitEditing={onSubmit}
+        autoCorrect={false}
+        autoCapitalize="none"
+        clearButtonMode="never"
       />
-      <TouchableOpacity style={styles.button} onPress={onSubmit}>
-        <Text style={styles.buttonText}>Search</Text>
-      </TouchableOpacity>
-    </View>
+      {value.length > 0 && (
+        <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
+          <Ionicons name="close-circle" size={20} color="#9CA3AF" />
+        </TouchableOpacity>
+      )}
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: colors.white,
-    borderRadius: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 5,
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    borderRadius: 12,
+    paddingHorizontal: spacing.md,
+  },
+  searchIcon: {
+    marginRight: spacing.sm,
   },
   input: {
     flex: 1,
-    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     fontSize: fontSizes.lg,
-    color: colors.text,
+    color: '#1A1A1A',
   },
-  button: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderRadius: 30,
-    marginRight: 4,
-    marginVertical: 4,
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: colors.white,
-    fontWeight: '600',
-    fontSize: fontSizes.md,
+  clearButton: {
+    padding: spacing.sm,
+    marginLeft: spacing.sm,
   },
 });

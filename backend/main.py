@@ -5,7 +5,7 @@ from database import stores_collection, categories_collection
 from models import (
     Store, StoresResponse, CategorySummary, CategoriesResponse,
     PriceEntry, CategoryDetail, BasketRequest, BasketAnalysis,
-    StoreTotal, MultiStoreItem
+    StoreTotal, MultiStoreItem, DealInfo
 )
 
 app = FastAPI(
@@ -114,15 +114,24 @@ async def get_category(category_id: str):
     stores = {s["store_id"]: s for s in await stores_collection.find({}).to_list(100)}
 
     prices = category.get("prices", {})
-    price_entries = [
-        PriceEntry(
+    deals = category.get("deals", {})
+
+    price_entries = []
+    for store_id, price in prices.items():
+        deal_data = deals.get(store_id)
+        deal = DealInfo(**deal_data) if deal_data else None
+
+        # Use sale price for sorting if there's an active deal
+        effective_price = deal.sale_price if deal else price
+
+        price_entries.append(PriceEntry(
             store_id=store_id,
             store_name=stores.get(store_id, {}).get("name", store_id),
-            price=price,
-            color=stores.get(store_id, {}).get("color", "#000000")
-        )
-        for store_id, price in prices.items()
-    ]
+            price=effective_price,
+            color=stores.get(store_id, {}).get("color", "#000000"),
+            deal=deal
+        ))
+
     price_entries.sort(key=lambda x: x.price)
 
     return CategoryDetail(
@@ -130,6 +139,8 @@ async def get_category(category_id: str):
         name=category["name"],
         icon=category.get("icon", ""),
         unit=category.get("unit", ""),
+        unit_qty=category.get("unit_qty"),
+        standard_unit=category.get("standard_unit"),
         prices=price_entries
     )
 
@@ -187,7 +198,8 @@ async def analyze_basket(request: BasketRequest):
             store_id=cheapest_store_id,
             store_name=stores[cheapest_store_id]["name"],
             price=cheapest_price,
-            quantity=item.quantity
+            quantity=item.quantity,
+            color=stores[cheapest_store_id]["color"]
         ))
         multi_store_total += cheapest_price * item.quantity
 
