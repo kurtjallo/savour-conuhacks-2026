@@ -64,7 +64,8 @@ async def get_categories():
             cheapest_store=cheapest_store_id,
             cheapest_price=cheapest_price,
             most_expensive_price=most_expensive_price,
-            savings_percent=savings_percent
+            savings_percent=savings_percent,
+            previous_price=cat.get("previous_price")
         ))
 
     return {"categories": result}
@@ -101,7 +102,8 @@ async def search_categories(q: str = Query(..., min_length=1)):
             cheapest_store=cheapest_store_id,
             cheapest_price=cheapest_price,
             most_expensive_price=most_expensive_price,
-            savings_percent=savings_percent
+            savings_percent=savings_percent,
+            previous_price=cat.get("previous_price")
         ))
 
     return {"categories": result}
@@ -144,6 +146,7 @@ async def get_category(category_id: str):
         image_url=category.get("image_url"),
         unit_qty=category.get("unit_qty"),
         standard_unit=category.get("standard_unit"),
+        previous_price=category.get("previous_price"),
         prices=price_entries
     )
 
