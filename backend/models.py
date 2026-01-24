@@ -85,3 +85,30 @@ class BasketAnalysis(BaseModel):
     savings_vs_worst: float
     savings_percent: int
     annual_projection: float
+
+
+class RecipeGenerateRequest(BaseModel):
+    ingredients: list[str] = []
+    dietary: list[str] = []
+    exclude: list[str] = []
+    cuisine: Optional[str] = None
+    meal_type: Optional[str] = None
+    servings: int = 2
+    time_minutes: Optional[int] = None
+    budget_cad: Optional[float] = None
+    use_deals: bool = True
+    max_items: int = 12
+
+
+class RetrievedItem(BaseModel):
+    category_id: str
+    name: str
+    unit: str
+    cheapest_store: str
+    cheapest_price: float
+    deal: Optional[DealInfo] = None
+
+
+class RecipeGenerateResponse(BaseModel):
+    recipe_text: str
+    rag_items: list[RetrievedItem]

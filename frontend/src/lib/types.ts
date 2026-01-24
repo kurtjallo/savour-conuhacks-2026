@@ -52,3 +52,23 @@ export interface BasketAnalysis {
   savings_percent: number;
   annual_projection: number;
 }
+
+export interface DealInfo {
+  sale_price: number;
+  regular_price: number;
+  ends: string;
+}
+
+export interface RetrievedItem {
+  category_id: string;
+  name: string;
+  unit: string;
+  cheapest_store: string;
+  cheapest_price: number;
+  deal?: DealInfo;
+}
+
+export interface RecipeGenerateResponse {
+  recipe_text: string;
+  rag_items: RetrievedItem[];
+}
