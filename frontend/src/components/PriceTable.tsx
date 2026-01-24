@@ -1,8 +1,7 @@
-import type { Store } from '../lib/types';
+import type { PriceEntry } from '../lib/types';
 
 interface PriceTableProps {
-  prices: Record<string, number>;
-  stores: Store[];
+  prices: PriceEntry[];
   unit: string;
 }
 
@@ -15,13 +14,12 @@ interface PriceRow {
 }
 
 export default function PriceTable({ prices, stores, unit }: PriceTableProps) {
-  // Build price rows with store names
-  const priceRows: PriceRow[] = stores
-    .filter((store) => prices[store.store_id] !== undefined)
-    .map((store) => ({
-      store_id: store.store_id,
-      store_name: store.name,
-      price: prices[store.store_id],
+export default function PriceTable({ prices, unit }: PriceTableProps) {
+  const priceRows: PriceRow[] = prices
+    .map((entry) => ({
+      store_id: entry.store_id,
+      store_name: entry.store_name,
+      price: entry.price,
       rank: 0,
       savingsPercent: 0,
     }))

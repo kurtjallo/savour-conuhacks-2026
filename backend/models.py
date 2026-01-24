@@ -52,6 +52,8 @@ class CategoryDetail(BaseModel):
     unit_qty: Optional[float] = None
     standard_unit: Optional[str] = None
     previous_price: Optional[float] = None
+    description: Optional[str] = None
+    availability: Optional[str] = None
     prices: list[PriceEntry]
 
 

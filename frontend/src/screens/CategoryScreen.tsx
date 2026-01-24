@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import type { Category, Store } from '../lib/types';
-import { getCategory, getStores } from '../lib/api';
+import type { CategoryDetail, PriceEntry } from '../lib/types';
+import { getCategory } from '../lib/api';
 import PriceTable from '../components/PriceTable';
 import AddToBasket from '../components/AddToBasket';
 import { useBasket } from '../context/BasketContext';
@@ -11,8 +11,7 @@ export default function CategoryScreen() {
   const navigate = useNavigate();
   const { totalCount } = useBasket();
 
-  const [category, setCategory] = useState<Category | null>(null);
-  const [stores, setStores] = useState<Store[]>([]);
+  const [category, setCategory] = useState<CategoryDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,13 +27,8 @@ export default function CategoryScreen() {
         setLoading(true);
         setError(null);
 
-        const [categoryData, storesData] = await Promise.all([
-          getCategory(id),
-          getStores(),
-        ]);
-
+        const categoryData = await getCategory(id);
         setCategory(categoryData);
-        setStores(storesData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load data');
       } finally {
@@ -102,6 +96,31 @@ export default function CategoryScreen() {
     );
   }
 
+  const sortedPrices = useMemo<PriceEntry[]>(() => {
+    if (!category) {
+      return [];
+    }
+    return [...category.prices].sort((a, b) => a.price - b.price);
+  }, [category]);
+
+  const bestPrice = sortedPrices[0];
+  const availabilityText = category.availability
+    ? category.availability
+    : sortedPrices.length > 0
+      ? `Available at ${sortedPrices.length} retailer${sortedPrices.length === 1 ? '' : 's'}`
+      : 'Currently unavailable';
+
+  const descriptionText = category.description
+    ? category.description
+    : `Compare ${category.name} pricing across Canadian grocers and add it to your cart in one tap.`;
+
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat('en-CA', {
+      style: 'currency',
+      currency: 'CAD',
+    }).format(price);
+  };
+
   return (
     <div className="min-h-screen bg-savour-bg">
       {/* Header */}
@@ -158,13 +177,39 @@ export default function CategoryScreen() {
           <p className="text-savour-text-secondary text-sm">per {category.unit}</p>
         </div>
 
+        {/* Item Details Summary */}
+        <div className="bg-white border border-savour-border rounded-2xl p-6 mb-10">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-savour-text-secondary">Best price</p>
+                <p className="text-2xl font-semibold text-savour-text">
+                  {bestPrice ? formatPrice(bestPrice.price) : 'N/A'}
+                </p>
+                {bestPrice && (
+                  <p className="text-sm text-savour-text-secondary">at {bestPrice.store_name}</p>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-savour-savings-light text-savour-savings">
+                  {availabilityText}
+                </span>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-savour-text-secondary mb-2">Description</p>
+              <p className="text-savour-text text-sm leading-relaxed">{descriptionText}</p>
+            </div>
+          </div>
+        </div>
+
         {/* Price Comparison Section */}
         <div className="mb-10">
           <div className="mb-6">
             <h2 className="text-lg font-medium text-savour-text mb-1">Price Comparison</h2>
             <p className="text-savour-text-secondary text-sm">across 5 Canadian retailers</p>
           </div>
-          <PriceTable prices={category.prices} stores={stores} unit={category.unit} />
+          <PriceTable prices={sortedPrices} unit={category.unit} />
         </div>
 
         {/* Add to Basket Section */}

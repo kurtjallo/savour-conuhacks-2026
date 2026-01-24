@@ -16,6 +16,8 @@ export interface Category {
   most_expensive_store: string;
   most_expensive_price: number;
   previous_price?: number;
+  description?: string;
+  availability?: string;
 }
 
 export interface BasketItem {
@@ -59,6 +61,28 @@ export interface DealInfo {
   sale_price: number;
   regular_price: number;
   ends: string;
+}
+
+export interface PriceEntry {
+  store_id: string;
+  store_name: string;
+  price: number;
+  color: string;
+  deal?: DealInfo;
+}
+
+export interface CategoryDetail {
+  category_id: string;
+  name: string;
+  icon: string;
+  unit: string;
+  image_url?: string;
+  unit_qty?: number;
+  standard_unit?: string;
+  previous_price?: number;
+  prices: PriceEntry[];
+  description?: string;
+  availability?: string;
 }
 
 export interface RetrievedItem {

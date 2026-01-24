@@ -3,7 +3,7 @@ import type { Category } from '../lib/types';
 import { useBasket } from '../context/BasketContext';
 
 interface AddToBasketProps {
-  category: Category;
+  category: Pick<Category, 'category_id' | 'name' | 'icon' | 'unit'>;
   onAdd?: () => void;
 }
 
@@ -102,10 +102,10 @@ export default function AddToBasket({ category, onAdd }: AddToBasketProps) {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            <span>Added to basket</span>
+            <span>Added to cart</span>
           </>
         ) : (
-          <span>Add {quantity} {category.unit} to basket</span>
+          <span>Add to cart · {quantity} {category.unit}</span>
         )}
       </button>
     </div>

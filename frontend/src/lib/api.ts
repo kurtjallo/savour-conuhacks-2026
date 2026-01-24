@@ -1,4 +1,4 @@
-import type { Store, Category, BasketAnalysis, RecipeGenerateResponse } from './types';
+import type { Store, Category, CategoryDetail, BasketAnalysis, RecipeGenerateResponse } from './types';
 
 const API_BASE = "http://localhost:8000";
 
@@ -28,7 +28,7 @@ export async function searchCategories(q: string): Promise<Category[]> {
   return data.categories || data;
 }
 
-export async function getCategory(id: string): Promise<Category> {
+export async function getCategory(id: string): Promise<CategoryDetail> {
   const response = await fetch(`${API_BASE}/api/categories/${encodeURIComponent(id)}`);
   if (!response.ok) {
     throw new Error('Failed to fetch category');

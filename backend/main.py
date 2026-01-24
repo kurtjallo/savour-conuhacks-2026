@@ -158,6 +158,8 @@ async def get_category(category_id: str):
         unit_qty=category.get("unit_qty"),
         standard_unit=category.get("standard_unit"),
         previous_price=category.get("previous_price"),
+        description=category.get("description"),
+        availability=category.get("availability"),
         prices=price_entries
     )
 
