@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-InflationFighter is a grocery price comparison mobile app for Canadian shoppers. Users browse 15 common grocery items, compare prices across 5 major stores, build a basket, and see optimized shopping strategies with savings calculations.
+InflationFighter is a grocery price comparison web app for Canadian shoppers. Users browse 15 common grocery items, compare prices across 5 major stores, build a basket, and see optimized shopping strategies with savings calculations.
 
 **Core value:** Show users exactly how much they can save by shopping smarter — with real numbers, not vague advice.
 
@@ -12,8 +12,8 @@ InflationFighter is a grocery price comparison mobile app for Canadian shoppers.
 |-------|------------|
 | Backend | Python FastAPI |
 | Database | MongoDB Atlas |
-| Mobile | React Native / Expo + TypeScript |
-| Deployment | Railway (backend) + Expo/EAS (mobile) |
+| Frontend | React + TypeScript (Vite) |
+| Deployment | Railway (backend) + Vercel/Netlify (frontend) |
 
 ## Project Structure
 
@@ -27,27 +27,31 @@ groceryPriec/
 │   ├── scripts/
 │   │   └── seed_db.py       # Database seeding script
 │   └── Procfile             # Railway deployment
-├── mobile/
-│   ├── App.tsx              # Main app with navigation
+├── frontend/
+│   ├── index.html           # Vite entry point
+│   ├── vite.config.ts       # Vite configuration
 │   ├── src/
-│   │   ├── screens/
-│   │   │   ├── HomeScreen.tsx      # Category grid + search
-│   │   │   ├── CategoryScreen.tsx  # Price comparison table
-│   │   │   └── BasketScreen.tsx    # Basket with optimization
+│   │   ├── main.tsx         # React app entry
+│   │   ├── App.tsx          # Main app with routing
+│   │   ├── pages/
+│   │   │   ├── HomePage.tsx        # Category grid + search
+│   │   │   ├── CategoryPage.tsx    # Price comparison table
+│   │   │   └── BasketPage.tsx      # Basket with optimization
 │   │   ├── components/
 │   │   │   ├── CategoryCard.tsx    # Product card
 │   │   │   ├── SearchBar.tsx       # Search input
 │   │   │   └── AddToBasket.tsx     # Quantity selector
 │   │   ├── context/
-│   │   │   └── BasketContext.tsx   # Basket state + AsyncStorage
+│   │   │   └── BasketContext.tsx   # Basket state + localStorage
 │   │   ├── lib/
 │   │   │   ├── api.ts              # API client functions
 │   │   │   ├── types.ts            # TypeScript interfaces
 │   │   │   ├── icons.ts            # Emoji icon mapping
 │   │   │   └── theme.ts            # Colors, spacing, fonts
-│   │   └── navigation/
-│   │       └── types.ts            # Navigation type definitions
-│   └── package.json
+│   │   └── styles/
+│   │       └── index.css           # Global styles
+│   ├── package.json
+│   └── tsconfig.json
 └── .planning/                       # GSD planning files
 ```
 
@@ -62,12 +66,11 @@ python scripts/seed_db.py  # Seed database (once)
 uvicorn main:app --reload  # Runs on :8000
 ```
 
-### Mobile
+### Frontend
 ```bash
-cd mobile
+cd frontend
 npm install
-npx expo start
-# Press 'i' for iOS Simulator, 'a' for Android Emulator
+npm run dev  # Runs on :5173
 ```
 
 ## API Endpoints
@@ -105,11 +108,11 @@ Returns `single_store_best`, `single_store_worst`, `multi_store_optimal`, `savin
 
 ## Key Patterns
 
-1. **Basket persistence**: Uses AsyncStorage via BasketContext
-2. **API base URL**: Configured in `mobile/src/lib/api.ts` (localhost:8000 for dev)
+1. **Basket persistence**: Uses localStorage via BasketContext
+2. **API base URL**: Configured in `frontend/src/lib/api.ts` (localhost:8000 for dev)
 3. **Price calculations**: Cheapest/most expensive computed on the fly from prices object
-4. **Icons**: Mapped from icon string to emoji in `mobile/src/lib/icons.ts`
-5. **Navigation**: React Navigation with Stack navigator (Home → Category → Basket)
+4. **Icons**: Mapped from icon string to emoji in `frontend/src/lib/icons.ts`
+5. **Routing**: React Router with routes (/ → /category/:id → /basket)
 
 ## Environment Variables
 
@@ -118,10 +121,10 @@ Returns `single_store_best`, `single_store_worst`, `multi_store_optimal`, `savin
 MONGODB_URI=mongodb+srv://...
 ```
 
-### Mobile
-API_BASE is configured in `mobile/src/lib/api.ts`. For physical device testing, update to your computer's IP address.
+### Frontend
+API_BASE is configured in `frontend/src/lib/api.ts`. For production, set via environment variable `VITE_API_BASE`.
 
 ## Deployment
 
 - **Backend**: Push to GitHub, deploy on Railway with `MONGODB_URI` env var
-- **Mobile**: Use Expo EAS Build for iOS/Android builds
+- **Frontend**: Push to GitHub, deploy on Vercel or Netlify (auto-detects Vite)
