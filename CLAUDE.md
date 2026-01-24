@@ -128,3 +128,9 @@ API_BASE is configured in `frontend/src/lib/api.ts`. For production, set via env
 
 - **Backend**: Push to GitHub, deploy on Railway with `MONGODB_URI` env var
 - **Frontend**: Push to GitHub, deploy on Vercel or Netlify (auto-detects Vite)
+
+## Git Commit Rules
+
+- Do NOT include "Co-Authored-By: Claude" in commit messages
+- Do NOT include "Generated with Claude Code" or similar attribution in PRs or commits
+- Keep commit messages and PR descriptions focused on the changes only
