@@ -108,49 +108,180 @@ def load_products_from_csv():
     # Remove duplicates by title
     df = df.drop_duplicates(subset=['title'])
 
-    # Select diverse products - prioritize common grocery items
-    priority_keywords = [
-        # Dairy
-        'milk', 'butter', 'cheese', 'yogurt', 'cream', 'sour cream',
-        # Eggs
-        'egg',
-        # Bread & Bakery
-        'bread', 'bagel', 'muffin', 'croissant', 'bun', 'tortilla', 'pita',
-        # Fresh Produce - Fruits
-        'apple', 'banana', 'orange', 'grape', 'strawberry', 'blueberry', 'lemon', 'lime', 'avocado', 'mango', 'pear', 'peach',
-        # Fresh Produce - Vegetables
-        'tomato', 'potato', 'onion', 'carrot', 'lettuce', 'spinach', 'broccoli', 'pepper', 'cucumber', 'celery', 'mushroom', 'corn', 'zucchini', 'cabbage', 'kale', 'garlic', 'ginger',
-        # Proteins
-        'chicken', 'beef', 'pork', 'fish', 'salmon', 'shrimp', 'bacon', 'sausage', 'ham', 'turkey', 'ground', 'steak', 'tuna',
-        # Pantry Staples
-        'rice', 'pasta', 'flour', 'sugar', 'salt', 'oil', 'vinegar', 'sauce', 'ketchup', 'mustard', 'mayo', 'salsa',
-        # Canned Goods
-        'canned', 'beans', 'soup', 'tomato sauce', 'broth',
-        # Breakfast & Cereal
-        'cereal', 'oat', 'granola', 'pancake', 'syrup',
-        # Beverages
-        'coffee', 'tea', 'juice', 'water', 'soda', 'pop',
-        # Snacks
-        'chips', 'cracker', 'cookie', 'chocolate', 'nuts', 'popcorn', 'pretzel',
-        # Frozen
-        'ice cream', 'pizza', 'frozen', 'fries',
-        # Other
-        'honey', 'jam', 'peanut butter', 'almond'
+    # Select diverse products - ESSENTIALS FIRST, then other items
+    # Order matters! Products are added in keyword order, so essentials appear at top
+
+    # TIER 1: Specific search patterns for basic essentials
+    # These are tuples of (pattern, exclude_words) to allow per-keyword filtering
+    essential_searches = [
+        # Eggs - exclude chocolate/candy eggs
+        (r'\beggs?,\s*(large|medium|extra large|small|free)', ['chocolate', 'candy', 'easter', 'surprise', 'mini']),
+        (r'large.*eggs|eggs.*large', ['chocolate', 'candy', 'easter', 'surprise', 'mini']),
+        # Milk
+        (r'^milk,?\s*\d', []),  # "Milk, 2%" etc
+        (r'homogenized milk|whole milk|skim milk', ['chocolate', 'almond', 'oat', 'soy', 'coconut']),
+        # Butter
+        (r'^butter,?\s*(salted|unsalted)?$', ['peanut', 'almond', 'cookie', 'spread']),
+        (r'salted butter|unsalted butter', ['peanut', 'almond', 'cookie']),
+        # Bread
+        (r'^bread,?\s*(white|whole wheat|multigrain)?', ['crumb', 'pudding']),
+        (r'white bread|whole wheat bread|sliced bread', ['crumb', 'pudding']),
+        # Potatoes
+        (r'^potatoes?,?\s*(russet|yellow|red|white)?', ['chip', 'fries', 'salad', 'mashed']),
+        (r'russet potatoes|yellow potatoes|baking potatoes', ['chip', 'fries']),
+        # Onions
+        (r'^(red |yellow |white )?onions?,?\s*\d?', ['rings', 'powder', 'soup']),
+        # Tomatoes
+        (r'^(roma |vine |cherry )?tomatoes?', ['sauce', 'paste', 'soup', 'diced', 'canned']),
+        # Carrots
+        (r'^carrots?,?\s*\d?', ['cake', 'juice', 'baby']),
+        # Lettuce
+        (r'^(romaine |iceberg )?lettuce', ['salad mix']),
+        # Garlic
+        (r'^garlic\s*(bulbs?)?', ['powder', 'bread', 'sauce']),
+        # Bananas
+        (r'^bananas?,?\s*(bunch)?', ['chip', 'dried', 'pepper', 'sliced', 'frozen']),
+        # Apples
+        (r'^(gala |fuji |granny smith |honeycrisp )?apples?', ['juice', 'sauce', 'cider', 'pie', 'bar', 'strawberry', 'fruit']),
+        # Chicken
+        (r'chicken breast|chicken thigh|whole chicken', ['nugget', 'strip', 'finger', 'soup']),
+        # Ground beef
+        (r'(lean |extra lean )?ground beef', ['patty', 'burger']),
+        # Rice
+        (r'^(white |brown |jasmine |basmati )?rice,?\s*\d?', ['cake', 'crisp', 'pudding', 'cereal']),
+        # Pasta
+        (r'^(spaghetti|penne|fusilli|rigatoni|linguine|fettuccine)', ['sauce', 'salad']),
+        # Flour
+        (r'^(all.purpose |bread |whole wheat )?flour', ['tortilla']),
+        # Sugar
+        (r'^(white |brown |granulated )?sugar,?\s*\d?', ['free', 'substitute', 'cone', 'snap']),
+        # Oil
+        (r'^(vegetable |canola |olive |cooking )?oil', ['essential', 'baby', 'oregano', 'fish']),
     ]
+
+    # TIER 2: More common items with exclusions
+    tier2_searches = [
+        (r'^(cheddar |mozzarella |parmesan )?cheese\b', ['spread', 'string', 'processed', 'slice', 'flavored', 'crisps', 'ball', 'puff']),
+        (r'^(greek |plain )?yogurt', ['drink', 'tube', 'covered', 'flavour']),
+        (r'^sour cream\b', ['dip', 'chips', 'chives']),
+        (r'^broccoli\s*(crowns|florets)?$', ['slaw', 'salad', 'beef']),
+        (r'^(bell |green |red |sweet )?peppers?\b', ['stuffed', 'roasted', 'pizza', 'jack', 'cayenne', 'hot']),
+        (r'^(english )?cucumbers?\b', ['pickled', 'salad', 'mint', 'tea', 'facial']),
+        (r'^celery\s*(hearts|stalks)?', ['salt', 'soup']),
+        (r'^(baby )?spinach\b', ['dip', 'salad', 'artichoke']),
+        (r'^(green |red |napa )?cabbage\b', ['roll', 'slaw', 'corned']),
+        (r'^(sweet |canned )?corn\b', ['chip', 'flakes', 'syrup', 'beef', 'nut', 'dog']),
+        (r'^mushrooms?\b', ['soup', 'sauce', 'truffle', 'stuffing']),
+        (r'^ginger\b', ['ale', 'snap', 'cookie']),
+        (r'^(navel )?oranges?\b', ['juice', 'mango', 'sparkling']),
+        (r'^lemons?\b', ['juice', 'aid', 'iced', 'tea']),
+        (r'^(red |green )?grapes\b', ['juice', 'jelly']),
+        (r'^strawberries\b', ['jam', 'syrup']),
+        (r'^blueberries\b', ['jam', 'muffin']),
+        (r'^avocados?\b', ['oil', 'dip', 'chunk']),
+        (r'^(pork )?(loin|chops|tenderloin)', ['processed']),
+        (r'^(atlantic |wild |fresh )?salmon\b', ['smoked', 'canned', 'sashimi']),
+        (r'^bacon\b', ['bits', 'flavour']),
+        (r'^sausages?\b', ['roll']),
+        (r'^bagels?\b', ['chips', 'seasoning']),
+        (r'^(flour |corn )?tortillas?\b', ['chips']),
+        (r'^(hamburger |hot dog )?buns\b', []),
+    ]
+
+    # TIER 3: Pantry staples
+    tier3_searches = [
+        (r'^table salt|^salt,?\s*\d', ['free', 'substitute']),
+        (r'^(white |balsamic |apple cider )?vinegar', []),
+        (r'^ketchup', []),
+        (r'^mustard', ['greens', 'seed']),
+        (r'^(canned |black |kidney |pinto )?beans', ['coffee', 'jelly']),
+        (r'^(chicken |beef |vegetable )?broth', []),
+        (r'^cereal', ['bar']),
+        (r'^(rolled |quick |steel cut )?oats', ['milk', 'bar']),
+        (r'^(ground |instant )?coffee', ['creamer', 'cake']),
+        (r'^(black |green |herbal )?tea\s*(bags)?', ['iced']),
+        (r'^(orange |apple )?juice', ['box']),
+        (r'^honey,?\s*\d?', ['mustard', 'garlic']),
+        (r'^(strawberry |grape )?jam', []),
+        (r'^peanut butter', ['cup', 'cookie']),
+    ]
+
+    # TIER 4: Nice to have
+    tier4_searches = [
+        (r'^(potato )?chips', []),
+        (r'^crackers', []),
+        (r'^(chocolate chip )?cookies', []),
+        (r'^(milk |dark )?chocolate', ['cake', 'milk', 'spread']),
+        (r'^ice cream', ['sandwich', 'bar', 'cone']),
+        (r'^(frozen )?pizza', []),
+        (r'^(spring |bottled )?water', ['coconut', 'sparkling']),
+    ]
+
+    def matches_search(title, pattern, excludes):
+        """Check if title matches pattern and doesn't contain excluded words."""
+        title_lower = title.lower().strip()
+        import re
+        if not re.search(pattern, title_lower):
+            return False
+        return not any(excl in title_lower for excl in excludes)
 
     selected_products = []
     used_titles = set()
 
-    # First pass: get products matching priority keywords
-    for keyword in priority_keywords:
+    # First pass: get ONE product per essential search
+    for pattern, excludes in essential_searches:
         if len(selected_products) >= 100:
             break
-        matches = df[df['title'].str.lower().str.contains(keyword, na=False)]
-        for _, row in matches.iterrows():
+        for _, row in df.iterrows():
+            title = row['title']
+            if title not in used_titles and matches_search(title, pattern, excludes):
+                selected_products.append(row)
+                used_titles.add(title)
+                break
+
+    # Second pass: get ONE product per tier2 search
+    for pattern, excludes in tier2_searches:
+        if len(selected_products) >= 100:
+            break
+        for _, row in df.iterrows():
+            title = row['title']
+            if title not in used_titles and matches_search(title, pattern, excludes):
+                selected_products.append(row)
+                used_titles.add(title)
+                break
+
+    # Third pass: get ONE product per tier3 search
+    for pattern, excludes in tier3_searches:
+        if len(selected_products) >= 100:
+            break
+        for _, row in df.iterrows():
+            title = row['title']
+            if title not in used_titles and matches_search(title, pattern, excludes):
+                selected_products.append(row)
+                used_titles.add(title)
+                break
+
+    # Fourth pass: get ONE product per tier4 search
+    for pattern, excludes in tier4_searches:
+        if len(selected_products) >= 100:
+            break
+        for _, row in df.iterrows():
+            title = row['title']
+            if title not in used_titles and matches_search(title, pattern, excludes):
+                selected_products.append(row)
+                used_titles.add(title)
+                break
+
+    # Fifth pass: fill remaining with any products that have images
+    all_searches = essential_searches + tier2_searches + tier3_searches + tier4_searches
+    for pattern, excludes in all_searches:
+        if len(selected_products) >= 100:
+            break
+        for _, row in df.iterrows():
             if len(selected_products) >= 100:
                 break
             title = row['title']
-            if title not in used_titles:
+            if title not in used_titles and matches_search(title, pattern, excludes):
                 selected_products.append(row)
                 used_titles.add(title)
 
@@ -171,7 +302,7 @@ def create_categories_from_csv():
     products = load_products_from_csv()
     categories = []
 
-    for row in products:
+    for idx, row in enumerate(products):
         title = row['title']
         loblaws_price = float(row['pricing.price']) if pd.notna(row['pricing.price']) else 2.99
         image_url = extract_image_url(row['productImage'])
@@ -209,6 +340,7 @@ def create_categories_from_csv():
             "search_terms": search_terms[:5],  # Limit to 5 search terms
             "prices": prices,
             "previous_price": previous_price,
+            "sort_order": idx,  # Maintain essentials-first ordering
         }
 
         categories.append(category)
