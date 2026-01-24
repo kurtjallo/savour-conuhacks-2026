@@ -13,7 +13,6 @@ interface PriceRow {
   savingsPercent: number;
 }
 
-export default function PriceTable({ prices, stores, unit }: PriceTableProps) {
 export default function PriceTable({ prices, unit }: PriceTableProps) {
   const priceRows: PriceRow[] = prices
     .map((entry) => ({
