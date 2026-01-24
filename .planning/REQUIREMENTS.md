@@ -69,17 +69,17 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 9 | Pending |
-| DATA-02 | Phase 9 | Pending |
-| DATA-03 | Phase 9 | Pending |
-| PROD-01 | Phase 10 | Pending |
-| PROD-02 | Phase 10 | Pending |
-| PROD-03 | Phase 10 | Pending |
-| PROD-04 | Phase 10 | Pending |
-| PROD-05 | Phase 10 | Pending |
-| PROD-06 | Phase 10 | Pending |
-| PROD-07 | Phase 10 | Pending |
-| NAV-01 | Phase 10 | Pending |
+| DATA-01 | Phase 9: Price History Data | Pending |
+| DATA-02 | Phase 9: Price History Data | Pending |
+| DATA-03 | Phase 9: Price History Data | Pending |
+| PROD-01 | Phase 10: All Products Page | Pending |
+| PROD-02 | Phase 10: All Products Page | Pending |
+| PROD-03 | Phase 10: All Products Page | Pending |
+| PROD-04 | Phase 10: All Products Page | Pending |
+| PROD-05 | Phase 10: All Products Page | Pending |
+| PROD-06 | Phase 10: All Products Page | Pending |
+| PROD-07 | Phase 10: All Products Page | Pending |
+| NAV-01 | Phase 10: All Products Page | Pending |
 
 **Coverage:**
 - v1.2 requirements: 11 total

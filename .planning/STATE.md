@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-24)
 
 **Core value:** Show users exactly how much they can save by shopping smarter — with real numbers, not vague advice.
-**Current focus:** v1.2 All Products Page
+**Current focus:** Phase 9 — Price History Data
 
 ## Current Position
 
-Phase: Not started (run /gsd:create-roadmap)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-01-24 — Milestone v1.2 started
+Phase: 9 of 10 (Price History Data)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-24 — Roadmap created for v1.2
 
-Progress: ░░░░░░░░░░ 0%
+Progress: ████████░░ 80% (8/10 phases)
 
 ## Performance Metrics
 
@@ -28,8 +28,8 @@ Progress: ░░░░░░░░░░ 0%
 
 - Migrated from React Native/Expo to React/Vite web app (2026-01-24)
 - Using Tailwind CSS for responsive styling
-- Backend unchanged
 - Adding price history tracking for v1.2
+- Strikethrough styling for previous prices (user preference)
 
 ### Pending Todos
 
@@ -42,5 +42,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Starting v1.2 milestone
+Stopped at: Roadmap created for v1.2
 Resume file: None
