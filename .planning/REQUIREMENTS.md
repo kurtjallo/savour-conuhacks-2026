@@ -4,95 +4,62 @@
 
 Grocery price comparison app for Canadian shoppers. Core value: show exactly how much users save by shopping smarter.
 
-## v1 Requirements (Hackathon MVP)
+## v1.1 Requirements (Web Migration)
 
-### Data Layer
-
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| DATA-01 | Store 5 stores with metadata (name, color, logo) | Must |
-| DATA-02 | Store 15 product categories with prices from all 5 stores | Must |
-| DATA-03 | Each category has: name, icon, unit, search terms, price per store | Must |
-
-### API Layer
+### Cleanup
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| API-01 | GET /api/stores — list all stores | Must |
-| API-02 | GET /api/categories — list all categories with cheapest price info | Must |
-| API-03 | GET /api/categories/search?q= — search categories by name | Must |
-| API-04 | GET /api/categories/{id} — full price breakdown for one category | Must |
-| API-05 | POST /api/basket/analyze — basket optimization (single-store vs multi-store) | Must |
+| CLN-01 | Remove mobile/ directory and all React Native/Expo code | Must |
+| CLN-02 | Update CLAUDE.md for web architecture | Must |
 
-### Frontend Layer
+### Frontend Layer (Web)
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| UI-01 | Home page: hero section with search bar | Must |
-| UI-02 | Category grid: browse all 15 categories | Must |
-| UI-03 | Category card: shows icon, name, cheapest price, savings % | Must |
-| UI-04 | Category detail: price comparison table ranked by price | Must |
-| UI-05 | Add to basket with quantity selector | Must |
-| UI-06 | Basket page: list items with quantities | Must |
-| UI-07 | Basket analysis: best single store, multi-store optimal, worst case | Must |
-| UI-08 | Savings callout: percentage and annual projection | Must |
-| UI-09 | Basket persists via localStorage | Must |
-| UI-10 | Mobile-responsive layout | Must |
+| WEB-01 | Initialize React + Vite + TypeScript project in frontend/ | Must |
+| WEB-02 | Configure React Router for navigation (Home, Category, Basket) | Must |
+| WEB-03 | Create API client (fetch wrapper for backend endpoints) | Must |
+| WEB-04 | Create TypeScript types matching backend models | Must |
+| WEB-05 | Home page: category grid with search bar | Must |
+| WEB-06 | Category card component: icon, name, cheapest price | Must |
+| WEB-07 | Category detail page: price comparison table ranked by price | Must |
+| WEB-08 | Add to basket with quantity selector | Must |
+| WEB-09 | Basket page: list items with quantities, remove/update | Must |
+| WEB-10 | Basket analysis: best single store, multi-store optimal, savings | Must |
+| WEB-11 | Basket persistence via localStorage | Must |
+| WEB-12 | Mobile-responsive layout (Tailwind CSS) | Must |
 
 ### Deployment
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| DEP-01 | Backend deployed on Railway | Must |
-| DEP-02 | Frontend deployed on Vercel | Must |
-| DEP-03 | MongoDB Atlas connection working in production | Must |
-
-## v2 Requirements (Post-Hackathon)
-
-| ID | Requirement | Notes |
-|----|-------------|-------|
-| v2-01 | Real-time price data via API partnerships | Replace hardcoded data |
-| v2-02 | Price history charts | Shrinkflation detection |
-| v2-03 | Price alerts / notifications | "Notify when eggs < $4" |
-| v2-04 | Receipt scanning | Track actual purchases |
-| v2-05 | Store flyer integration | Weekly deals |
-
-## Out of Scope
-
-- User accounts / authentication — not needed for demo
-- Store location / proximity routing — adds complexity
-- Real-time scraping — legal concerns
+| DEP-01 | Frontend deployed on Vercel | Must |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 1 | Pending |
-| DATA-02 | Phase 1 | Pending |
-| DATA-03 | Phase 1 | Pending |
-| API-01 | Phase 2 | Pending |
-| API-02 | Phase 2 | Pending |
-| API-03 | Phase 2 | Pending |
-| API-04 | Phase 2 | Pending |
-| API-05 | Phase 2 | Pending |
-| UI-01 | Phase 3 | Pending |
-| UI-02 | Phase 3 | Pending |
-| UI-03 | Phase 3 | Pending |
-| UI-04 | Phase 3 | Pending |
-| UI-05 | Phase 3 | Pending |
-| UI-06 | Phase 4 | Pending |
-| UI-07 | Phase 4 | Pending |
-| UI-08 | Phase 4 | Pending |
-| UI-09 | Phase 4 | Pending |
-| UI-10 | Phase 4 | Pending |
-| DEP-01 | Phase 5 | Pending |
-| DEP-02 | Phase 5 | Pending |
-| DEP-03 | Phase 5 | Pending |
+| CLN-01 | Phase 6 | Pending |
+| CLN-02 | Phase 6 | Pending |
+| WEB-01 | Phase 7 | Pending |
+| WEB-02 | Phase 7 | Pending |
+| WEB-03 | Phase 7 | Pending |
+| WEB-04 | Phase 7 | Pending |
+| WEB-05 | Phase 8 | Pending |
+| WEB-06 | Phase 8 | Pending |
+| WEB-07 | Phase 8 | Pending |
+| WEB-08 | Phase 8 | Pending |
+| WEB-09 | Phase 8 | Pending |
+| WEB-10 | Phase 8 | Pending |
+| WEB-11 | Phase 8 | Pending |
+| WEB-12 | Phase 8 | Pending |
+| DEP-01 | Phase 9 | Pending |
 
 **Coverage:**
-- v1 requirements: 21 total
-- Mapped to phases: 21
+- v1.1 requirements: 15 total
+- Mapped to phases: 15
 - Unmapped: 0 ✓
 
 ---
-*Last updated: 2025-01-24 after roadmap creation*
+*Last updated: 2026-01-24 — Web migration*

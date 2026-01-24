@@ -36,7 +36,7 @@ Show users exactly how much they can save by shopping smarter — with real numb
 
 ## Context
 
-**Hackathon:** ConUHacks, ~23 hours remaining, solo developer
+**Hackathon:** ConUHacks, solo developer
 
 **Demo hook:** "Canadians overpay $1200/year on groceries — we fix that"
 
@@ -48,21 +48,22 @@ Show users exactly how much they can save by shopping smarter — with real numb
 
 ## Constraints
 
-- **Tech stack**: Python FastAPI (backend) + MongoDB Atlas (database) + React Native/Expo TypeScript (mobile) — converting from Next.js to native mobile app
-- **Navigation**: React Navigation for mobile navigation
-- **Storage**: AsyncStorage for basket persistence (replacing localStorage)
-- **Deployment**: Railway (backend), Expo/EAS Build (mobile) — backend unchanged
+- **Tech stack**: Python FastAPI (backend) + MongoDB Atlas (database) + React/Vite TypeScript (web frontend)
+- **Navigation**: React Router for web navigation
+- **Storage**: localStorage for basket persistence
+- **Deployment**: Railway (backend), Vercel (frontend)
 - **Data**: Hardcoded prices acceptable for MVP; no scraping
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Python FastAPI over Node.js backend | Easier JSON handling, quick API development | — Pending |
-| MongoDB over PostgreSQL | Flexible schema for product data, free Atlas tier | — Pending |
-| Hardcoded prices for MVP | Avoid legal issues with scraping, faster development | — Pending |
-| 15 products × 5 stores | Enough variety for compelling demo without data collection overload | — Pending |
-| Single-store + multi-store optimization | Shows value of both convenience and maximum savings | — Pending |
+| Python FastAPI over Node.js backend | Easier JSON handling, quick API development | ✅ Working |
+| MongoDB over PostgreSQL | Flexible schema for product data, free Atlas tier | ✅ Working |
+| Hardcoded prices for MVP | Avoid legal issues with scraping, faster development | ✅ Working |
+| 15 products × 5 stores | Enough variety for compelling demo without data collection overload | ✅ Working |
+| Single-store + multi-store optimization | Shows value of both convenience and maximum savings | ✅ Working |
+| React/Vite over React Native | Web is simpler than mobile, faster development, easier to demo | — Active |
 
 ---
-*Last updated: 2025-01-24 after initialization*
+*Last updated: 2026-01-24 — Migrating from React Native to web*
