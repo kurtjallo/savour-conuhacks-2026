@@ -1,25 +1,52 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useBasket } from '../context/BasketContext';
 
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { totalCount } = useBasket();
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <header className="sticky top-0 z-50 bg-cream/80 backdrop-blur-md border-b border-border/50">
       <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-        <button
-          onClick={() => navigate('/')}
-          className="hover:opacity-70 transition-opacity duration-200"
-        >
-          <h1 className="text-xl font-semibold tracking-wide text-charcoal">
-            Savour
-          </h1>
-        </button>
+        <div className="flex items-center gap-6">
+          <button
+            onClick={() => navigate('/')}
+            className="hover:opacity-70 transition-opacity duration-200"
+          >
+            <h1 className="text-xl font-semibold tracking-wide text-charcoal">
+              Savour
+            </h1>
+          </button>
+          <nav className="hidden sm:flex items-center gap-1">
+            <Link
+              to="/"
+              className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                isActive('/')
+                  ? 'font-medium text-charcoal bg-white shadow-sm'
+                  : 'text-charcoal-light hover:text-charcoal'
+              }`}
+            >
+              Home
+            </Link>
+            <Link
+              to="/products"
+              className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                isActive('/products')
+                  ? 'font-medium text-charcoal bg-white shadow-sm'
+                  : 'text-charcoal-light hover:text-charcoal'
+              }`}
+            >
+              All Products
+            </Link>
+          </nav>
+        </div>
 
         <button
           onClick={() => navigate('/basket')}
-          className="relative p-2.5 -mr-2.5 rounded-lg hover:bg-cream transition-colors duration-200"
+          className="relative p-2.5 -mr-2.5 rounded-lg hover:bg-white/50 transition-colors duration-200"
           aria-label={`View basket with ${totalCount} items`}
         >
           <svg

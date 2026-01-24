@@ -16,33 +16,33 @@ STORES = [
     {"store_id": "metro", "name": "Metro", "color": "#003DA5"}
 ]
 
-# Map category_id to Walmart image URLs
+# Map category_id to grocery product images (Unsplash - free to use)
 IMAGE_URLS = {
-    "eggs": "https://i5.walmartimages.com/seo/Great-Value-Large-White-Eggs-18-Count_6203b272-0a2c-4db2-84e3-872f72226687.jpeg",
-    "milk": "https://i5.walmartimages.com/seo/Great-Value-2-Reduced-Fat-Milk-1-Gallon-128-Fl-Oz_967e7f76-a519-4f59-afce-89a7ded964bf.jpeg",
-    "bread": "https://i5.walmartimages.com/seo/Wonder-Classic-White-Bread-20-oz_3d7d7e8d-36c3-4af3-b0bd-cc3e22c73a8d.jpeg",
-    "butter": "https://i5.walmartimages.com/seo/Great-Value-Sweet-Cream-Salted-Butter-16-oz_d7c3bd6e-9af5-4f63-8b2a-b8fdcfe6f60c.jpeg",
-    "apples": "https://i5.walmartimages.com/seo/Fresh-Gala-Apples-3-lb-Bag_bcfd9451-a73b-411f-84e3-1d866f833ae8.3e996f05a24facfa2ac526d6c631401d.jpeg",
-    "bananas": "https://i5.walmartimages.com/seo/Fresh-Banana-Each_5939a6fa-a0d6-431c-88c6-b4f21608e4be.f7cd0cc487761d74c69b7731493c1581.jpeg",
-    "potatoes": "https://i5.walmartimages.com/seo/Fresh-Whole-Russet-Potatoes-5lb-bag_39e383c7-abe5-42fa-9078-5d6d0bb5c0d4.8fc19a526bf85bd640d369c4c85a2bf2.jpeg",
-    "onions": "https://i5.walmartimages.com/seo/Fresh-Yellow-Onion-Each_d76c3aa9-b8f6-4c5d-a3db-6c1ed8ebc93c.jpeg",
-    "chicken": "https://i5.walmartimages.com/seo/Boneless-Skinless-Chicken-Breasts-4-7-6-1-lb-Tray_4693e429-b926-4913-984c-dd29d4bdd586.780145c264e407b17e86cd4a7106731f.jpeg",
-    "ground-beef": "https://i5.walmartimages.com/seo/80-Lean-20-Fat-Ground-Beef-Chuck-1-lb-Tray-Fresh-All-Natural_eda2d926-ef1a-43d4-b5f3-ec02083aaf89.f688a6a033622f6b7c2eb9aeadfdcc3e.png",
-    "pasta": "https://i5.walmartimages.com/seo/Barilla-Spaghetti-Pasta-16-oz_ec5b5d1d-62d2-4d27-9c0e-a5e7f0d2dd54.jpeg",
-    "rice": "https://i5.walmartimages.com/seo/Great-Value-Long-Grain-Enriched-Rice-32-oz_b6f9b46f-3f1e-4f76-bf38-eebd14fcbf7a.jpeg",
-    "cheese": "https://i5.walmartimages.com/seo/Great-Value-Finely-Shredded-Fiesta-Blend-Cheese-8-oz_5127b37a-3b27-42a9-8d3a-b971b90881bd.f935534052cc2f7792b8c3d017b0d5ce.jpeg",
-    "canned-tomatoes": "https://i5.walmartimages.com/seo/Great-Value-Diced-Tomatoes-14-5-oz_a9b12e3f-e3f1-40bd-b51b-87c5a6eb2f1b.jpeg",
-    "cereal": "https://i5.walmartimages.com/seo/Cheerios-Heart-Healthy-Cereal-Gluten-Free-Cereal-With-Whole-Grain-Oats-18-oz_0e3f9b8f-c6c4-4fc1-a3e2-1bb5f6e8d4f8.jpeg",
-    "yogurt": "https://i5.walmartimages.com/seo/Great-Value-Original-Lowfat-Yogurt-32-oz_1c0b1b23-aee7-4f9c-a4a2-8eb5f45c4e8d.jpeg",
-    "orange-juice": "https://i5.walmartimages.com/seo/Tropicana-Pure-Premium-No-Pulp-100-Orange-Juice-52-fl-oz_8d5f6c7c-e93a-4f8b-8b0c-1a4d5e9f8c0b.jpeg",
-    "coffee": "https://i5.walmartimages.com/seo/Folgers-Classic-Roast-Ground-Coffee-Medium-Roast-30-4-oz_0a3b4c5d-e6f7-8a9b-c0d1-e2f3a4b5c6d7.jpeg",
-    "sugar": "https://i5.walmartimages.com/seo/Great-Value-Pure-Granulated-Sugar-4-lb_a1b2c3d4-e5f6-7890-abcd-ef1234567890.jpeg",
-    "flour": "https://i5.walmartimages.com/seo/Gold-Medal-All-Purpose-Flour-5-lb_d4c3b2a1-0987-6543-fedc-ba0987654321.jpeg",
-    "cooking-oil": "https://i5.walmartimages.com/seo/Great-Value-Vegetable-Oil-48-fl-oz_f0e9d8c7-b6a5-4321-0fed-cba987654321.jpeg",
-    "frozen-pizza": "https://i5.walmartimages.com/seo/DiGiorno-Frozen-Pizza-Four-Cheese-Original-Rising-Crust_a1b2c3d4-5678-90ab-cdef-1234567890ab.jpeg",
-    "ice-cream": "https://i5.walmartimages.com/seo/Great-Value-Vanilla-Flavored-Ice-Cream-1-Gallon_b2c3d4e5-6789-0abc-def1-234567890abc.jpeg",
-    "bacon": "https://i5.walmartimages.com/seo/Oscar-Mayer-Naturally-Hardwood-Smoked-Bacon-16-oz_c3d4e5f6-7890-abcd-ef12-34567890abcd.jpeg",
-    "lettuce": "https://i5.walmartimages.com/seo/Marketside-Fresh-Shredded-Iceberg-Lettuce-8-oz-Bag-Fresh_5868cfab-7943-4911-8972-b3fb8e2c31b0.6d4417e2a83151e26c64556d92c6db1f.jpeg"
+    "eggs": "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400&q=80",
+    "milk": "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&q=80",
+    "bread": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80",
+    "butter": "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&q=80",
+    "apples": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&q=80",
+    "bananas": "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&q=80",
+    "potatoes": "https://images.unsplash.com/photo-1518977676601-b53f82ber?w=400&q=80",
+    "onions": "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80",
+    "chicken": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&q=80",
+    "ground-beef": "https://images.unsplash.com/photo-1602470520998-f4a52199a3d6?w=400&q=80",
+    "pasta": "https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=400&q=80",
+    "rice": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80",
+    "cheese": "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400&q=80",
+    "canned-tomatoes": "https://images.unsplash.com/photo-1546548970-71785318a17b?w=400&q=80",
+    "cereal": "https://images.unsplash.com/photo-1521483451569-e33803c0330c?w=400&q=80",
+    "yogurt": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
+    "orange-juice": "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80",
+    "coffee": "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&q=80",
+    "sugar": "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400&q=80",
+    "flour": "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&q=80",
+    "cooking-oil": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80",
+    "frozen-pizza": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",
+    "ice-cream": "https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=400&q=80",
+    "bacon": "https://images.unsplash.com/photo-1606851091851-e8c8c0fca5ba?w=400&q=80",
+    "lettuce": "https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=400&q=80"
 }
 
 # unit_qty: quantity in standard_unit (kg for weight, L for volume, count for discrete items)
