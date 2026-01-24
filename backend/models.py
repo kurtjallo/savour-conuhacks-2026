@@ -28,6 +28,7 @@ class CategorySummary(BaseModel):
     cheapest_price: float
     most_expensive_price: float
     savings_percent: int
+    previous_price: Optional[float] = None
 
 
 class CategoriesResponse(BaseModel):
@@ -50,6 +51,7 @@ class CategoryDetail(BaseModel):
     image_url: Optional[str] = None
     unit_qty: Optional[float] = None
     standard_unit: Optional[str] = None
+    previous_price: Optional[float] = None
     prices: list[PriceEntry]
 
 
