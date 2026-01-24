@@ -15,6 +15,26 @@ export default function CategoryScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const sortedPrices = useMemo<PriceEntry[]>(() => {
+    if (!category) {
+      return [];
+    }
+    return [...category.prices].sort((a, b) => a.price - b.price);
+  }, [category]);
+
+  const bestPrice = sortedPrices[0];
+  const availabilityText = category?.availability
+    ? category.availability
+    : sortedPrices.length > 0
+      ? `Available at ${sortedPrices.length} retailer${sortedPrices.length === 1 ? '' : 's'}`
+      : 'Currently unavailable';
+
+  const descriptionText = category?.description
+    ? category.description
+    : category
+      ? `Compare ${category.name} pricing across Canadian grocers and add it to your cart in one tap.`
+      : '';
+
   useEffect(() => {
     async function fetchData() {
       if (!id) {
@@ -95,24 +115,6 @@ export default function CategoryScreen() {
       </div>
     );
   }
-
-  const sortedPrices = useMemo<PriceEntry[]>(() => {
-    if (!category) {
-      return [];
-    }
-    return [...category.prices].sort((a, b) => a.price - b.price);
-  }, [category]);
-
-  const bestPrice = sortedPrices[0];
-  const availabilityText = category.availability
-    ? category.availability
-    : sortedPrices.length > 0
-      ? `Available at ${sortedPrices.length} retailer${sortedPrices.length === 1 ? '' : 's'}`
-      : 'Currently unavailable';
-
-  const descriptionText = category.description
-    ? category.description
-    : `Compare ${category.name} pricing across Canadian grocers and add it to your cart in one tap.`;
 
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('en-CA', {
