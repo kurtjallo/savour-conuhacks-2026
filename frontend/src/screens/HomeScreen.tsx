@@ -104,16 +104,7 @@ export default function HomeScreen() {
     }).format(price);
   };
 
-  const formatStoreName = (storeId: string): string => {
-    const storeNames: Record<string, string> = {
-      'maxi': 'Maxi',
-      'iga': 'IGA',
-      'provigo': 'Provigo',
-      'walmart': 'Walmart',
-      'metro': 'Metro',
-    };
-    return storeNames[storeId] || storeId;
-  };
+
 
   if (isLoading) {
     return (
