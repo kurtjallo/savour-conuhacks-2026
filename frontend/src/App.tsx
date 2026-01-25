@@ -12,7 +12,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingScreen />} />
-          <Route path="/home" element={<HomeScreen />} />
+          <Route path="/onboarding" element={<HomeScreen />} />
           <Route path="/products" element={<AllProductsScreen />} />
           <Route path="/category/:id" element={<CategoryScreen />} />
           <Route path="/basket" element={<BasketScreen />} />

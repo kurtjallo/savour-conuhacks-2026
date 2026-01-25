@@ -62,7 +62,7 @@ export default function SearchBar({
         onChange={(e) => handleChange(e.target.value)}
         placeholder={placeholder}
         className="w-full py-4 pl-14 pr-12 text-charcoal bg-white border border-border rounded-2xl
-                   placeholder:text-muted
+                   placeholder:text-muted font-ui
                    focus:outline-none focus:ring-2 focus:ring-charcoal/10 focus:border-charcoal/20
                    transition-all duration-200"
       />
