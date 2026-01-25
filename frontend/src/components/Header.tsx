@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useBasket } from '../context/BasketContext';
+import { getMetadata } from '../lib/api';
 import SearchBar from './SearchBar';
 
 export default function Header() {
@@ -9,6 +10,7 @@ export default function Header() {
   const { totalCount } = useBasket();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const prevCountRef = useRef(totalCount);
 
   useEffect(() => {
@@ -22,23 +24,49 @@ export default function Header() {
     prevCountRef.current = totalCount;
   }, [totalCount]);
 
+  // Fetch last updated timestamp
+  useEffect(() => {
+    getMetadata().then(meta => {
+      if (meta.last_updated) {
+        setLastUpdated(meta.last_updated);
+      }
+    });
+  }, []);
+
   const handleSearchSubmit = (query: string) => {
     navigate(`/products?search=${encodeURIComponent(query)}`);
+  };
+
+  const formatLastUpdated = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   };
 
   return (
     <header className="sticky top-0 z-50 bg-cream/80 backdrop-blur-md border-b border-border/50">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
-        <button
-          onClick={() => navigate('/')}
-          className="hover:opacity-70 transition-opacity duration-200 flex-shrink-0"
-        >
-          <img
-            src="/savourlogo.png"
-            alt="Savour"
-            className="h-8 w-auto"
-          />
-        </button>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <button
+            onClick={() => navigate('/')}
+            className="hover:opacity-70 transition-opacity duration-200"
+          >
+            <img
+              src="/savourlogo.png"
+              alt="Savour"
+              className="h-8 w-auto"
+            />
+          </button>
+          {lastUpdated && (
+            <span className="hidden sm:flex items-center gap-1 text-[10px] text-muted bg-white/60 px-2 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+              Prices updated {formatLastUpdated(lastUpdated)}
+            </span>
+          )}
+        </div>
 
         <div className="flex-1 max-w-md">
           <SearchBar

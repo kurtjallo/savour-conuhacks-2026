@@ -433,6 +433,34 @@ def load_products_from_csv():
     return selected_products
 
 
+def generate_deals(prices):
+    """Generate deals for ~25% of products with 15-35% off at random stores."""
+    if random.random() > 0.25:  # 75% chance of no deals
+        return {}
+
+    deals = {}
+    # Pick 1-2 random stores to have deals
+    num_deals = random.randint(1, 2)
+    deal_stores = random.sample(list(prices.keys()), min(num_deals, len(prices)))
+
+    for store_id in deal_stores:
+        regular_price = prices[store_id]
+        discount = random.uniform(0.15, 0.35)  # 15-35% off
+        sale_price = round(regular_price * (1 - discount), 2)
+
+        # Deal ends in 3-14 days
+        from datetime import datetime, timedelta
+        end_date = datetime.now() + timedelta(days=random.randint(3, 14))
+
+        deals[store_id] = {
+            "sale_price": sale_price,
+            "regular_price": regular_price,
+            "ends": end_date.strftime("%Y-%m-%d")
+        }
+
+    return deals
+
+
 def create_categories_from_csv():
     """Create category documents from CSV data."""
     products = load_products_from_csv()
@@ -450,6 +478,9 @@ def create_categories_from_csv():
 
         # Generate prices for all stores
         prices = generate_store_prices(loblaws_price)
+
+        # Generate deals for some products
+        deals = generate_deals(prices)
 
         # Find cheapest store
         cheapest_store = min(prices, key=prices.get)
@@ -475,6 +506,7 @@ def create_categories_from_csv():
             "image_url": image_url,
             "search_terms": search_terms[:5],  # Limit to 5 search terms
             "prices": prices,
+            "deals": deals,  # Add deals
             "previous_price": previous_price,
             "sort_order": idx,  # Maintain essentials-first ordering
         }
@@ -485,6 +517,8 @@ def create_categories_from_csv():
 
 
 def seed_database():
+    from datetime import datetime
+
     uri = os.getenv("MONGODB_URI")
     if not uri:
         print("ERROR: MONGODB_URI not found. Create .env file with connection string.")
@@ -501,6 +535,7 @@ def seed_database():
         print("Clearing existing data...")
         db.stores.delete_many({})
         db.categories.delete_many({})
+        db.metadata.delete_many({})
 
         print(f"Inserting {len(STORES)} stores...")
         db.stores.insert_many(STORES)
@@ -515,15 +550,29 @@ def seed_database():
         print(f"Inserting {len(categories)} categories...")
         db.categories.insert_many(categories)
 
+        # Insert metadata with last_updated timestamp
+        print("Adding metadata...")
+        db.metadata.insert_one({
+            "key": "prices",
+            "last_updated": datetime.utcnow().isoformat() + "Z",
+            "source": "Loblaws CSV + generated prices"
+        })
+
         print(f"\nVerification:")
         print(f"  stores: {db.stores.count_documents({})} documents")
         print(f"  categories: {db.categories.count_documents({})} documents")
+        print(f"  metadata: {db.metadata.count_documents({})} documents")
+
+        # Count products with deals
+        deals_count = db.categories.count_documents({"deals": {"$ne": {}}})
+        print(f"  products with deals: {deals_count}")
 
         # Show sample products
         print("\nSample products:")
         for cat in list(db.categories.find().limit(5)):
             cheapest = min(cat["prices"].items(), key=lambda x: x[1])
-            print(f"  {cat['name'][:40]}: ${cheapest[1]:.2f} at {cheapest[0]}")
+            deal_info = f" (DEAL!)" if cat.get("deals") else ""
+            print(f"  {cat['name'][:40]}: ${cheapest[1]:.2f} at {cheapest[0]}{deal_info}")
             print(f"    Image: {cat['image_url'][:60]}...")
 
         print("\nDATABASE SEEDED SUCCESSFULLY!")

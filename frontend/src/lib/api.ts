@@ -144,3 +144,11 @@ export async function getStoreLocations(): Promise<StoreWithLocation[]> {
   const data = await response.json();
   return data.stores;
 }
+
+export async function getMetadata(): Promise<{ last_updated: string | null; source: string | null }> {
+  const response = await fetch(`${API_BASE}/api/metadata`);
+  if (!response.ok) {
+    return { last_updated: null, source: null };
+  }
+  return response.json();
+}

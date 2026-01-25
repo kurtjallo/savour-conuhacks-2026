@@ -5,7 +5,7 @@ from typing import Any
 import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from database import stores_collection, categories_collection
+from database import stores_collection, categories_collection, metadata_collection
 from models import (
     Store, StoresResponse, CategorySummary, CategoriesResponse,
     PriceEntry, CategoryDetail, BasketRequest, BasketAnalysis,
@@ -51,6 +51,18 @@ async def root():
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
+
+
+@app.get("/api/metadata")
+async def get_metadata():
+    """Get metadata including last_updated timestamp for prices."""
+    meta = await metadata_collection.find_one({"key": "prices"})
+    if meta:
+        return {
+            "last_updated": meta.get("last_updated"),
+            "source": meta.get("source")
+        }
+    return {"last_updated": None, "source": None}
 
 
 @app.get("/api/stores", response_model=StoresResponse)
@@ -173,6 +185,19 @@ async def get_category(category_id: str):
     )
 
 
+def get_effective_price(cat: dict, store_id: str) -> float:
+    """Get the effective price for a store, using deal price if available."""
+    prices = cat.get("prices", {})
+    deals = cat.get("deals", {})
+
+    base_price = prices.get(store_id, 0)
+    deal = deals.get(store_id)
+
+    if deal and "sale_price" in deal:
+        return deal["sale_price"]
+    return base_price
+
+
 @app.post("/api/basket/analyze", response_model=BasketAnalysis)
 async def analyze_basket(request: BasketRequest):
     if not request.items:
@@ -185,14 +210,15 @@ async def analyze_basket(request: BasketRequest):
     categories = await categories_collection.find({"category_id": {"$in": category_ids}}).to_list(100)
     categories_map = {c["category_id"]: c for c in categories}
 
-    # Calculate totals per store
+    # Calculate totals per store (using effective prices with deals)
     store_totals = {}
     for store_id, store in stores.items():
         total = 0
         for item in request.items:
             cat = categories_map.get(item.category_id)
             if cat and store_id in cat.get("prices", {}):
-                total += cat["prices"][store_id] * item.quantity
+                effective_price = get_effective_price(cat, store_id)
+                total += effective_price * item.quantity
         store_totals[store_id] = StoreTotal(
             store_id=store_id,
             store_name=store["name"],
@@ -204,7 +230,7 @@ async def analyze_basket(request: BasketRequest):
     single_store_best = sorted_stores[0]
     single_store_worst = sorted_stores[-1]
 
-    # Multi-store optimal
+    # Multi-store optimal (using effective prices with deals)
     multi_store_items = []
     multi_store_total = 0
 
@@ -214,11 +240,22 @@ async def analyze_basket(request: BasketRequest):
             continue
 
         prices = cat.get("prices", {})
+        deals = cat.get("deals", {})
         if not prices:
             continue
 
-        cheapest_store_id = min(prices, key=lambda x: prices[x])
-        cheapest_price = prices[cheapest_store_id]
+        # Find cheapest store considering deals
+        cheapest_store_id = None
+        cheapest_price = float('inf')
+
+        for store_id in prices:
+            effective_price = get_effective_price(cat, store_id)
+            if effective_price < cheapest_price:
+                cheapest_price = effective_price
+                cheapest_store_id = store_id
+
+        if not cheapest_store_id:
+            continue
 
         multi_store_items.append(MultiStoreItem(
             category_id=item.category_id,
@@ -576,21 +613,22 @@ async def optimize_route(request: RouteOptimizeRequest):
     categories = await categories_collection.find({"category_id": {"$in": category_ids}}).to_list(100)
     categories_map = {c["category_id"]: c for c in categories}
 
-    # Calculate single-store totals
+    # Calculate single-store totals (using effective prices with deals)
     store_totals = {}
     for store_id in stores_with_loc:
         total = 0
         for item in request.items:
             cat = categories_map.get(item.category_id)
             if cat and store_id in cat.get("prices", {}):
-                total += cat["prices"][store_id] * item.quantity
+                effective_price = get_effective_price(cat, store_id)
+                total += effective_price * item.quantity
         store_totals[store_id] = total
 
     sorted_stores = sorted(store_totals.items(), key=lambda x: x[1])
     single_store_best_id, single_store_best_total = sorted_stores[0]
     single_store_best_name = stores_with_loc[single_store_best_id].name
 
-    # Calculate multi-store optimal (cheapest per item)
+    # Calculate multi-store optimal (cheapest per item, using deals)
     multi_store_items = []
     stores_needed = set()
     multi_store_total = 0
@@ -604,12 +642,21 @@ async def optimize_route(request: RouteOptimizeRequest):
             continue
 
         # Only consider stores with locations for route optimization
-        available_prices = {sid: p for sid, p in prices.items() if sid in stores_with_loc}
-        if not available_prices:
+        # Find cheapest considering deals
+        cheapest_store_id = None
+        cheapest_price = float('inf')
+
+        for store_id in prices:
+            if store_id not in stores_with_loc:
+                continue
+            effective_price = get_effective_price(cat, store_id)
+            if effective_price < cheapest_price:
+                cheapest_price = effective_price
+                cheapest_store_id = store_id
+
+        if not cheapest_store_id:
             continue
 
-        cheapest_store_id = min(available_prices, key=lambda x: available_prices[x])
-        cheapest_price = available_prices[cheapest_store_id]
         stores_needed.add(cheapest_store_id)
 
         store = stores_with_loc[cheapest_store_id]

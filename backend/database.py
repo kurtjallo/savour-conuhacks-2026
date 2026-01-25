@@ -12,3 +12,4 @@ db = client.inflationfighter
 
 stores_collection = db.stores
 categories_collection = db.categories
+metadata_collection = db.metadata
