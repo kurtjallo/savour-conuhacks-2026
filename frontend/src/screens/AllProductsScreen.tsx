@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getCategories, resolveImageUrl } from '../lib/api';
 import type { Category } from '../lib/types';
 import { useBasket } from '../context/BasketContext';
@@ -57,7 +57,7 @@ export default function AllProductsScreen() {
               onClick={() => navigate('/')}
               className="hover:opacity-70 transition-opacity duration-200"
             >
-              <h1 className="text-xl font-semibold tracking-wide text-charcoal">
+              <h1 className="text-xl font-semibold tracking-wide text-charcoal font-display">
                 Savour
               </h1>
             </button>
@@ -66,7 +66,7 @@ export default function AllProductsScreen() {
         <main className="max-w-7xl mx-auto px-6 py-20">
           <div className="flex flex-col items-center justify-center">
             <div className="w-8 h-8 border-2 border-charcoal/20 border-t-charcoal rounded-full animate-spin mb-4"></div>
-            <p className="text-charcoal-light text-sm">Loading products...</p>
+            <p className="text-charcoal-light text-sm font-ui">Loading products...</p>
           </div>
         </main>
       </div>
@@ -78,27 +78,14 @@ export default function AllProductsScreen() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-cream/80 backdrop-blur-md border-b border-border/50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <button
-              onClick={() => navigate('/')}
-              className="hover:opacity-70 transition-opacity duration-200"
-            >
-              <h1 className="text-xl font-semibold tracking-wide text-charcoal">
-                Savour
-              </h1>
-            </button>
-            <nav className="hidden sm:flex items-center gap-1">
-              <Link
-                to="/"
-                className="px-3 py-1.5 text-sm text-charcoal-light hover:text-charcoal transition-colors rounded-lg"
-              >
-                Home
-              </Link>
-              <span className="px-3 py-1.5 text-sm font-medium text-charcoal bg-white rounded-lg shadow-sm">
-                All Products
-              </span>
-            </nav>
-          </div>
+          <button
+            onClick={() => navigate('/')}
+            className="hover:opacity-70 transition-opacity duration-200"
+          >
+            <h1 className="text-xl font-semibold tracking-wide text-charcoal font-display">
+              Savour
+            </h1>
+          </button>
 
           <button
             onClick={() => navigate('/basket')}
@@ -130,10 +117,10 @@ export default function AllProductsScreen() {
       <main className="max-w-7xl mx-auto px-6 py-10">
         {/* Page Header */}
         <div className="mb-10">
-          <h2 className="text-3xl font-semibold text-charcoal tracking-tight mb-2">
+          <h2 className="text-3xl font-semibold text-charcoal tracking-tight mb-2 font-display">
             All Products
           </h2>
-          <p className="text-charcoal-light">
+          <p className="text-charcoal-light font-ui">
             Compare prices across {categories.length} products at Canadian grocery stores
           </p>
         </div>
@@ -184,20 +171,20 @@ export default function AllProductsScreen() {
                 {/* Content */}
                 <div className="p-3">
                   {/* Product Name & Unit */}
-                  <h3 className="text-sm font-medium text-charcoal mb-0.5 line-clamp-2 min-h-[2.5rem]">
+                  <h3 className="text-sm font-medium text-charcoal mb-0.5 line-clamp-2 min-h-[2.5rem] font-display">
                     {category.name}
                   </h3>
-                  <p className="text-xs text-muted mb-2">
+                  <p className="text-xs text-muted mb-2 font-ui">
                     {category.unit}
                   </p>
 
                   {/* Price Display */}
                   <div className="flex items-baseline gap-2 mb-1">
-                    <span className="text-lg font-semibold text-charcoal">
+                    <span className="text-lg font-semibold text-charcoal font-display">
                       {formatPrice(category.cheapest_price)}
                     </span>
                     {category.previous_price && category.previous_price > category.cheapest_price && (
-                      <span className="text-xs text-muted line-through">
+                      <span className="text-xs text-muted line-through font-ui">
                         {formatPrice(category.previous_price)}
                       </span>
                     )}
@@ -205,11 +192,11 @@ export default function AllProductsScreen() {
 
                   {/* Store & Savings */}
                   <div className="flex items-center justify-between flex-wrap gap-1">
-                    <span className="text-xs text-charcoal-light">
+                    <span className="text-xs text-charcoal-light font-ui">
                       at {formatStoreName(category.cheapest_store)}
                     </span>
                     {category.previous_price && category.previous_price > category.cheapest_price && (
-                      <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-sage bg-sage-light rounded-full">
+                      <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-sage bg-sage-light rounded-full font-ui">
                         Save {Math.round(((category.previous_price - category.cheapest_price) / category.previous_price) * 100)}%
                       </span>
                     )}
@@ -221,10 +208,10 @@ export default function AllProductsScreen() {
         ) : (
           !error && (
             <div className="text-center py-20">
-              <h3 className="text-xl font-medium text-charcoal mb-2">
+              <h3 className="text-xl font-medium text-charcoal mb-2 font-display">
                 No products available
               </h3>
-              <p className="text-charcoal-light">
+              <p className="text-charcoal-light font-ui">
                 Please check back later
               </p>
             </div>

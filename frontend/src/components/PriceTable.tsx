@@ -52,13 +52,13 @@ export default function PriceTable({ prices, unit }: PriceTableProps) {
             {/* Left side: Rank + Store name */}
             <div className="flex items-center gap-4">
               <span className={`
-                text-xs font-medium w-5 text-center
+                text-xs font-medium w-5 text-center font-ui
                 ${row.rank === 1 ? 'text-savour-savings' : 'text-savour-text-secondary'}
               `}>
                 {row.rank}
               </span>
               <span className={`
-                font-medium
+                font-medium font-ui
                 ${row.rank === 1 ? 'text-savour-text' : 'text-savour-text'}
               `}>
                 {row.store_name}
@@ -83,7 +83,7 @@ export default function PriceTable({ prices, unit }: PriceTableProps) {
                 ${row.rank === 1 ? 'text-savour-savings text-lg' : 'text-savour-text'}
               `}>
                 ${row.price.toFixed(2)}
-                <span className="text-savour-text-secondary text-xs font-normal ml-0.5">/{unit}</span>
+                <span className="text-savour-text-secondary text-xs font-normal ml-0.5 font-ui">/{unit}</span>
               </span>
             </div>
           </div>

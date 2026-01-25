@@ -86,7 +86,7 @@ export default function CategoryScreen() {
               />
             </svg>
           </div>
-          <h2 className="text-lg font-medium text-savour-text mb-2">Something went wrong</h2>
+          <h2 className="text-lg font-medium text-savour-text mb-2 font-display">Something went wrong</h2>
           <p className="text-savour-text-secondary text-sm mb-6">{error}</p>
           <button
             onClick={() => navigate('/')}
@@ -175,8 +175,8 @@ export default function CategoryScreen() {
               <span className="text-6xl opacity-60">{category.icon}</span>
             </div>
           )}
-          <h1 className="text-2xl font-semibold text-savour-text tracking-tight mb-1">{category.name}</h1>
-          <p className="text-savour-text-secondary text-sm">per {category.unit}</p>
+          <h1 className="text-2xl font-semibold text-savour-text tracking-tight mb-1 font-display">{category.name}</h1>
+          <p className="text-savour-text-secondary text-sm font-ui">per {category.unit}</p>
         </div>
 
         {/* Item Details Summary */}
@@ -184,7 +184,7 @@ export default function CategoryScreen() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-wide text-savour-text-secondary">Best price</p>
+                <p className="text-xs uppercase tracking-wide text-savour-text-secondary font-ui">Best price</p>
                 <p className="text-2xl font-semibold text-savour-text">
                   {bestPrice ? formatPrice(bestPrice.price) : 'N/A'}
                 </p>
@@ -208,8 +208,8 @@ export default function CategoryScreen() {
         {/* Price Comparison Section */}
         <div className="mb-10">
           <div className="mb-6">
-            <h2 className="text-lg font-medium text-savour-text mb-1">Price Comparison</h2>
-            <p className="text-savour-text-secondary text-sm">across 5 Canadian retailers</p>
+            <h2 className="text-lg font-medium text-savour-text mb-1 font-display">Price Comparison</h2>
+            <p className="text-savour-text-secondary text-sm font-ui">across 5 Canadian retailers</p>
           </div>
           <PriceTable prices={sortedPrices} unit={category.unit} />
         </div>

@@ -29,7 +29,7 @@ export default function BasketItem({ item, onUpdateQuantity, onRemove }: BasketI
         <div>
           <h3
             className="font-medium"
-            style={{ color: colors.textPrimary }}
+            style={{ color: colors.textPrimary, fontFamily: "'Work Sans', sans-serif" }}
           >
             {item.name}
           </h3>

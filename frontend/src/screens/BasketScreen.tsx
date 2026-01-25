@@ -99,13 +99,13 @@ export default function BasketScreen() {
         <div className="max-w-md mx-auto px-6 py-24 text-center">
           <h1
             className="text-2xl font-semibold mb-3"
-            style={{ color: colors.textPrimary }}
+            style={{ color: colors.textPrimary, fontFamily: "'Work Sans', sans-serif" }}
           >
             Your basket is empty
           </h1>
           <p
             className="text-base mb-10"
-            style={{ color: colors.textSecondary }}
+            style={{ color: colors.textSecondary, fontFamily: "'Outfit', sans-serif" }}
           >
             Start adding items to see your savings
           </p>
@@ -140,7 +140,7 @@ export default function BasketScreen() {
             <div className="text-center">
               <h1
                 className="text-xl font-semibold"
-                style={{ color: colors.textPrimary }}
+                style={{ color: colors.textPrimary, fontFamily: "'Work Sans', sans-serif" }}
               >
                 Your Basket
               </h1>
@@ -216,7 +216,7 @@ export default function BasketScreen() {
                 <div>
                   <h2
                     className="text-lg font-semibold"
-                    style={{ color: colors.textPrimary }}
+                    style={{ color: colors.textPrimary, fontFamily: "'Work Sans', sans-serif" }}
                   >
                     Turn your basket into a recipe
                   </h2>
@@ -281,7 +281,7 @@ export default function BasketScreen() {
             <section>
               <h2
                 className="text-lg font-semibold mb-5"
-                style={{ color: colors.textPrimary }}
+                style={{ color: colors.textPrimary, fontFamily: "'Work Sans', sans-serif" }}
               >
                 Optimal Strategy
               </h2>

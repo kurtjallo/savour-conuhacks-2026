@@ -80,7 +80,7 @@ export default function AddToBasket({ category, onAdd }: AddToBasketProps) {
 
       {/* Existing item indicator */}
       {existingItem && (
-        <p className="text-savour-text-secondary text-sm text-center mb-4">
+        <p className="text-savour-text-secondary text-sm text-center mb-4 font-ui">
           {existingItem.quantity} {category.unit} already in basket
         </p>
       )}

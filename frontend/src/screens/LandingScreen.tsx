@@ -56,7 +56,7 @@ export default function LandingScreen() {
             {/* CTA Buttons */}
             <div className="flex flex-wrap gap-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
               <Link
-                to="/home"
+                to="/onboarding"
                 className="inline-flex items-center gap-2 bg-accent text-white font-semibold px-8 py-4 rounded-full
                          hover:bg-[#e04d12] hover:shadow-lg hover:scale-[1.02]
                          transition-all duration-200 ease-out"

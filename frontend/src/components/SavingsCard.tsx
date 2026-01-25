@@ -29,7 +29,7 @@ export default function SavingsCard({ savingsAmount, savingsPercent, annualProje
     >
       <p
         className="text-sm font-medium mb-2"
-        style={{ color: colors.textSecondary }}
+        style={{ color: colors.textSecondary, fontFamily: "'Outfit', sans-serif" }}
       >
         You save
       </p>
@@ -57,7 +57,7 @@ export default function SavingsCard({ savingsAmount, savingsPercent, annualProje
           <div>
             <p
               className="text-sm"
-              style={{ color: colors.textSecondary }}
+              style={{ color: colors.textSecondary, fontFamily: "'Outfit', sans-serif" }}
             >
               Annual projection
             </p>

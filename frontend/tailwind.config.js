@@ -26,8 +26,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Work Sans', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Outfit', 'system-ui', 'sans-serif'],
+        display: ['Work Sans', 'Outfit', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
         'wide': '0.025em',
