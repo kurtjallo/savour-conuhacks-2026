@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Work+Sans:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -79,3 +79,107 @@
 .stagger-6 { animation-delay: 300ms; }
 .stagger-7 { animation-delay: 350ms; }
 .stagger-8 { animation-delay: 400ms; }
+
+/* Floating animations for landing page */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(-12px);
+  }
+  50% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 4s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 3.5s ease-in-out infinite;
+}
+
+.float-delay-1 { animation-delay: 0s; }
+.float-delay-2 { animation-delay: 0.5s; }
+.float-delay-3 { animation-delay: 1s; }
+.float-delay-4 { animation-delay: 1.5s; }
+.float-delay-5 { animation-delay: 2s; }
+.float-delay-6 { animation-delay: 0.3s; }
+
+/* Infinite scroll animation for logo carousel */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 20s linear infinite;
+}
+
+/* Floating stats animations */
+@keyframes float-fade {
+  0%, 100% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  10%, 90% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes gentle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-float-fade {
+  animation: float-fade 4s ease-in-out infinite;
+}
+
+.animate-gentle-bounce {
+  animation: gentle-bounce 2s ease-in-out infinite;
+}
+
+.float-fade-delay-1 { animation-delay: 0s; }
+.float-fade-delay-2 { animation-delay: 1.5s; }
+.float-fade-delay-3 { animation-delay: 3s; }
+.float-fade-delay-4 { animation-delay: 4.5s; }
