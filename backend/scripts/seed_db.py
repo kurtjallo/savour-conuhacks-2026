@@ -142,27 +142,35 @@ def extract_image_url(product_image_str):
 
 
 def generate_store_prices(base_price):
-    """Generate realistic prices for Quebec stores based on base price (from CSV).
+    """Generate mixed prices for Quebec stores based on base price (from CSV).
 
-    Quebec market pricing tiers (Jan 2026, based on MTL Blog comparisons):
-    - Super C: Metro's discount banner, cheapest in Quebec
-    - Maxi: Loblaw's discount banner, 2nd cheapest
-    - Walmart: National chain, competitive pricing
-    - Provigo: Premium chain (Loblaw-owned), baseline reference
-    - IGA: Mid-to-expensive tier (Sobeys-owned)
-    - Metro: Most expensive full-service chain
+    Randomized pricing - any store can have the best deal on any product.
+    This creates a more realistic shopping experience where deals are spread
+    across all stores, not just discount banners.
     """
     if not base_price or base_price <= 0:
         base_price = 2.99
 
-    prices = {
-        "superc": round(base_price * random.uniform(0.78, 0.88), 2),    # Cheapest (Metro's discount)
-        "maxi": round(base_price * random.uniform(0.80, 0.90), 2),      # 2nd cheapest (Loblaw discount)
-        "walmart": round(base_price * random.uniform(0.84, 0.94), 2),   # Competitive national
-        "iga": round(base_price * random.uniform(1.02, 1.12), 2),       # Mid-expensive (Sobeys)
-        "provigo": round(base_price, 2),                                 # Premium baseline
-        "metro": round(base_price * random.uniform(1.05, 1.15), 2),     # Most expensive
-    }
+    stores = ["superc", "maxi", "walmart", "iga", "provigo", "metro"]
+
+    # Shuffle stores to randomize who gets the best price
+    random.shuffle(stores)
+
+    # Define price tiers (from cheapest to most expensive)
+    price_tiers = [
+        (0.78, 0.85),  # Tier 1: Best deal
+        (0.82, 0.90),  # Tier 2: Great price
+        (0.88, 0.96),  # Tier 3: Good price
+        (0.94, 1.02),  # Tier 4: Average
+        (0.98, 1.08),  # Tier 5: Slightly above average
+        (1.02, 1.12),  # Tier 6: Premium
+    ]
+
+    prices = {}
+    for i, store in enumerate(stores):
+        low, high = price_tiers[i]
+        prices[store] = round(base_price * random.uniform(low, high), 2)
+
     return prices
 
 
