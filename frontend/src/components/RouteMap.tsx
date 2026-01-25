@@ -167,9 +167,12 @@ export default function RouteMap({ userLocation, storeVisits, routePolyline }: R
       }).addTo(map);
     }
 
-    // Fit map to show all markers
+    // Fit map to show all markers, or recenter on user if no stores
     if (storeVisits.length > 0) {
       map.fitBounds(bounds, { padding: [50, 50] });
+    } else {
+      // No stores - center on user location
+      map.setView([userLocation.lat, userLocation.lng], 12);
     }
   }, [userLocation, storeVisits, routePolyline]);
 

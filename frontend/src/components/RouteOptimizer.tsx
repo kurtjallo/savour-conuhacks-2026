@@ -19,7 +19,7 @@ const DEFAULT_SETTINGS: RouteSettings = {
 
 export default function RouteOptimizer({ basketItems, multiStoreRecommended, embedded = false }: RouteOptimizerProps) {
   const { location: userLocation, isLoading: locationLoading, isUsingDefault, requestLocation } = useGeolocation();
-  const [settings] = useState<RouteSettings>(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState<RouteSettings>(DEFAULT_SETTINGS);
   const [routeResponse, setRouteResponse] = useState<RouteOptimizeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -281,9 +281,10 @@ export default function RouteOptimizer({ basketItems, multiStoreRecommended, emb
                   <input
                     type="number"
                     step="0.1"
+                    min="0"
                     value={settings.gas_price_per_liter}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm"
-                    readOnly
+                    onChange={(e) => setSettings(prev => ({ ...prev, gas_price_per_liter: parseFloat(e.target.value) || 0 }))}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-savour-accent/20 focus:border-savour-accent"
                   />
                 </div>
                 <div>
@@ -291,9 +292,10 @@ export default function RouteOptimizer({ basketItems, multiStoreRecommended, emb
                   <input
                     type="number"
                     step="0.5"
+                    min="0"
                     value={settings.fuel_efficiency_l_per_100km}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm"
-                    readOnly
+                    onChange={(e) => setSettings(prev => ({ ...prev, fuel_efficiency_l_per_100km: parseFloat(e.target.value) || 0 }))}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-savour-accent/20 focus:border-savour-accent"
                   />
                 </div>
                 <div>
@@ -301,9 +303,10 @@ export default function RouteOptimizer({ basketItems, multiStoreRecommended, emb
                   <input
                     type="number"
                     step="5"
+                    min="0"
                     value={settings.time_value_per_hour}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm"
-                    readOnly
+                    onChange={(e) => setSettings(prev => ({ ...prev, time_value_per_hour: parseFloat(e.target.value) || 0 }))}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-savour-accent/20 focus:border-savour-accent"
                   />
                 </div>
                 <div>
@@ -311,10 +314,20 @@ export default function RouteOptimizer({ basketItems, multiStoreRecommended, emb
                   <input
                     type="number"
                     step="5"
+                    min="0"
                     value={settings.time_per_store_minutes}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm"
-                    readOnly
+                    onChange={(e) => setSettings(prev => ({ ...prev, time_per_store_minutes: parseFloat(e.target.value) || 0 }))}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-savour-accent/20 focus:border-savour-accent"
                   />
+                </div>
+                <div className="col-span-2 mt-2">
+                  <button
+                    onClick={fetchRoute}
+                    disabled={loading}
+                    className="w-full py-2 rounded-lg font-medium text-sm text-white bg-savour-accent hover:bg-savour-accent-hover transition-colors disabled:opacity-60"
+                  >
+                    {loading ? 'Recalculating...' : 'Recalculate Route'}
+                  </button>
                 </div>
               </div>
             )}
