@@ -94,6 +94,7 @@ class BasketAnalysis(BaseModel):
 
 
 class RecipeGenerateRequest(BaseModel):
+    category_ids: list[str] = []
     ingredients: list[str] = []
     dietary: list[str] = []
     exclude: list[str] = []

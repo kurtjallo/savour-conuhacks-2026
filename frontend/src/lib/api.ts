@@ -68,6 +68,7 @@ export async function analyzeBasket(
 
 export async function generateRecipe(payload: {
   ingredients: string[];
+  category_ids?: string[];
   servings?: number;
   cuisine?: string;
   meal_type?: string;
@@ -78,6 +79,7 @@ export async function generateRecipe(payload: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
+      category_ids: payload.category_ids ?? [],
       ingredients: payload.ingredients,
       servings: payload.servings ?? 2,
       cuisine: payload.cuisine,

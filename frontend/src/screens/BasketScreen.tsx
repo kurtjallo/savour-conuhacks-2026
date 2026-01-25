@@ -1,11 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useBasket } from '../context/BasketContext';
-import { analyzeBasket, getCategories } from '../lib/api';
-import type { BasketAnalysis, Category } from '../lib/types';
+import { analyzeBasket, getCategories, generateRecipe } from '../lib/api';
+import type { BasketAnalysis, Category, RecipeGenerateResponse } from '../lib/types';
 import CartItemCard from '../components/CartItemCard';
 import PriceSummary from '../components/PriceSummary';
 import StoreBreakdown from '../components/StoreBreakdown';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import remarkBreaks from 'remark-breaks';
+import rehypeKatex from 'rehype-katex';
 
 export default function BasketScreen() {
   const { items, updateQuantity, removeItem, clearBasket } = useBasket();
@@ -15,6 +20,9 @@ export default function BasketScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [showShoppingList, setShowShoppingList] = useState(false);
+  const [recipeLoading, setRecipeLoading] = useState(false);
+  const [recipeError, setRecipeError] = useState<string | null>(null);
+  const [recipe, setRecipe] = useState<RecipeGenerateResponse | null>(null);
 
   // Fetch categories for price info
   useEffect(() => {
@@ -38,6 +46,7 @@ export default function BasketScreen() {
   useEffect(() => {
     if (items.length === 0) {
       setAnalysis(null);
+      setRecipe(null);
       return;
     }
 
@@ -104,6 +113,27 @@ export default function BasketScreen() {
       removeItem(categoryId);
     });
     setSelectedItems(new Set());
+  };
+
+  const handleGenerateRecipe = async () => {
+    setRecipeLoading(true);
+    setRecipeError(null);
+    try {
+      const ingredients = items.map((item) => item.name);
+      const categoryIds = items.map((item) => item.category_id);
+      const result = await generateRecipe({
+        ingredients,
+        category_ids: categoryIds,
+        servings: 2,
+        meal_type: 'dinner',
+      });
+      setRecipe(result);
+    } catch (err) {
+      setRecipeError('Failed to generate recipe. Please try again.');
+      console.error('Recipe error:', err);
+    } finally {
+      setRecipeLoading(false);
+    }
   };
 
   // Items with prices for summary
@@ -272,6 +302,65 @@ export default function BasketScreen() {
                 />
               ))}
             </div>
+
+            {/* Recipe Generator Section */}
+            {analysis && (
+              <div className="mt-8 bg-white border border-savour-border rounded-xl p-6">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div>
+                    <h2 className="text-lg font-semibold text-savour-text">
+                      Turn your basket into a recipe
+                    </h2>
+                    <p className="text-sm mt-1 text-savour-text-secondary">
+                      Uses your basket items and current deals to craft a recipe.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleGenerateRecipe}
+                    disabled={recipeLoading}
+                    className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg font-medium text-white bg-savour-accent hover:bg-savour-accent-hover transition-colors disabled:opacity-60"
+                  >
+                    {recipeLoading ? 'Generating…' : 'Generate Recipe'}
+                  </button>
+                </div>
+
+                {recipeError && (
+                  <div className="rounded-lg p-3 mt-4 bg-red-50 border border-red-200 text-red-800">
+                    <p className="text-sm">{recipeError}</p>
+                  </div>
+                )}
+
+                {recipe && (
+                  <div className="mt-5 space-y-4">
+                    <div className="rounded-lg p-4 border border-savour-border text-sm text-savour-text">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
+                        rehypePlugins={[rehypeKatex]}
+                        components={{
+                          p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                          ol: ({ children }) => <ol className="list-decimal pl-5 space-y-1">{children}</ol>,
+                          ul: ({ children }) => <ul className="list-disc pl-5 space-y-1">{children}</ul>,
+                          li: ({ children }) => <li>{children}</li>,
+                        }}
+                      >
+                        {recipe.recipe_text}
+                      </ReactMarkdown>
+                    </div>
+
+                    {recipe.rag_items.length > 0 && (
+                      <div className="text-xs text-savour-text-secondary">
+                        <span className="font-semibold text-savour-text">
+                          RAG items used:
+                        </span>{' '}
+                        {recipe.rag_items
+                          .map((item) => `${item.name} (${item.cheapest_store})`)
+                          .join(', ')}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Shopping List Section (collapsible) */}
             {analysis && (

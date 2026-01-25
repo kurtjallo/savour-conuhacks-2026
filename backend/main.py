@@ -1,4 +1,6 @@
 import os
+import time
+import logging
 from typing import Any
 import httpx
 from fastapi import FastAPI, HTTPException, Query
@@ -17,6 +19,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", "INFO"),
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+)
+logger = logging.getLogger("savour")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -26,7 +34,7 @@ app.add_middleware(
 )
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-2.0-flash"
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
 
@@ -247,20 +255,25 @@ def _normalize_terms(values: list[str]) -> list[str]:
 
 
 async def _retrieve_rag_items(request: RecipeGenerateRequest) -> list[RetrievedItem]:
-    terms = _normalize_terms(request.ingredients)
-    if request.cuisine:
-        terms.extend(_normalize_terms([request.cuisine]))
-    if request.meal_type:
-        terms.extend(_normalize_terms([request.meal_type]))
-
+    t0 = time.perf_counter()
     query = {}
-    if terms:
-        or_filters = []
-        for term in terms:
-            or_filters.append({"name": {"$regex": term, "$options": "i"}})
-            or_filters.append({"search_terms": {"$regex": term, "$options": "i"}})
-        query = {"$or": or_filters}
+    if request.category_ids:
+        query = {"category_id": {"$in": request.category_ids}}
+    else:
+        terms = _normalize_terms(request.ingredients)
+        if request.cuisine:
+            terms.extend(_normalize_terms([request.cuisine]))
+        if request.meal_type:
+            terms.extend(_normalize_terms([request.meal_type]))
 
+        if terms:
+            or_filters = []
+            for term in terms:
+                or_filters.append({"name": {"$regex": term, "$options": "i"}})
+                or_filters.append({"search_terms": {"$regex": term, "$options": "i"}})
+            query = {"$or": or_filters}
+
+    logger.info("recipe.rag.query built %s", query or {})
     categories = await categories_collection.find(query).to_list(200)
     stores = {s["store_id"]: s for s in await stores_collection.find({}).to_list(100)}
 
@@ -286,9 +299,17 @@ async def _retrieve_rag_items(request: RecipeGenerateRequest) -> list[RetrievedI
 
     retrieved.sort(key=lambda item: item.cheapest_price)
     if not retrieved:
+        logger.warning("recipe.rag.empty_results duration_ms=%s", round((time.perf_counter() - t0) * 1000, 1))
         return []
 
-    return retrieved[: max(1, request.max_items)]
+    trimmed = retrieved[: max(1, request.max_items)]
+    logger.info(
+        "recipe.rag.results count=%s trimmed=%s duration_ms=%s",
+        len(retrieved),
+        len(trimmed),
+        round((time.perf_counter() - t0) * 1000, 1),
+    )
+    return trimmed
 
 
 def _build_rag_context(items: list[RetrievedItem], request: RecipeGenerateRequest) -> str:
@@ -329,7 +350,8 @@ def _build_recipe_prompt(request: RecipeGenerateRequest, rag_context: str) -> st
 
     return (
         "You are a recipe assistant. Use the grocery context to craft a practical recipe. "
-        "Prefer items listed in the context and mention if a substitution is needed. "
+        "Only use items listed in the context; if a pantry staple is required (salt, oil, water), "
+        "add at most two and label them clearly. "
         "Return a concise recipe with a title, ingredient list, and numbered steps. "
         "Include a short note on estimated cost drivers and how the deals affect the recipe.\n\n"
         f"GROCERY CONTEXT:\n{rag_context}\n\n"
@@ -341,6 +363,7 @@ async def _call_gemini(prompt: str) -> str:
     if not GEMINI_API_KEY:
         raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
 
+    t0 = time.perf_counter()
     payload: dict[str, Any] = {
         "contents": [
             {"role": "user", "parts": [{"text": prompt}]}
@@ -352,33 +375,59 @@ async def _call_gemini(prompt: str) -> str:
     }
 
     async with httpx.AsyncClient(timeout=30) as client:
-        response = await client.post(
-            GEMINI_URL,
-            params={"key": GEMINI_API_KEY},
-            json=payload
-        )
+        try:
+            response = await client.post(
+                GEMINI_URL,
+                params={"key": GEMINI_API_KEY},
+                json=payload
+            )
+        except httpx.HTTPError as exc:
+            logger.exception("recipe.gemini.http_error duration_ms=%s error=%s", round((time.perf_counter() - t0) * 1000, 1), exc)
+            raise HTTPException(status_code=502, detail="Gemini API request failed") from exc
 
     if response.status_code >= 400:
+        logger.error(
+            "recipe.gemini.error status=%s duration_ms=%s body=%s",
+            response.status_code,
+            round((time.perf_counter() - t0) * 1000, 1),
+            response.text[:500],
+        )
         raise HTTPException(status_code=502, detail=f"Gemini API error: {response.text}")
 
     data = response.json()
     candidates = data.get("candidates", [])
     if not candidates:
+        logger.error("recipe.gemini.no_candidates duration_ms=%s", round((time.perf_counter() - t0) * 1000, 1))
         raise HTTPException(status_code=502, detail="Gemini API returned no candidates")
 
     parts = candidates[0].get("content", {}).get("parts", [])
     if not parts:
+        logger.error("recipe.gemini.empty_content duration_ms=%s", round((time.perf_counter() - t0) * 1000, 1))
         raise HTTPException(status_code=502, detail="Gemini API returned empty content")
 
-    return "".join(part.get("text", "") for part in parts).strip()
+    text = "".join(part.get("text", "") for part in parts).strip()
+    logger.info("recipe.gemini.success chars=%s duration_ms=%s", len(text), round((time.perf_counter() - t0) * 1000, 1))
+    return text
 
 
 @app.post("/api/recipes/generate", response_model=RecipeGenerateResponse)
 async def generate_recipe(request: RecipeGenerateRequest):
+    start = time.perf_counter()
+    logger.info(
+        "recipe.request received servings=%s max_items=%s use_deals=%s cuisine=%s meal_type=%s",
+        request.servings,
+        request.max_items,
+        request.use_deals,
+        request.cuisine or "",
+        request.meal_type or "",
+    )
     rag_items = await _retrieve_rag_items(request)
     rag_context = _build_rag_context(rag_items, request)
+    logger.info("recipe.context built lines=%s chars=%s", rag_context.count("\n") + 1, len(rag_context))
     prompt = _build_recipe_prompt(request, rag_context)
+    logger.info("recipe.prompt built chars=%s", len(prompt))
     recipe_text = await _call_gemini(prompt)
+    logger.info("recipe.response ready duration_ms=%s", round((time.perf_counter() - start) * 1000, 1))
 
     return RecipeGenerateResponse(
         recipe_text=recipe_text,
