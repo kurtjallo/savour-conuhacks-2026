@@ -23,7 +23,10 @@ export default function PriceSummary({
 }: PriceSummaryProps) {
   const itemsTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const savingsAmount = analysis?.savings_vs_worst ?? 0;
-  const bestStoreTotal = analysis?.single_store_best.total ?? itemsTotal;
+  // Use the actual best price: either multi-store or single-store, whichever is cheaper
+  const bestTotal = analysis
+    ? Math.min(analysis.multi_store_total, analysis.single_store_best.total)
+    : itemsTotal;
 
   return (
     <div className="bg-white border border-savour-border rounded-2xl overflow-hidden shadow-sm">
@@ -51,29 +54,47 @@ export default function PriceSummary({
         <div className="p-4 border-b border-savour-border">
           <h3 className="text-sm font-semibold text-savour-text mb-3">Best Strategy</h3>
           <div className="space-y-2">
-            <div className="flex items-center justify-between p-3 bg-savour-savings/5 rounded-lg border border-savour-savings/20">
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-savour-savings" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span className="text-sm font-medium text-savour-text capitalize">
-                  {analysis.single_store_best.store_name.replace('-', ' ')}
-                </span>
-              </div>
-              <span className="text-sm font-bold text-savour-savings">
-                ${analysis.single_store_best.total.toFixed(2)}
-              </span>
-            </div>
-            {analysis.multi_store_total < analysis.single_store_best.total && (
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-savour-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z" />
-                  </svg>
-                  <span className="text-sm text-savour-text-secondary">Multi-store</span>
+            {/* Multi-store is best */}
+            {analysis.multi_store_total < analysis.single_store_best.total ? (
+              <>
+                <div className="flex items-center justify-between p-3 bg-savour-savings/5 rounded-lg border border-savour-savings/20">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-savour-savings" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm font-medium text-savour-text">Multi-store</span>
+                  </div>
+                  <span className="text-sm font-bold text-savour-savings">
+                    ${analysis.multi_store_total.toFixed(2)}
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-savour-text">
-                  ${analysis.multi_store_total.toFixed(2)}
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-savour-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z" />
+                    </svg>
+                    <span className="text-sm text-savour-text-secondary capitalize">
+                      {analysis.single_store_best.store_name.replace('-', ' ')}
+                    </span>
+                  </div>
+                  <span className="text-sm font-medium text-savour-text">
+                    ${analysis.single_store_best.total.toFixed(2)}
+                  </span>
+                </div>
+              </>
+            ) : (
+              /* Single store is best (or equal) */
+              <div className="flex items-center justify-between p-3 bg-savour-savings/5 rounded-lg border border-savour-savings/20">
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-savour-savings" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm font-medium text-savour-text capitalize">
+                    {analysis.single_store_best.store_name.replace('-', ' ')}
+                  </span>
+                </div>
+                <span className="text-sm font-bold text-savour-savings">
+                  ${analysis.single_store_best.total.toFixed(2)}
                 </span>
               </div>
             )}
@@ -136,7 +157,7 @@ export default function PriceSummary({
         <div className="flex items-center justify-between mt-4 pt-4 border-t border-savour-border">
           <span className="font-semibold text-savour-text">Total Amount</span>
           <span className="text-xl font-bold text-savour-text">
-            ${(analysis ? bestStoreTotal : itemsTotal).toFixed(2)}
+            ${bestTotal.toFixed(2)}
           </span>
         </div>
       </div>

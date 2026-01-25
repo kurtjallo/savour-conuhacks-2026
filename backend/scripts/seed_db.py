@@ -13,11 +13,46 @@ from pymongo import MongoClient
 load_dotenv()
 
 STORES = [
-    {"store_id": "nofrills", "name": "No Frills", "color": "#FFD700"},
-    {"store_id": "freshco", "name": "FreshCo", "color": "#00A650"},
-    {"store_id": "walmart", "name": "Walmart", "color": "#0071CE"},
-    {"store_id": "loblaws", "name": "Loblaws", "color": "#E31837"},
-    {"store_id": "metro", "name": "Metro", "color": "#003DA5"}
+    {
+        "store_id": "nofrills",
+        "name": "No Frills",
+        "color": "#FFD700",
+        "address": "655 College St, Toronto, ON M6G 1B7",
+        "lat": 43.6551,
+        "lng": -79.4219
+    },
+    {
+        "store_id": "freshco",
+        "name": "FreshCo",
+        "color": "#00A650",
+        "address": "245 Queen St W, Toronto, ON M5V 1Z4",
+        "lat": 43.6497,
+        "lng": -79.3892
+    },
+    {
+        "store_id": "walmart",
+        "name": "Walmart",
+        "color": "#0071CE",
+        "address": "900 Dufferin St, Toronto, ON M6H 4A9",
+        "lat": 43.6604,
+        "lng": -79.4355
+    },
+    {
+        "store_id": "loblaws",
+        "name": "Loblaws",
+        "color": "#E31837",
+        "address": "60 Carlton St, Toronto, ON M5B 1J2",
+        "lat": 43.6610,
+        "lng": -79.3799
+    },
+    {
+        "store_id": "metro",
+        "name": "Metro",
+        "color": "#003DA5",
+        "address": "10 Lower Spadina Ave, Toronto, ON M5V 2Z2",
+        "lat": 43.6395,
+        "lng": -79.3946
+    }
 ]
 
 # Product IDs to select from CSV (diverse grocery items)

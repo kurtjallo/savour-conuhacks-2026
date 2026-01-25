@@ -7,6 +7,7 @@ import useGeolocation from '../hooks/useGeolocation';
 interface RouteOptimizerProps {
   basketItems: BasketItem[];
   multiStoreRecommended: boolean;
+  embedded?: boolean;
 }
 
 const DEFAULT_SETTINGS: RouteSettings = {
@@ -16,7 +17,7 @@ const DEFAULT_SETTINGS: RouteSettings = {
   time_per_store_minutes: 30,
 };
 
-export default function RouteOptimizer({ basketItems, multiStoreRecommended }: RouteOptimizerProps) {
+export default function RouteOptimizer({ basketItems, multiStoreRecommended, embedded = false }: RouteOptimizerProps) {
   const { location: userLocation, isLoading: locationLoading, isUsingDefault, requestLocation } = useGeolocation();
   const [settings] = useState<RouteSettings>(DEFAULT_SETTINGS);
   const [routeResponse, setRouteResponse] = useState<RouteOptimizeResponse | null>(null);
@@ -52,6 +53,23 @@ export default function RouteOptimizer({ basketItems, multiStoreRecommended }: R
     }
   }, [userLocation, basketItems.length, routeResponse, loading, fetchRoute]);
 
+  // Show "not recommended" message when embedded but multi-store isn't better
+  if (!multiStoreRecommended && embedded) {
+    return (
+      <div className="p-8 text-center">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
+          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-semibold text-savour-text mb-2">Single store is best!</h3>
+        <p className="text-savour-text-secondary text-sm">
+          No need for multiple trips. Your best deal is at one store.
+        </p>
+      </div>
+    );
+  }
+
   if (!multiStoreRecommended) {
     return null;
   }
@@ -64,26 +82,29 @@ export default function RouteOptimizer({ basketItems, multiStoreRecommended }: R
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-savour-border overflow-hidden shadow-sm">
-      {/* Header */}
-      <div className="px-5 py-4 border-b border-savour-border bg-gradient-to-r from-charcoal to-charcoal/90">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
-            </svg>
-          </div>
-          <div>
-            <h3 className="font-semibold text-white">Route Optimizer</h3>
-            <p className="text-sm text-white/70">Is the trip worth it?</p>
+    <div className={embedded ? '' : 'bg-white rounded-2xl border border-savour-border overflow-hidden shadow-sm'}>
+      {/* Header - only show when not embedded */}
+      {!embedded && (
+        <div className="px-5 py-4 border-b border-savour-border bg-gradient-to-r from-charcoal to-charcoal/90">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">Route Optimizer</h3>
+              <p className="text-sm text-white/70">Is the trip worth it?</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Location Bar */}
       <button
         onClick={isUsingDefault ? requestLocation : undefined}
-        className={`w-full px-5 py-3 flex items-center justify-between text-sm border-b border-savour-border transition-colors
+        className={`w-full px-5 py-3 flex items-center justify-between text-sm transition-colors
+          ${embedded ? 'rounded-lg mb-4' : 'border-b border-savour-border'}
           ${isUsingDefault ? 'bg-amber-50 hover:bg-amber-100 cursor-pointer' : 'bg-green-50 cursor-default'}`}
       >
         <div className="flex items-center gap-2">
@@ -100,7 +121,7 @@ export default function RouteOptimizer({ basketItems, multiStoreRecommended }: R
       </button>
 
       {/* Content */}
-      <div className="p-5">
+      <div className={embedded ? 'px-6 pb-6' : 'p-5'}>
         {/* Loading */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-12">

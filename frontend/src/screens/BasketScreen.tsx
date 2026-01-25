@@ -401,44 +401,64 @@ export default function BasketScreen() {
               </div>
             )}
 
-            {/* Shopping List Section (collapsible) */}
+            {/* Combined Shopping Strategy Section */}
             {analysis && (
-              <div id="shopping-list-section" className="mt-8">
-                <button
-                  onClick={() => setShowShoppingList(!showShoppingList)}
-                  aria-expanded={showShoppingList}
-                  aria-controls="shopping-list-content"
-                  className="w-full flex items-center justify-between p-4 bg-white border border-savour-border rounded-xl hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-savour-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                    </svg>
-                    <span className="font-medium text-savour-text">View Optimized Shopping List</span>
+              <div id="shopping-strategy-section" className="mt-8">
+                {/* Tab Header */}
+                <div className="bg-white border border-savour-border rounded-t-xl overflow-hidden">
+                  <div className="flex border-b border-savour-border">
+                    <button
+                      onClick={() => setShowShoppingList(true)}
+                      className={`flex-1 px-6 py-4 flex items-center justify-center gap-2 transition-colors ${
+                        showShoppingList
+                          ? 'bg-savour-accent/5 border-b-2 border-savour-accent text-savour-accent'
+                          : 'text-savour-text-secondary hover:bg-gray-50'
+                      }`}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                      </svg>
+                      <span className="font-medium">Shopping List</span>
+                    </button>
+                    <button
+                      onClick={() => setShowShoppingList(false)}
+                      className={`flex-1 px-6 py-4 flex items-center justify-center gap-2 transition-colors ${
+                        !showShoppingList
+                          ? 'bg-savour-accent/5 border-b-2 border-savour-accent text-savour-accent'
+                          : 'text-savour-text-secondary hover:bg-gray-50'
+                      }`}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+                      </svg>
+                      <span className="font-medium">Trip Planner</span>
+                    </button>
                   </div>
-                  <svg
-                    className={`w-5 h-5 text-savour-text-secondary transition-transform ${showShoppingList ? 'rotate-180' : ''}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                  </svg>
-                </button>
+                </div>
 
-                {showShoppingList && (
-                  <div id="shopping-list-content" className="mt-4">
+                {/* Tab Content */}
+                <div className="bg-white border border-t-0 border-savour-border rounded-b-xl p-6">
+                  {showShoppingList ? (
                     <StoreBreakdown items={analysis.multi_store_optimal} total={analysis.multi_store_total} />
-                  </div>
-                )}
+                  ) : (
+                    <div className="-m-6">
+                      <RouteOptimizer
+                        basketItems={items.filter(item => selectedItems.has(item.category_id))}
+                        multiStoreRecommended={
+                          analysis.multi_store_total < analysis.single_store_best.total
+                        }
+                        embedded={true}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
 
           {/* Right Column - Price Summary */}
           <div className="lg:w-[380px] lg:flex-shrink-0">
-            <div className="lg:sticky lg:top-36 space-y-4">
+            <div className="lg:sticky lg:top-36">
               <PriceSummary
                 items={itemsWithPrices}
                 analysis={analysis}
@@ -446,20 +466,11 @@ export default function BasketScreen() {
                 selectedCount={selectedItems.size}
                 onViewShoppingList={() => {
                   setShowShoppingList(true);
-                  // Scroll to shopping list section
+                  // Scroll to shopping strategy section
                   setTimeout(() => {
-                    document.getElementById('shopping-list-section')?.scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('shopping-strategy-section')?.scrollIntoView({ behavior: 'smooth' });
                   }, 100);
                 }}
-              />
-
-              {/* Route Optimizer - only show when multi-store is better */}
-              <RouteOptimizer
-                basketItems={items.filter(item => selectedItems.has(item.category_id))}
-                multiStoreRecommended={
-                  !!analysis &&
-                  analysis.multi_store_total < analysis.single_store_best.total
-                }
               />
             </div>
           </div>
