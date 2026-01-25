@@ -1,16 +1,24 @@
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useBasket } from '../context/BasketContext';
+import SearchBar from './SearchBar';
 
 export default function Header() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { totalCount } = useBasket();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+
+  const handleSearchSubmit = (query: string) => {
+    navigate(`/products?search=${encodeURIComponent(query)}`);
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-cream/80 backdrop-blur-md border-b border-border/50">
-      <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
         <button
           onClick={() => navigate('/')}
-          className="hover:opacity-70 transition-opacity duration-200"
+          className="hover:opacity-70 transition-opacity duration-200 flex-shrink-0"
         >
           <img
             src="/savourlogo.png"
@@ -18,6 +26,16 @@ export default function Header() {
             className="h-8 w-auto"
           />
         </button>
+
+        <div className="flex-1 max-w-md">
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onSubmit={handleSearchSubmit}
+            placeholder="Search groceries..."
+            compact
+          />
+        </div>
 
         <button
           onClick={() => navigate('/basket')}

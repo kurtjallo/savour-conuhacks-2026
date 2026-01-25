@@ -1,18 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
+  onSubmit?: (value: string) => void;
   placeholder?: string;
+  compact?: boolean;
 }
 
 export default function SearchBar({
   value,
   onChange,
+  onSubmit,
   placeholder = 'Search groceries...',
+  compact = false,
 }: SearchBarProps) {
   const [localValue, setLocalValue] = useState(value);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setLocalValue(value);
@@ -20,29 +23,26 @@ export default function SearchBar({
 
   const handleChange = (newValue: string) => {
     setLocalValue(newValue);
+    onChange(newValue);
+  };
 
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSubmit && localValue.trim()) {
+      onSubmit(localValue.trim());
     }
-
-    debounceRef.current = setTimeout(() => {
-      onChange(newValue);
-    }, 300);
   };
 
   const handleClear = () => {
     setLocalValue('');
     onChange('');
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
   };
 
   return (
-    <div className="relative w-full max-w-xl mx-auto">
-      <div className="absolute inset-y-0 left-0 flex items-center pl-5 pointer-events-none">
+    <form onSubmit={handleSubmit} className={`relative w-full ${compact ? '' : 'max-w-xl mx-auto'}`}>
+      <div className={`absolute inset-y-0 left-0 flex items-center ${compact ? 'pl-4' : 'pl-5'} pointer-events-none`}>
         <svg
-          className="w-5 h-5 text-muted"
+          className={`${compact ? 'w-4 h-4' : 'w-5 h-5'} text-muted`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -61,18 +61,20 @@ export default function SearchBar({
         value={localValue}
         onChange={(e) => handleChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full py-4 pl-14 pr-12 text-charcoal bg-white border border-border rounded-2xl
+        className={`w-full text-charcoal bg-white border border-border rounded-full
                    placeholder:text-muted font-ui
                    focus:outline-none focus:ring-2 focus:ring-charcoal/10 focus:border-charcoal/20
-                   transition-all duration-200"
+                   transition-all duration-200
+                   ${compact ? 'py-2 pl-10 pr-9 text-sm' : 'py-4 pl-14 pr-12'}`}
       />
       {localValue && (
         <button
+          type="button"
           onClick={handleClear}
-          className="absolute inset-y-0 right-0 flex items-center pr-5 text-muted hover:text-charcoal transition-colors"
+          className={`absolute inset-y-0 right-0 flex items-center ${compact ? 'pr-4' : 'pr-5'} text-muted hover:text-charcoal transition-colors`}
         >
           <svg
-            className="w-5 h-5"
+            className={`${compact ? 'w-4 h-4' : 'w-5 h-5'}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -87,6 +89,6 @@ export default function SearchBar({
           </svg>
         </button>
       )}
-    </div>
+    </form>
   );
 }
