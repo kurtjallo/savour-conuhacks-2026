@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Category } from '../lib/types';
 import { getCategoryColorFromName } from '../lib/icons';
 import { resolveImageUrl } from '../lib/api';
+import StoreLogo from './StoreLogo';
 
 interface CategoryCardProps {
   category: Category;
@@ -19,10 +20,10 @@ export default function CategoryCard({ category }: CategoryCardProps) {
 
   const formatStoreName = (storeId: string): string => {
     const storeNames: Record<string, string> = {
-      'no-frills': 'No Frills',
-      'freshco': 'FreshCo',
+      'maxi': 'Maxi',
+      'iga': 'IGA',
+      'provigo': 'Provigo',
       'walmart': 'Walmart',
-      'loblaws': 'Loblaws',
       'metro': 'Metro',
     };
     return storeNames[storeId] || storeId;
@@ -87,8 +88,8 @@ export default function CategoryCard({ category }: CategoryCardProps) {
               <span className="text-xl font-semibold text-charcoal font-display">
                 {formatPrice(category.cheapest_price)}
               </span>
-              <span className="text-sm text-muted ml-1 font-ui">
-                at {formatStoreName(category.cheapest_store)}
+              <span className="text-sm text-muted ml-1 font-ui inline-flex items-center gap-1">
+                at <StoreLogo storeId={category.cheapest_store} />
               </span>
             </div>
           </div>

@@ -13,32 +13,32 @@ from pymongo import MongoClient
 
 load_dotenv()
 
-# Toronto store locations
+# Montreal store locations (primary location per chain)
 STORE_LOCATIONS = {
-    "nofrills": {
-        "address": "45 Overlea Blvd, Toronto, ON",
-        "lat": 43.7054,
-        "lng": -79.3378
+    "maxi": {
+        "address": "1500 Rue Sainte-Catherine O, Montreal, QC H3G 1S4",
+        "lat": 45.4959,
+        "lng": -73.5779
     },
-    "freshco": {
-        "address": "1750 Brimley Rd, Scarborough, ON",
-        "lat": 43.7701,
-        "lng": -79.2629
+    "iga": {
+        "address": "5252 Av du Parc, Montreal, QC H2V 4G7",
+        "lat": 45.5228,
+        "lng": -73.6078
+    },
+    "provigo": {
+        "address": "1425 Rue Bishop, Montreal, QC H3G 2E5",
+        "lat": 45.4961,
+        "lng": -73.5725
     },
     "walmart": {
-        "address": "900 Dufferin St, Toronto, ON",
-        "lat": 43.6629,
-        "lng": -79.4350
-    },
-    "loblaws": {
-        "address": "60 Carlton St, Toronto, ON",
-        "lat": 43.6615,
-        "lng": -79.3780
+        "address": "9180 Blvd de l'Academie, Montreal, QC H4N 3G4",
+        "lat": 45.5336,
+        "lng": -73.6608
     },
     "metro": {
-        "address": "10 Lower Jarvis St, Toronto, ON",
-        "lat": 43.6480,
-        "lng": -79.3715
+        "address": "1500 Rue Peel, Montreal, QC H3A 1S8",
+        "lat": 45.5003,
+        "lng": -73.5728
     }
 }
 

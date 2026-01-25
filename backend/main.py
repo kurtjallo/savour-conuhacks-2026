@@ -486,11 +486,30 @@ async def generate_recipe(request: RecipeGenerateRequest):
 # --- Route Optimization ---
 
 async def _get_stores_with_locations() -> dict[str, StoreWithLocation]:
-    """Fetch stores that have location data."""
+    """Fetch stores that have location data.
+
+    Returns the first location for each store chain (for price lookups and route optimization).
+    The route optimizer will pick the closest location from user's position.
+    """
     stores = await stores_collection.find({}).to_list(100)
     result = {}
     for s in stores:
-        if "lat" in s and "lng" in s:
+        # Handle new multi-location format
+        locations = s.get("locations", [])
+        if locations:
+            # Use first location as representative for this chain
+            first_loc = locations[0]
+            result[s["store_id"]] = StoreWithLocation(
+                store_id=s["store_id"],
+                location_id=first_loc.get("location_id"),
+                name=s["name"],
+                color=s["color"],
+                address=first_loc.get("address", ""),
+                lat=first_loc["lat"],
+                lng=first_loc["lng"]
+            )
+        # Fallback for old single-location format
+        elif "lat" in s and "lng" in s:
             result[s["store_id"]] = StoreWithLocation(
                 store_id=s["store_id"],
                 name=s["name"],
@@ -576,11 +595,29 @@ def _calculate_optimal_route_order(
 
 @app.get("/api/stores/locations")
 async def get_store_locations():
-    """Get all stores with their location data for map display."""
+    """Get all store locations for map display.
+
+    Flattens multiple locations per chain into individual location entries.
+    Each location includes store_id (chain), location_id, and coordinates.
+    """
     stores = await stores_collection.find({}).to_list(100)
     result = []
     for s in stores:
-        if "lat" in s and "lng" in s:
+        # Handle new multi-location format
+        locations = s.get("locations", [])
+        if locations:
+            for loc in locations:
+                result.append({
+                    "store_id": s["store_id"],
+                    "location_id": loc.get("location_id"),
+                    "name": s["name"],
+                    "color": s["color"],
+                    "address": loc.get("address", ""),
+                    "lat": loc["lat"],
+                    "lng": loc["lng"]
+                })
+        # Fallback for old single-location format
+        elif "lat" in s and "lng" in s:
             result.append({
                 "store_id": s["store_id"],
                 "name": s["name"],

@@ -12,48 +12,89 @@ from pymongo import MongoClient
 
 load_dotenv()
 
-STORES = [
+# Quebec/Montreal store chains with multiple locations per chain
+STORE_CHAINS = [
     {
-        "store_id": "nofrills",
-        "name": "No Frills",
-        "color": "#FFD700",
-        "address": "655 College St, Toronto, ON M6G 1B7",
-        "lat": 43.6551,
-        "lng": -79.4219
+        "store_id": "superc",
+        "name": "Super C",
+        "color": "#FF6B00",
+        "locations": [
+            {"location_id": "superc_hochelaga", "address": "3190 Rue Sherbrooke E, Montreal, QC H1W 1C9", "lat": 45.5426, "lng": -73.5418},
+            {"location_id": "superc_st_leonard", "address": "5975 Rue Jean-Talon E, Saint-Leonard, QC H1S 1M4", "lat": 45.5894, "lng": -73.5805},
+            {"location_id": "superc_lasalle", "address": "7475 Blvd Newman, LaSalle, QC H8N 1X3", "lat": 45.4306, "lng": -73.6389},
+            {"location_id": "superc_laval", "address": "1600 Blvd Le Corbusier, Laval, QC H7S 2K1", "lat": 45.5607, "lng": -73.7249},
+        ]
     },
     {
-        "store_id": "freshco",
-        "name": "FreshCo",
-        "color": "#00A650",
-        "address": "245 Queen St W, Toronto, ON M5V 1Z4",
-        "lat": 43.6497,
-        "lng": -79.3892
-    },
-    {
-        "store_id": "walmart",
-        "name": "Walmart",
-        "color": "#0071CE",
-        "address": "900 Dufferin St, Toronto, ON M6H 4A9",
-        "lat": 43.6604,
-        "lng": -79.4355
-    },
-    {
-        "store_id": "loblaws",
-        "name": "Loblaws",
+        "store_id": "maxi",
+        "name": "Maxi",
         "color": "#E31837",
-        "address": "60 Carlton St, Toronto, ON M5B 1J2",
-        "lat": 43.6610,
-        "lng": -79.3799
+        "locations": [
+            {"location_id": "maxi_downtown", "address": "1500 Rue Sainte-Catherine O, Montreal, QC H3G 1S4", "lat": 45.4959, "lng": -73.5779},
+            {"location_id": "maxi_villeray", "address": "7200 Rue Saint-Hubert, Montreal, QC H2R 2N3", "lat": 45.5393, "lng": -73.6186},
+            {"location_id": "maxi_lasalle", "address": "7676 Blvd Newman, LaSalle, QC H8N 1X3", "lat": 45.4304, "lng": -73.6397},
+            {"location_id": "maxi_laval", "address": "3100 Blvd Le Carrefour, Laval, QC H7T 2K7", "lat": 45.5569, "lng": -73.7467},
+        ]
+    },
+    {
+        "store_id": "iga",
+        "name": "IGA",
+        "color": "#D71920",
+        "locations": [
+            {"location_id": "iga_plateau", "address": "5252 Av du Parc, Montreal, QC H2V 4G7", "lat": 45.5228, "lng": -73.6078},
+            {"location_id": "iga_ndg", "address": "5858 Sherbrooke St W, Montreal, QC H4A 1X3", "lat": 45.4683, "lng": -73.6147},
+            {"location_id": "iga_rosemont", "address": "3696 Rue Masson, Montreal, QC H1X 1S6", "lat": 45.5500, "lng": -73.5750},
+            {"location_id": "iga_verdun", "address": "4901 Rue Wellington, Verdun, QC H4G 1X6", "lat": 45.4575, "lng": -73.5714},
+        ]
+    },
+    {
+        "store_id": "provigo",
+        "name": "Provigo",
+        "color": "#E31837",
+        "locations": [
+            {"location_id": "provigo_mcgill", "address": "1425 Rue Bishop, Montreal, QC H3G 2E5", "lat": 45.4961, "lng": -73.5725},
+            {"location_id": "provigo_westmount", "address": "4920 Rue de Maisonneuve O, Westmount, QC H3Z 1N3", "lat": 45.4796, "lng": -73.5994},
+            {"location_id": "provigo_villeray", "address": "7101 Rue Saint-Denis, Montreal, QC H2R 1P4", "lat": 45.5381, "lng": -73.6118},
+            {"location_id": "provigo_ahuntsic", "address": "360 Rue Fleury O, Montreal, QC H3L 1V3", "lat": 45.5493, "lng": -73.6507},
+        ]
     },
     {
         "store_id": "metro",
         "name": "Metro",
         "color": "#003DA5",
-        "address": "10 Lower Spadina Ave, Toronto, ON M5V 2Z2",
-        "lat": 43.6395,
-        "lng": -79.3946
-    }
+        "locations": [
+            {"location_id": "metro_downtown", "address": "1500 Rue Peel, Montreal, QC H3A 1S8", "lat": 45.5003, "lng": -73.5728},
+            {"location_id": "metro_plateau", "address": "3575 Av du Parc, Montreal, QC H2X 3P9", "lat": 45.5116, "lng": -73.5780},
+            {"location_id": "metro_mile_end", "address": "5650 Av du Parc, Montreal, QC H2V 4H2", "lat": 45.5253, "lng": -73.6093},
+            {"location_id": "metro_cote_des_neiges", "address": "6700 Ch de la Cote-des-Neiges, Montreal, QC H3S 2B2", "lat": 45.4984, "lng": -73.6296},
+        ]
+    },
+    {
+        "store_id": "walmart",
+        "name": "Walmart",
+        "color": "#0071CE",
+        "locations": [
+            {"location_id": "walmart_marche_central", "address": "9180 Blvd de l'Academie, Montreal, QC H4N 3G4", "lat": 45.5336, "lng": -73.6608},
+            {"location_id": "walmart_lasalle", "address": "7500 Blvd Newman, LaSalle, QC H8N 1X2", "lat": 45.4309, "lng": -73.6391},
+            {"location_id": "walmart_anjou", "address": "7400 Blvd des Galeries d'Anjou, Anjou, QC H1M 3M2", "lat": 45.6087, "lng": -73.5495},
+            {"location_id": "walmart_laval", "address": "3055 Blvd Le Carrefour, Laval, QC H7T 1C8", "lat": 45.5557, "lng": -73.7451},
+        ]
+    },
 ]
+
+# Flattened list for backward compatibility (first location per chain)
+STORES = []
+for chain in STORE_CHAINS:
+    first_loc = chain["locations"][0]
+    STORES.append({
+        "store_id": chain["store_id"],
+        "name": chain["name"],
+        "color": chain["color"],
+        "address": first_loc["address"],
+        "lat": first_loc["lat"],
+        "lng": first_loc["lng"],
+        "locations": chain["locations"]  # Include all locations
+    })
 
 # Product IDs to select from CSV (diverse grocery items)
 SELECTED_PRODUCT_IDS = [
@@ -100,20 +141,27 @@ def extract_image_url(product_image_str):
     return ""
 
 
-def generate_store_prices(loblaws_price):
-    """Generate realistic prices for all stores based on Loblaws price."""
-    if not loblaws_price or loblaws_price <= 0:
-        loblaws_price = 2.99
+def generate_store_prices(base_price):
+    """Generate realistic prices for Quebec stores based on base price (from CSV).
 
-    # No Frills and FreshCo are typically cheapest (5-15% less)
-    # Walmart is competitive (3-10% less)
-    # Metro is typically similar or slightly higher (0-10% more)
+    Quebec market pricing tiers (Jan 2026, based on MTL Blog comparisons):
+    - Super C: Metro's discount banner, cheapest in Quebec
+    - Maxi: Loblaw's discount banner, 2nd cheapest
+    - Walmart: National chain, competitive pricing
+    - Provigo: Premium chain (Loblaw-owned), baseline reference
+    - IGA: Mid-to-expensive tier (Sobeys-owned)
+    - Metro: Most expensive full-service chain
+    """
+    if not base_price or base_price <= 0:
+        base_price = 2.99
+
     prices = {
-        "nofrills": round(loblaws_price * random.uniform(0.85, 0.95), 2),
-        "freshco": round(loblaws_price * random.uniform(0.82, 0.92), 2),
-        "walmart": round(loblaws_price * random.uniform(0.88, 0.97), 2),
-        "loblaws": round(loblaws_price, 2),
-        "metro": round(loblaws_price * random.uniform(0.95, 1.10), 2),
+        "superc": round(base_price * random.uniform(0.78, 0.88), 2),    # Cheapest (Metro's discount)
+        "maxi": round(base_price * random.uniform(0.80, 0.90), 2),      # 2nd cheapest (Loblaw discount)
+        "walmart": round(base_price * random.uniform(0.84, 0.94), 2),   # Competitive national
+        "iga": round(base_price * random.uniform(1.02, 1.12), 2),       # Mid-expensive (Sobeys)
+        "provigo": round(base_price, 2),                                 # Premium baseline
+        "metro": round(base_price * random.uniform(1.05, 1.15), 2),     # Most expensive
     }
     return prices
 

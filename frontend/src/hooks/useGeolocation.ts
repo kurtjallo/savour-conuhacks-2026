@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Location } from '../lib/types';
 
-// Toronto downtown as default fallback
-const DEFAULT_LOCATION: Location = { lat: 43.6532, lng: -79.3832 };
+// Downtown Montreal as default fallback
+const DEFAULT_LOCATION: Location = { lat: 45.5017, lng: -73.5673 };
 
 interface GeolocationState {
   location: Location;
