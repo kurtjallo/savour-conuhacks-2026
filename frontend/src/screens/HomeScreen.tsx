@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
-import CategoryNav from '../components/CategoryNav';
+import QuickAddButton from '../components/QuickAddButton';
 import { getCategories } from '../lib/api';
 import { resolveImageUrl } from '../lib/api';
 import type { Category } from '../lib/types';
@@ -23,8 +23,6 @@ export default function HomeScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -41,52 +39,6 @@ export default function HomeScreen() {
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
-
-  // Intersection Observer for active category tracking
-  useEffect(() => {
-    const observers: IntersectionObserver[] = [];
-
-    // Create observer for each section
-    BROWSE_CATEGORIES.forEach((category) => {
-      const section = sectionRefs.current[category.id];
-      if (section) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                setActiveCategory(category.id);
-              }
-            });
-          },
-          {
-            rootMargin: '-120px 0px -50% 0px',
-            threshold: 0,
-          }
-        );
-        observer.observe(section);
-        observers.push(observer);
-      }
-    });
-
-    return () => {
-      observers.forEach((observer) => observer.disconnect());
-    };
-  }, [categories]); // Re-run when categories load
-
-  // Scroll to category section
-  const scrollToCategory = (categoryId: string) => {
-    const section = sectionRefs.current[categoryId];
-    if (section) {
-      const headerOffset = 130; // Header (64px) + CategoryNav (~56px) + padding
-      const elementPosition = section.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - headerOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      });
-    }
-  };
 
   // Calculate savings stats
   const savingsStats = useMemo(() => {
@@ -180,11 +132,6 @@ export default function HomeScreen() {
   return (
     <div className="min-h-screen bg-cream">
       <Header />
-      <CategoryNav
-        categories={BROWSE_CATEGORIES}
-        activeCategory={activeCategory}
-        onCategoryClick={scrollToCategory}
-      />
 
       <main className="max-w-6xl mx-auto px-6">
         {/* Hero Section - More compact */}
@@ -207,27 +154,32 @@ export default function HomeScreen() {
           </div>
         </section>
 
-        {/* Stats Banner */}
+        {/* Stats Banner - Clean inline style */}
         {savingsStats && (
           <section className="mb-10 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-            <div className="bg-gradient-to-r from-sage/10 to-accent/10 rounded-2xl p-6 border border-sage/20">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p className="text-2xl md:text-3xl font-bold text-charcoal font-display">
-                    {savingsStats.productsCompared}+
-                  </p>
-                  <p className="text-xs md:text-sm text-charcoal-light font-ui">Products Compared</p>
-                </div>
-                <div>
-                  <p className="text-2xl md:text-3xl font-bold text-accent font-display">
-                    {savingsStats.maxSavingsPercent}%
-                  </p>
-                  <p className="text-xs md:text-sm text-charcoal-light font-ui">Max Savings</p>
-                </div>
-                <div>
-                  <p className="text-2xl md:text-3xl font-bold text-sage font-display">5</p>
-                  <p className="text-xs md:text-sm text-charcoal-light font-ui">Stores Tracked</p>
-                </div>
+            <div className="flex items-center justify-center gap-6 md:gap-10">
+              <div className="text-center">
+                <p className="text-xl md:text-2xl font-bold text-charcoal font-display">
+                  {savingsStats.productsCompared.toLocaleString()}+
+                </p>
+                <p className="text-xs text-muted font-ui">Products</p>
+              </div>
+              <div className="w-px h-10 bg-border" />
+              <div className="text-center">
+                <p className="text-xl md:text-2xl font-bold text-accent font-display">
+                  {savingsStats.maxSavingsPercent}%
+                </p>
+                <p className="text-xs text-muted font-ui">Max Savings</p>
+              </div>
+              <div className="w-px h-10 bg-border" />
+              <div className="text-center">
+                <p className="text-xl md:text-2xl font-bold text-charcoal font-display">5</p>
+                <p className="text-xs text-muted font-ui">Stores</p>
+              </div>
+              <div className="w-px h-10 bg-border hidden sm:block" />
+              <div className="text-center hidden sm:block">
+                <p className="text-xl md:text-2xl font-bold text-sage font-display">Live</p>
+                <p className="text-xs text-muted font-ui">Prices</p>
               </div>
             </div>
           </section>
@@ -257,7 +209,7 @@ export default function HomeScreen() {
                 <div
                   key={deal.category_id}
                   onClick={() => navigate(`/category/${deal.category_id}`)}
-                  className="product-scroll-card bg-white rounded-xl border border-border cursor-pointer
+                  className="product-scroll-card relative bg-white rounded-xl border border-border cursor-pointer
                              hover:-translate-y-1 hover:shadow-lift transition-all duration-300 overflow-hidden group"
                   style={{ animationDelay: `${200 + index * 50}ms` }}
                 >
@@ -302,6 +254,13 @@ export default function HomeScreen() {
                     <p className="text-xs text-charcoal-light mt-1 font-ui">
                       at {formatStoreName(deal.cheapest_store)}
                     </p>
+                  </div>
+
+                  {/* Quick Add Button */}
+                  <div className="absolute bottom-3 right-3 opacity-70 group-hover:opacity-100
+                                  md:opacity-0 md:group-hover:opacity-100
+                                  transition-opacity duration-200">
+                    <QuickAddButton category={deal} />
                   </div>
                 </div>
               ))}
@@ -356,8 +315,7 @@ export default function HomeScreen() {
             <section
               key={category.id}
               id={`category-${category.id}`}
-              ref={(el) => { sectionRefs.current[category.id] = el; }}
-              className="mb-12 animate-fade-in-up scroll-mt-32"
+              className="mb-12 animate-fade-in-up"
               style={{ animationDelay: `${300 + catIndex * 50}ms` }}
             >
               <div className="flex items-center justify-between mb-5">
@@ -385,7 +343,7 @@ export default function HomeScreen() {
                     <div
                       key={product.category_id}
                       onClick={() => navigate(`/category/${product.category_id}`)}
-                      className="product-scroll-card bg-white rounded-xl border border-border cursor-pointer
+                      className="product-scroll-card relative bg-white rounded-xl border border-border cursor-pointer
                                  hover:-translate-y-1 hover:shadow-lift transition-all duration-300 overflow-hidden group"
                     >
                       {product.image_url ? (
@@ -418,6 +376,13 @@ export default function HomeScreen() {
                             {formatStoreName(product.cheapest_store)}
                           </span>
                         </div>
+                      </div>
+
+                      {/* Quick Add Button */}
+                      <div className="absolute bottom-3 right-3 opacity-70 group-hover:opacity-100
+                                      md:opacity-0 md:group-hover:opacity-100
+                                      transition-opacity duration-200">
+                        <QuickAddButton category={product} />
                       </div>
                     </div>
                   ))}
