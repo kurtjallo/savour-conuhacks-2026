@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getCategories } from '../lib/api';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { getCategories, searchCategories } from '../lib/api';
 import type { Category } from '../lib/types';
 import { useBasket } from '../context/BasketContext';
 import ProductGridCard from '../components/ProductGridCard';
@@ -9,6 +9,8 @@ const ITEMS_PER_PAGE = 100;
 
 export default function AllProductsScreen() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
   const { totalCount } = useBasket();
   const [categories, setCategories] = useState<Category[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -19,15 +21,19 @@ export default function AllProductsScreen() {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await getCategories();
+      // Use search API if there's a search query, otherwise get all categories
+      const data = searchQuery.trim()
+        ? await searchCategories(searchQuery.trim())
+        : await getCategories();
       setCategories(data);
+      setCurrentPage(1); // Reset to first page when search changes
     } catch (err) {
       setError('Unable to load products. Please try again.');
       console.error('Error fetching categories:', err);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [searchQuery]);
 
   useEffect(() => {
     fetchCategories();
@@ -65,7 +71,9 @@ export default function AllProductsScreen() {
         <main className="max-w-7xl mx-auto px-6 py-20">
           <div className="flex flex-col items-center justify-center">
             <div className="w-8 h-8 border-2 border-charcoal/20 border-t-charcoal rounded-full animate-spin mb-4"></div>
-            <p className="text-charcoal-light text-sm font-ui">Loading 1000+ products...</p>
+            <p className="text-charcoal-light text-sm font-ui">
+              {searchQuery ? `Searching for "${searchQuery}"...` : 'Loading 1000+ products...'}
+            </p>
           </div>
         </main>
       </div>
@@ -120,16 +128,33 @@ export default function AllProductsScreen() {
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-2">
             <h2 className="text-3xl font-semibold text-charcoal tracking-tight font-display">
-              All Products
+              {searchQuery ? `Search: "${searchQuery}"` : 'All Products'}
             </h2>
             <span className="inline-flex items-center px-3 py-1 text-sm font-bold text-white bg-accent rounded-full">
-              {categories.length.toLocaleString()} items
+              {categories.length.toLocaleString()} {categories.length === 1 ? 'item' : 'items'}
             </span>
           </div>
           <p className="text-charcoal-light font-ui">
-            Compare prices across <span className="font-semibold text-charcoal">{categories.length.toLocaleString()}</span> products
-            at <span className="font-semibold text-charcoal">5 major Canadian grocery stores</span>
+            {searchQuery ? (
+              <>
+                Found <span className="font-semibold text-charcoal">{categories.length.toLocaleString()}</span> matching products
+                {' '}across <span className="font-semibold text-charcoal">5 major Canadian grocery stores</span>
+              </>
+            ) : (
+              <>
+                Compare prices across <span className="font-semibold text-charcoal">{categories.length.toLocaleString()}</span> products
+                {' '}at <span className="font-semibold text-charcoal">5 major Canadian grocery stores</span>
+              </>
+            )}
           </p>
+          {searchQuery && (
+            <button
+              onClick={() => navigate('/products')}
+              className="mt-3 text-sm text-accent hover:text-accent/80 font-medium transition-colors"
+            >
+              Clear search and view all products
+            </button>
+          )}
         </div>
 
         {/* Stats bar */}
