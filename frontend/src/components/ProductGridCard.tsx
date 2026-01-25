@@ -42,16 +42,16 @@ export default function ProductGridCard({ category }: ProductGridCardProps) {
     }).format(price);
   };
 
-  const formatStoreName = (storeId: string): string => {
-    const storeNames: Record<string, string> = {
-      'nofrills': 'No Frills',
-      'no-frills': 'No Frills',
-      'freshco': 'FreshCo',
-      'walmart': 'Walmart',
-      'loblaws': 'Loblaws',
-      'metro': 'Metro',
+  const getStoreLogo = (storeId: string): { logo: string; name: string } => {
+    const storeLogos: Record<string, { logo: string; name: string }> = {
+      'nofrills': { logo: '/nofrills.png', name: 'No Frills' },
+      'no-frills': { logo: '/nofrills.png', name: 'No Frills' },
+      'freshco': { logo: '/freshco-seeklogo.png', name: 'FreshCo' },
+      'walmart': { logo: '/walmart.svg', name: 'Walmart' },
+      'loblaws': { logo: '/loblaws.png', name: 'Loblaws' },
+      'metro': { logo: '/metro.png', name: 'Metro' },
     };
-    return storeNames[storeId] || storeId;
+    return storeLogos[storeId] || { logo: '', name: storeId };
   };
 
   return (
@@ -110,9 +110,11 @@ export default function ProductGridCard({ category }: ProductGridCardProps) {
 
         {/* Store & Savings */}
         <div className="flex items-center justify-between flex-wrap gap-1">
-          <span className="text-xs text-charcoal-light font-ui">
-            at {formatStoreName(category.cheapest_store)}
-          </span>
+          <img
+            src={getStoreLogo(category.cheapest_store).logo}
+            alt={getStoreLogo(category.cheapest_store).name}
+            className={`object-contain ${category.cheapest_store === 'freshco' ? 'h-6' : 'h-4'}`}
+          />
           {category.previous_price && category.previous_price > category.cheapest_price && (
             <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-sage bg-sage-light rounded-full font-ui">
               Save {Math.round(((category.previous_price - category.cheapest_price) / category.previous_price) * 100)}%

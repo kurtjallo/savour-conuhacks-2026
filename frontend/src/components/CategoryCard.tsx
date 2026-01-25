@@ -17,15 +17,16 @@ export default function CategoryCard({ category }: CategoryCardProps) {
     }).format(price);
   };
 
-  const formatStoreName = (storeId: string): string => {
-    const storeNames: Record<string, string> = {
-      'no-frills': 'No Frills',
-      'freshco': 'FreshCo',
-      'walmart': 'Walmart',
-      'loblaws': 'Loblaws',
-      'metro': 'Metro',
+  const getStoreLogo = (storeId: string): { logo: string; name: string } => {
+    const storeLogos: Record<string, { logo: string; name: string }> = {
+      'nofrills': { logo: '/nofrills.png', name: 'No Frills' },
+      'no-frills': { logo: '/nofrills.png', name: 'No Frills' },
+      'freshco': { logo: '/freshco-seeklogo.png', name: 'FreshCo' },
+      'walmart': { logo: '/walmart.svg', name: 'Walmart' },
+      'loblaws': { logo: '/loblaws.png', name: 'Loblaws' },
+      'metro': { logo: '/metro.png', name: 'Metro' },
     };
-    return storeNames[storeId] || storeId;
+    return storeLogos[storeId] || { logo: '', name: storeId };
   };
 
   const calculateSavings = (): number | null => {
@@ -86,9 +87,11 @@ export default function CategoryCard({ category }: CategoryCardProps) {
               <span className="text-xl font-semibold text-charcoal font-display">
                 {formatPrice(category.cheapest_price)}
               </span>
-              <span className="text-sm text-muted ml-1 font-ui">
-                at {formatStoreName(category.cheapest_store)}
-              </span>
+              <img
+                src={getStoreLogo(category.cheapest_store).logo}
+                alt={getStoreLogo(category.cheapest_store).name}
+                className={`ml-2 object-contain ${category.cheapest_store === 'freshco' ? 'h-7' : 'h-5'}`}
+              />
             </div>
           </div>
 
