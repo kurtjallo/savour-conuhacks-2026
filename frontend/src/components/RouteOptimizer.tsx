@@ -110,7 +110,7 @@ export default function RouteOptimizer({ basketItems, multiStoreRecommended, emb
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${isUsingDefault ? 'bg-amber-500' : 'bg-green-500'} ${locationLoading ? 'animate-pulse' : ''}`} />
           <span className={isUsingDefault ? 'text-amber-800' : 'text-green-800'}>
-            {locationLoading ? 'Finding your location...' : isUsingDefault ? 'Using default location (Toronto)' : 'Using your location'}
+            {locationLoading ? 'Finding your location...' : isUsingDefault ? 'Using default location (Montreal)' : 'Using your location'}
           </span>
         </div>
         {isUsingDefault && !locationLoading && (

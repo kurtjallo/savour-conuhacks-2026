@@ -1,8 +1,9 @@
 const stores = [
-  { name: 'No Frills', logo: '/nofrills.png' },
-  { name: 'FreshCo', logo: '/freshco-seeklogo.png' },
-  { name: 'Walmart', logo: '/walmart.svg' },
-  { name: 'Loblaws', logo: '/loblaws.png' },
+  { name: 'Super C', logo: '/superc.png' },
+  { name: 'Maxi', logo: '/maxi.png' },
+  { name: 'IGA', logo: '/iga.svg' },
+  { name: 'Provigo', logo: '/provigo.png' },
+  { name: 'Walmart', logo: '/walmart.png' },
   { name: 'Metro', logo: '/metro.png' },
 ];
 

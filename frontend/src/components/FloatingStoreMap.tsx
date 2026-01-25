@@ -63,7 +63,7 @@ export default function FloatingStoreMap() {
     });
     L.marker([userLocation.lat, userLocation.lng], { icon: userIcon })
       .addTo(map)
-      .bindPopup(isUsingDefault ? 'Default Location (Toronto)' : 'Your Location');
+      .bindPopup(isUsingDefault ? 'Default Location (Montreal)' : 'Your Location');
 
     // Add store markers
     const bounds = L.latLngBounds([[userLocation.lat, userLocation.lng]]);
