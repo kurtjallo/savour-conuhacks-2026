@@ -21,47 +21,13 @@ const DEFAULT_SETTINGS: RouteSettings = {
 const DEFAULT_LOCATION: Location = { lat: 43.6532, lng: -79.3832 };
 
 export default function RouteOptimizer({ basketItems, multiStoreRecommended }: RouteOptimizerProps) {
-  const [userLocation, setUserLocation] = useState<Location | null>(null);
-  const [locationError, setLocationError] = useState<string | null>(null);
-  const [locationLoading, setLocationLoading] = useState(false);
+  // Use Toronto as default location for demonstration
+  const [userLocation] = useState<Location>(DEFAULT_LOCATION);
   const [settings, setSettings] = useState<RouteSettings>(DEFAULT_SETTINGS);
   const [routeResponse, setRouteResponse] = useState<RouteOptimizeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-
-  // Request user location
-  const requestLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      setLocationError('Geolocation is not supported by your browser. Using downtown Toronto.');
-      setUserLocation(DEFAULT_LOCATION);
-      return;
-    }
-
-    setLocationLoading(true);
-    setLocationError(null);
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-        setLocationLoading(false);
-      },
-      (err) => {
-        console.warn('Geolocation error:', err);
-        setLocationError('Could not get your location. Using downtown Toronto.');
-        setUserLocation(DEFAULT_LOCATION);
-        setLocationLoading(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000, // 5 minutes cache
-      }
-    );
-  }, []);
 
   // Fetch route optimization when location and items are available
   const fetchRoute = useCallback(async () => {
@@ -109,12 +75,7 @@ export default function RouteOptimizer({ basketItems, multiStoreRecommended }: R
     <div className="mt-6 bg-white border border-savour-border rounded-xl overflow-hidden">
       {/* Header - Always visible */}
       <button
-        onClick={() => {
-          setIsExpanded(!isExpanded);
-          if (!userLocation && !isExpanded) {
-            requestLocation();
-          }
-        }}
+        onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
       >
         <div className="flex items-center gap-3">
@@ -139,22 +100,14 @@ export default function RouteOptimizer({ basketItems, multiStoreRecommended }: R
       {/* Expanded Content */}
       {isExpanded && (
         <div className="px-4 pb-4 space-y-4 border-t border-savour-border pt-4">
-          {/* Location Status */}
-          {locationLoading && (
-            <div className="flex items-center gap-2 text-sm text-savour-text-secondary">
-              <div className="w-4 h-4 border-2 border-savour-border border-t-savour-accent rounded-full animate-spin" />
-              <span>Getting your location...</span>
-            </div>
-          )}
-
-          {locationError && (
-            <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
-              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-              </svg>
-              <span>{locationError}</span>
-            </div>
-          )}
+          {/* Location Info */}
+          <div className="flex items-center gap-2 text-sm text-savour-text-secondary bg-blue-50 p-3 rounded-lg">
+            <svg className="w-4 h-4 flex-shrink-0 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            <span>Using downtown Toronto as starting location</span>
+          </div>
 
           {/* Settings Panel */}
           <RouteSettingsPanel settings={settings} onSettingsChange={setSettings} />
