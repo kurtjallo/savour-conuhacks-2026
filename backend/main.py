@@ -56,7 +56,7 @@ async def get_stores():
 
 @app.get("/api/categories", response_model=CategoriesResponse)
 async def get_categories():
-    categories = await categories_collection.find({}).sort("sort_order", 1).to_list(200)
+    categories = await categories_collection.find({}).sort("sort_order", 1).to_list(1500)
     stores = {s["store_id"]: s for s in await stores_collection.find({}).to_list(100)}
 
     result = []
