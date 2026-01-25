@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 interface PriceHistoryChartProps {
   currentPrice: number;
@@ -11,6 +11,7 @@ interface PricePoint {
 }
 
 export default function PriceHistoryChart({ currentPrice, productId }: PriceHistoryChartProps) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   // Generate deterministic random prices based on productId
   const priceHistory = useMemo<PricePoint[]>(() => {
     const months = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'];
@@ -154,47 +155,85 @@ export default function PriceHistoryChart({ currentPrice, productId }: PriceHist
         />
 
         {/* Data points */}
-        {points.map((point, i) => (
-          <g key={i}>
-            <circle
-              cx={point.x}
-              cy={point.y}
-              r="4"
-              fill="white"
-              stroke={trendColor}
-              strokeWidth="2"
-            />
-            {/* X-axis labels */}
-            <text
-              x={point.x}
-              y={height - 10}
-              textAnchor="middle"
-              className="text-xs fill-savour-text-secondary"
-              style={{ fontSize: '11px' }}
-            >
-              {point.month}
-            </text>
-          </g>
-        ))}
-
-        {/* Current price indicator */}
-        <g>
-          <circle
-            cx={points[points.length - 1].x}
-            cy={points[points.length - 1].y}
-            r="6"
-            fill={trendColor}
-          />
-          <text
-            x={points[points.length - 1].x}
-            y={points[points.length - 1].y - 12}
-            textAnchor="middle"
-            className="text-xs font-medium fill-savour-text"
-            style={{ fontSize: '12px' }}
-          >
-            ${currentPrice.toFixed(2)}
-          </text>
-        </g>
+        {points.map((point, i) => {
+          const isHovered = hoveredIndex === i;
+          const isLast = i === points.length - 1;
+          return (
+            <g key={i}>
+              {/* Invisible larger circle for easier hover */}
+              <circle
+                cx={point.x}
+                cy={point.y}
+                r="16"
+                fill="transparent"
+                style={{ cursor: 'pointer' }}
+                onMouseEnter={() => setHoveredIndex(i)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              />
+              {/* Visible circle */}
+              <circle
+                cx={point.x}
+                cy={point.y}
+                r={isHovered || isLast ? 6 : 4}
+                fill={isHovered || isLast ? trendColor : 'white'}
+                stroke={trendColor}
+                strokeWidth="2"
+                style={{ transition: 'r 0.15s, fill 0.15s' }}
+              />
+              {/* X-axis labels */}
+              <text
+                x={point.x}
+                y={height - 10}
+                textAnchor="middle"
+                className="text-xs fill-savour-text-secondary"
+                style={{ fontSize: '11px' }}
+              >
+                {point.month}
+              </text>
+              {/* Tooltip on hover */}
+              {isHovered && (
+                <g>
+                  {/* Tooltip background */}
+                  <rect
+                    x={point.x - 35}
+                    y={point.y - 45}
+                    width="70"
+                    height="30"
+                    rx="6"
+                    fill="#1F2937"
+                    opacity="0.95"
+                  />
+                  {/* Tooltip arrow */}
+                  <polygon
+                    points={`${point.x - 6},${point.y - 15} ${point.x + 6},${point.y - 15} ${point.x},${point.y - 8}`}
+                    fill="#1F2937"
+                    opacity="0.95"
+                  />
+                  {/* Tooltip text - price */}
+                  <text
+                    x={point.x}
+                    y={point.y - 32}
+                    textAnchor="middle"
+                    fill="white"
+                    style={{ fontSize: '12px', fontWeight: 600 }}
+                  >
+                    ${point.price.toFixed(2)}
+                  </text>
+                  {/* Tooltip text - month */}
+                  <text
+                    x={point.x}
+                    y={point.y - 20}
+                    textAnchor="middle"
+                    fill="#9CA3AF"
+                    style={{ fontSize: '10px' }}
+                  >
+                    {point.month}
+                  </text>
+                </g>
+              )}
+            </g>
+          );
+        })}
       </svg>
 
       <div className="mt-4 flex items-center justify-between text-xs text-savour-text-secondary">
