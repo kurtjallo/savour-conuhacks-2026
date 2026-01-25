@@ -1,5 +1,6 @@
 import type { BasketItem as BasketItemType } from '../lib/types';
 import { resolveImageUrl } from '../lib/api';
+import { getCategoryColorFromName } from '../lib/icons';
 
 interface CartItemCardProps {
   item: BasketItemType;
@@ -62,7 +63,10 @@ export default function CartItemCard({
           />
         ) : (
           <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center border border-gray-200">
-            <span className="text-3xl">{item.icon}</span>
+            <div
+              className="w-10 h-10 rounded-full opacity-40"
+              style={{ backgroundColor: getCategoryColorFromName(item.name) }}
+            />
           </div>
         )}
       </div>

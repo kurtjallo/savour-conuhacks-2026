@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useBasket } from '../context/BasketContext';
 import SearchBar from './SearchBar';
@@ -8,6 +8,19 @@ export default function Header() {
   const [searchParams] = useSearchParams();
   const { totalCount } = useBasket();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+  const [isAnimating, setIsAnimating] = useState(false);
+  const prevCountRef = useRef(totalCount);
+
+  useEffect(() => {
+    if (totalCount > prevCountRef.current) {
+      setIsAnimating(true);
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    prevCountRef.current = totalCount;
+  }, [totalCount]);
 
   const handleSearchSubmit = (query: string) => {
     navigate(`/products?search=${encodeURIComponent(query)}`);
@@ -15,7 +28,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-cream/80 backdrop-blur-md border-b border-border/50">
-      <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
         <button
           onClick={() => navigate('/')}
           className="hover:opacity-70 transition-opacity duration-200 flex-shrink-0"
@@ -57,7 +70,7 @@ export default function Header() {
             />
           </svg>
           {totalCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-semibold text-white bg-accent rounded-full">
+            <span className={`absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-semibold text-white bg-accent rounded-full ${isAnimating ? 'cart-badge-updated' : ''}`}>
               {totalCount > 99 ? '99+' : totalCount}
             </span>
           )}

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import type { Category } from '../lib/types';
-import { getIcon } from '../lib/icons';
+import { getCategoryColorFromName } from '../lib/icons';
 import { resolveImageUrl } from '../lib/api';
 
 interface CategoryCardProps {
@@ -61,9 +61,10 @@ export default function CategoryCard({ category }: CategoryCardProps) {
         </div>
       ) : (
         <div className="w-full h-32 bg-gray-50 flex items-center justify-center rounded-t-xl">
-          <span className="text-4xl opacity-70" role="img" aria-label={category.name}>
-            {getIcon(category.icon)}
-          </span>
+          <div
+            className="w-12 h-12 rounded-full opacity-30"
+            style={{ backgroundColor: getCategoryColorFromName(category.name) }}
+          />
         </div>
       )}
 

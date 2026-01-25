@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Category } from '../lib/types';
 import { resolveImageUrl } from '../lib/api';
+import { getCategoryColorFromName } from '../lib/icons';
+import QuickAddButton from './QuickAddButton';
 
 interface ProductGridCardProps {
   category: Category;
@@ -58,12 +60,12 @@ export default function ProductGridCard({ category }: ProductGridCardProps) {
     <div
       ref={cardRef}
       onClick={() => navigate(`/category/${category.category_id}`)}
-      className="bg-white rounded-xl border border-border cursor-pointer
+      className="product-card relative bg-white rounded-xl border border-border cursor-pointer
                  hover:-translate-y-1 hover:shadow-lift
                  transition-all duration-300 ease-out overflow-hidden group"
     >
       {/* Product Image with skeleton */}
-      <div className="w-full aspect-square bg-gray-50 overflow-hidden relative">
+      <div className="product-image w-full aspect-square bg-gray-50 overflow-hidden relative">
         {/* Skeleton placeholder */}
         {!imageLoaded && (
           <div className="absolute inset-0 bg-gray-100 animate-pulse" />
@@ -81,9 +83,19 @@ export default function ProductGridCard({ category }: ProductGridCardProps) {
           />
         ) : !category.image_url ? (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-5xl opacity-50">{category.icon}</span>
+            <div
+              className="w-12 h-12 rounded-full opacity-30"
+              style={{ backgroundColor: getCategoryColorFromName(category.name) }}
+            />
           </div>
         ) : null}
+
+        {/* Save Badge - positioned at top-right of image */}
+        {category.previous_price && category.previous_price > category.cheapest_price && (
+          <span className="absolute top-2 right-2 inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-white bg-sage rounded-full font-ui shadow-sm">
+            Save {Math.round(((category.previous_price - category.cheapest_price) / category.previous_price) * 100)}%
+          </span>
+        )}
       </div>
 
       {/* Content */}
@@ -97,7 +109,7 @@ export default function ProductGridCard({ category }: ProductGridCardProps) {
         </p>
 
         {/* Price Display */}
-        <div className="flex items-baseline gap-2 mb-1">
+        <div className="flex items-baseline gap-2 mb-0.5">
           <span className="text-lg font-semibold text-charcoal font-display">
             {formatPrice(category.cheapest_price)}
           </span>
@@ -107,18 +119,24 @@ export default function ProductGridCard({ category }: ProductGridCardProps) {
             </span>
           )}
         </div>
+        {/* Price per unit */}
+        {category.unit && (
+          <p className="text-xs text-charcoal-light font-ui mb-1">
+            {formatPrice(category.cheapest_price)} / {category.unit}
+          </p>
+        )}
 
-        {/* Store & Savings */}
-        <div className="flex items-center justify-between flex-wrap gap-1">
-          <span className="text-xs text-charcoal-light font-ui">
-            at {formatStoreName(category.cheapest_store)}
-          </span>
-          {category.previous_price && category.previous_price > category.cheapest_price && (
-            <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-sage bg-sage-light rounded-full font-ui">
-              Save {Math.round(((category.previous_price - category.cheapest_price) / category.previous_price) * 100)}%
-            </span>
-          )}
-        </div>
+        {/* Store name */}
+        <span className="text-xs text-charcoal-light font-ui">
+          at {formatStoreName(category.cheapest_store)}
+        </span>
+      </div>
+
+      {/* Quick Add Button - positioned at bottom-right */}
+      <div className="absolute bottom-3 right-3 opacity-70 group-hover:opacity-100
+                      md:opacity-0 md:group-hover:opacity-100
+                      transition-opacity duration-200">
+        <QuickAddButton category={category} />
       </div>
     </div>
   );

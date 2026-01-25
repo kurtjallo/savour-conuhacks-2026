@@ -192,3 +192,119 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Image freshness effect on hover */
+.product-card:hover .product-image img {
+  filter: saturate(1.05) brightness(1.02);
+}
+
+/* Quantity number animation */
+@keyframes qty-bump {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+.qty-animate {
+  animation: qty-bump 0.2s ease-out;
+}
+
+/* Gradient fade for scroll containers */
+.scroll-fade-right::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(to left, var(--tw-gradient-from, #f8f7f6), transparent);
+  pointer-events: none;
+}
+
+/* Cart badge animations */
+@keyframes badge-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+@keyframes badge-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px) rotate(-5deg); }
+  75% { transform: translateX(2px) rotate(5deg); }
+}
+
+.cart-badge-updated {
+  animation: badge-pop 0.3s ease-out, badge-shake 0.4s ease-out 0.1s;
+}
+
+/* Horizontal scroll row styles */
+.product-scroll-row {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.product-scroll-row::-webkit-scrollbar {
+  display: none;
+}
+
+.product-scroll-row > * {
+  flex-shrink: 0;
+  scroll-snap-align: start;
+}
+
+/* Fixed width for cards in horizontal scroll */
+.product-scroll-card {
+  width: 200px;
+}
+
+@media (min-width: 640px) {
+  .product-scroll-card {
+    width: 210px;
+  }
+}
+
+@media (min-width: 768px) {
+  .product-scroll-card {
+    width: 220px;
+  }
+}
+
+/* Scroll container with fade gradients */
+.scroll-container {
+  position: relative;
+}
+
+.scroll-container::before,
+.scroll-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 1rem;
+  width: 40px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.scroll-container::before {
+  left: 0;
+  background: linear-gradient(to right, #f8f7f6, transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.scroll-container::after {
+  right: 0;
+  background: linear-gradient(to left, #f8f7f6, transparent);
+}
+
+.scroll-container.scrolled-left::before {
+  opacity: 1;
+}
+
+.scroll-container.scrolled-right::after {
+  opacity: 0;
+}

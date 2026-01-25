@@ -36,33 +36,36 @@ export default function PriceTable({ prices, unit }: PriceTableProps) {
 
   return (
     <div className="space-y-3">
-      {priceRows.map((row) => (
+      {priceRows.map((row, index) => (
         <div
           key={row.store_id}
           className={`
             group relative bg-white border rounded-xl px-5 py-4
-            transition-all duration-200 cursor-pointer
+            transition-all duration-200 ease-out
+            hover:-translate-y-0.5 active:translate-y-0
             ${row.rank === 1
-              ? 'border-l-4 border-l-savour-savings border-savour-savings/30 bg-savour-savings-light/40 shadow-sm hover:shadow-md'
-              : 'border-savour-border hover:border-savour-text-secondary/40 hover:shadow-sm hover:bg-gray-50/50'
+              ? 'border-l-4 border-l-sage border-sage/30 bg-sage-light/50 shadow-sm hover:shadow-md'
+              : 'border-border hover:border-charcoal-light/30 hover:shadow-sm hover:bg-gray-50/50'
             }
           `}
+          style={{ animationDelay: `${index * 50}ms` }}
         >
           <div className="flex items-center justify-between">
             {/* Left side: Rank + Store name */}
             <div className="flex items-center gap-4">
               <span className={`
-                text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full
+                text-xs font-semibold w-7 h-7 flex items-center justify-center rounded-full
+                transition-transform duration-200 group-hover:scale-110
                 ${row.rank === 1
-                  ? 'bg-savour-savings text-white'
-                  : 'bg-gray-100 text-savour-text-secondary'
+                  ? 'bg-sage text-white'
+                  : 'bg-gray-100 text-charcoal-light'
                 }
               `}>
                 {row.rank}
               </span>
               <span className={`
-                font-medium text-base
-                ${row.rank === 1 ? 'text-savour-text' : 'text-savour-text group-hover:text-savour-text'}
+                font-medium text-base transition-colors duration-200
+                ${row.rank === 1 ? 'text-charcoal' : 'text-charcoal group-hover:text-charcoal'}
               `}>
                 {row.store_name}
               </span>
@@ -72,21 +75,21 @@ export default function PriceTable({ prices, unit }: PriceTableProps) {
             <div className="flex items-center gap-3">
               {row.savingsPercent > 0 && (
                 <span className={`
-                  text-xs font-semibold px-2.5 py-1 rounded-full
+                  text-xs font-semibold px-2.5 py-1 rounded-full transition-all duration-200
                   ${row.rank === 1
-                    ? 'bg-savour-savings text-white'
-                    : 'bg-savour-savings-light text-savour-savings'
+                    ? 'bg-sage text-white'
+                    : 'bg-sage-light text-sage group-hover:bg-sage/20'
                   }
                 `}>
                   Save {row.savingsPercent}%
                 </span>
               )}
               <span className={`
-                font-bold tabular-nums
-                ${row.rank === 1 ? 'text-savour-savings text-xl' : 'text-savour-text text-base'}
+                font-bold tabular-nums font-display
+                ${row.rank === 1 ? 'text-sage text-xl' : 'text-charcoal text-base'}
               `}>
                 ${row.price.toFixed(2)}
-                <span className="text-savour-text-secondary text-xs font-normal ml-0.5">/{unit}</span>
+                <span className="text-charcoal-light text-xs font-normal ml-0.5">/{unit}</span>
               </span>
             </div>
           </div>
@@ -94,7 +97,7 @@ export default function PriceTable({ prices, unit }: PriceTableProps) {
           {/* Best price indicator */}
           {row.rank === 1 && (
             <div className="absolute -top-2.5 left-4">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white bg-savour-savings px-2.5 py-1 rounded-full shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white bg-sage px-2.5 py-1 rounded-full shadow-sm">
                 Best Price
               </span>
             </div>

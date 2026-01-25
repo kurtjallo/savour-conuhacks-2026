@@ -12,6 +12,13 @@ export default {
         sage: '#4a7c59',
         'sage-light': '#eef5f0',
         border: '#e8e6e3',
+        // Fresh colors for grocery-style freshness
+        fresh: {
+          lime: '#a3c834',
+          tomato: '#e63946',
+          citrus: '#f9c74f',
+          berry: '#7b2cbf',
+        },
         // Savour Design System (alternative namespace)
         savour: {
           bg: '#f8f7f6',

@@ -1,19 +1,21 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
+import CategoryNav from '../components/CategoryNav';
 import { getCategories } from '../lib/api';
 import { resolveImageUrl } from '../lib/api';
 import type { Category } from '../lib/types';
+import { getCategoryColor } from '../lib/icons';
 
-// Category tiles for browsing
+// Category tiles for browsing - using colored dots for professional look
 const BROWSE_CATEGORIES = [
-  { id: 'produce', name: 'Fruits & Vegetables', icon: '🥬', keywords: ['apple', 'banana', 'tomato', 'potato', 'onion', 'carrot', 'lettuce', 'broccoli', 'pepper', 'cucumber'] },
-  { id: 'dairy', name: 'Dairy & Eggs', icon: '🥛', keywords: ['milk', 'cheese', 'yogurt', 'butter', 'cream', 'egg'] },
-  { id: 'meat', name: 'Meat & Seafood', icon: '🥩', keywords: ['chicken', 'beef', 'pork', 'salmon', 'bacon', 'sausage', 'ground'] },
-  { id: 'bakery', name: 'Bread & Bakery', icon: '🍞', keywords: ['bread', 'bagel', 'bun', 'muffin', 'tortilla'] },
-  { id: 'pantry', name: 'Pantry Staples', icon: '🥫', keywords: ['rice', 'pasta', 'flour', 'sugar', 'oil', 'cereal', 'oat', 'coffee', 'tea'] },
-  { id: 'frozen', name: 'Frozen Foods', icon: '🧊', keywords: ['frozen', 'ice cream', 'pizza'] },
+  { id: 'produce', name: 'Fruits & Vegetables', color: '#22c55e', keywords: ['apple', 'banana', 'tomato', 'potato', 'onion', 'carrot', 'lettuce', 'broccoli', 'pepper', 'cucumber'] },
+  { id: 'dairy', name: 'Dairy & Eggs', color: '#3b82f6', keywords: ['milk', 'cheese', 'yogurt', 'butter', 'cream', 'egg'] },
+  { id: 'meat', name: 'Meat & Seafood', color: '#ef4444', keywords: ['chicken', 'beef', 'pork', 'salmon', 'bacon', 'sausage', 'ground'] },
+  { id: 'bakery', name: 'Bread & Bakery', color: '#f59e0b', keywords: ['bread', 'bagel', 'bun', 'muffin', 'tortilla'] },
+  { id: 'pantry', name: 'Pantry Staples', color: '#f97316', keywords: ['rice', 'pasta', 'flour', 'sugar', 'oil', 'cereal', 'oat', 'coffee', 'tea'] },
+  { id: 'frozen', name: 'Frozen Foods', color: '#06b6d4', keywords: ['frozen', 'ice cream', 'pizza'] },
 ];
 
 export default function HomeScreen() {
@@ -21,6 +23,8 @@ export default function HomeScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -37,6 +41,52 @@ export default function HomeScreen() {
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
+
+  // Intersection Observer for active category tracking
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+
+    // Create observer for each section
+    BROWSE_CATEGORIES.forEach((category) => {
+      const section = sectionRefs.current[category.id];
+      if (section) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                setActiveCategory(category.id);
+              }
+            });
+          },
+          {
+            rootMargin: '-120px 0px -50% 0px',
+            threshold: 0,
+          }
+        );
+        observer.observe(section);
+        observers.push(observer);
+      }
+    });
+
+    return () => {
+      observers.forEach((observer) => observer.disconnect());
+    };
+  }, [categories]); // Re-run when categories load
+
+  // Scroll to category section
+  const scrollToCategory = (categoryId: string) => {
+    const section = sectionRefs.current[categoryId];
+    if (section) {
+      const headerOffset = 130; // Header (64px) + CategoryNav (~56px) + padding
+      const elementPosition = section.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   // Calculate savings stats
   const savingsStats = useMemo(() => {
@@ -65,7 +115,7 @@ export default function HomeScreen() {
     };
   }, [categories]);
 
-  // Get top deals (highest savings percentage)
+  // Get top deals (highest savings percentage) - max 10 items
   const topDeals = useMemo(() => {
     return [...categories]
       .filter(cat => cat.most_expensive_price > cat.cheapest_price)
@@ -75,15 +125,15 @@ export default function HomeScreen() {
         savingsAmount: cat.most_expensive_price - cat.cheapest_price,
       }))
       .sort((a, b) => b.savingsPercent - a.savingsPercent)
-      .slice(0, 8);
+      .slice(0, 10);
   }, [categories]);
 
-  // Get products by category
+  // Get products by category - max 10 items for horizontal scroll
   const getProductsByCategory = (keywords: string[]) => {
     return categories.filter(cat => {
       const name = cat.name.toLowerCase();
       return keywords.some(keyword => name.includes(keyword));
-    }).slice(0, 4);
+    }).slice(0, 10);
   };
 
   const handleSearchChange = (query: string) => {
@@ -130,6 +180,11 @@ export default function HomeScreen() {
   return (
     <div className="min-h-screen bg-cream">
       <Header />
+      <CategoryNav
+        categories={BROWSE_CATEGORIES}
+        activeCategory={activeCategory}
+        onCategoryClick={scrollToCategory}
+      />
 
       <main className="max-w-6xl mx-auto px-6">
         {/* Hero Section - More compact */}
@@ -183,7 +238,7 @@ export default function HomeScreen() {
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-xl md:text-2xl font-semibold text-charcoal font-display">
-                🔥 Top Deals
+                Top Deals
               </h2>
               <p className="text-sm text-charcoal-light font-ui">Best savings right now</p>
             </div>
@@ -191,61 +246,66 @@ export default function HomeScreen() {
               to="/products"
               className="text-sm font-medium text-accent hover:text-accent/80 transition-colors font-ui"
             >
-              View all →
+              View all
             </Link>
           </div>
 
-          {/* Horizontal scroll on mobile, grid on desktop */}
-          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-4 md:overflow-visible scrollbar-hide">
-            {topDeals.map((deal, index) => (
-              <div
-                key={deal.category_id}
-                onClick={() => navigate(`/category/${deal.category_id}`)}
-                className="flex-shrink-0 w-[160px] md:w-auto bg-white rounded-xl border border-border cursor-pointer
-                           hover:-translate-y-1 hover:shadow-lift transition-all duration-300 overflow-hidden group"
-                style={{ animationDelay: `${200 + index * 50}ms` }}
-              >
-                {/* Savings Badge */}
-                <div className="relative">
-                  <div className="absolute top-2 left-2 z-10">
-                    <span className="inline-flex items-center px-2 py-1 text-xs font-bold text-white bg-accent rounded-full shadow-sm">
-                      Save {deal.savingsPercent}%
-                    </span>
+          {/* Horizontal scroll row */}
+          <div className="scroll-container">
+            <div className="product-scroll-row">
+              {topDeals.map((deal, index) => (
+                <div
+                  key={deal.category_id}
+                  onClick={() => navigate(`/category/${deal.category_id}`)}
+                  className="product-scroll-card bg-white rounded-xl border border-border cursor-pointer
+                             hover:-translate-y-1 hover:shadow-lift transition-all duration-300 overflow-hidden group"
+                  style={{ animationDelay: `${200 + index * 50}ms` }}
+                >
+                  {/* Savings Badge */}
+                  <div className="relative">
+                    <div className="absolute top-2 left-2 z-10">
+                      <span className="inline-flex items-center px-2 py-1 text-xs font-bold text-white bg-accent rounded-full shadow-sm">
+                        Save {deal.savingsPercent}%
+                      </span>
+                    </div>
+                    {deal.image_url ? (
+                      <div className="w-full h-28 bg-gray-50 overflow-hidden">
+                        <img
+                          src={resolveImageUrl(deal.image_url)}
+                          alt={deal.name}
+                          loading="lazy"
+                          className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-28 bg-gray-50 flex items-center justify-center">
+                        <div
+                          className="w-12 h-12 rounded-full opacity-30"
+                          style={{ backgroundColor: getCategoryColor(deal.category_id) }}
+                        />
+                      </div>
+                    )}
                   </div>
-                  {deal.image_url ? (
-                    <div className="w-full h-28 bg-gray-50 overflow-hidden">
-                      <img
-                        src={resolveImageUrl(deal.image_url)}
-                        alt={deal.name}
-                        loading="lazy"
-                        className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-full h-28 bg-gray-50 flex items-center justify-center">
-                      <span className="text-4xl opacity-50">{deal.icon}</span>
-                    </div>
-                  )}
-                </div>
 
-                <div className="p-3">
-                  <h3 className="text-sm font-medium text-charcoal line-clamp-2 min-h-[2.5rem] font-display">
-                    {deal.name}
-                  </h3>
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-base font-semibold text-charcoal font-display">
-                      {formatPrice(deal.cheapest_price)}
-                    </span>
-                    <span className="text-xs text-muted line-through">
-                      {formatPrice(deal.most_expensive_price)}
-                    </span>
+                  <div className="p-3">
+                    <h3 className="text-sm font-medium text-charcoal line-clamp-2 min-h-[2.5rem] font-display">
+                      {deal.name}
+                    </h3>
+                    <div className="flex items-baseline gap-2 mt-1">
+                      <span className="text-base font-semibold text-charcoal font-display">
+                        {formatPrice(deal.cheapest_price)}
+                      </span>
+                      <span className="text-xs text-muted line-through">
+                        {formatPrice(deal.most_expensive_price)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-charcoal-light mt-1 font-ui">
+                      at {formatStoreName(deal.cheapest_store)}
+                    </p>
                   </div>
-                  <p className="text-xs text-charcoal-light mt-1 font-ui">
-                    at {formatStoreName(deal.cheapest_store)}
-                  </p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
 
@@ -269,9 +329,12 @@ export default function HomeScreen() {
                              transition-all duration-300 text-center group"
                   style={{ animationDelay: `${250 + index * 30}ms` }}
                 >
-                  <span className="text-3xl mb-2 block group-hover:scale-110 transition-transform duration-300">
-                    {category.icon}
-                  </span>
+                  <div className="flex justify-center mb-3">
+                    <div
+                      className="w-10 h-10 rounded-full group-hover:scale-110 transition-transform duration-300"
+                      style={{ backgroundColor: category.color }}
+                    />
+                  </div>
                   <h3 className="text-sm font-medium text-charcoal font-display">
                     {category.name}
                   </h3>
@@ -285,19 +348,24 @@ export default function HomeScreen() {
         </section>
 
         {/* Featured Products by Category */}
-        {BROWSE_CATEGORIES.slice(0, 2).map((category, catIndex) => {
+        {BROWSE_CATEGORIES.map((category, catIndex) => {
           const products = getProductsByCategory(category.keywords);
           if (products.length === 0) return null;
 
           return (
             <section
               key={category.id}
-              className="mb-12 animate-fade-in-up"
+              id={`category-${category.id}`}
+              ref={(el) => { sectionRefs.current[category.id] = el; }}
+              className="mb-12 animate-fade-in-up scroll-mt-32"
               style={{ animationDelay: `${300 + catIndex * 50}ms` }}
             >
               <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{category.icon}</span>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: category.color }}
+                  />
                   <h2 className="text-lg md:text-xl font-semibold text-charcoal font-display">
                     {category.name}
                   </h2>
@@ -306,48 +374,54 @@ export default function HomeScreen() {
                   to={`/products?category=${category.id}`}
                   className="text-sm font-medium text-accent hover:text-accent/80 transition-colors font-ui"
                 >
-                  See all →
+                  See all
                 </Link>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {products.map((product) => (
-                  <div
-                    key={product.category_id}
-                    onClick={() => navigate(`/category/${product.category_id}`)}
-                    className="bg-white rounded-xl border border-border cursor-pointer
-                               hover:-translate-y-1 hover:shadow-lift transition-all duration-300 overflow-hidden group"
-                  >
-                    {product.image_url ? (
-                      <div className="w-full h-28 bg-gray-50 overflow-hidden">
-                        <img
-                          src={resolveImageUrl(product.image_url)}
-                          alt={product.name}
-                          loading="lazy"
-                          className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-full h-28 bg-gray-50 flex items-center justify-center">
-                        <span className="text-4xl opacity-50">{product.icon}</span>
-                      </div>
-                    )}
+              {/* Horizontal scroll row */}
+              <div className="scroll-container">
+                <div className="product-scroll-row">
+                  {products.map((product) => (
+                    <div
+                      key={product.category_id}
+                      onClick={() => navigate(`/category/${product.category_id}`)}
+                      className="product-scroll-card bg-white rounded-xl border border-border cursor-pointer
+                                 hover:-translate-y-1 hover:shadow-lift transition-all duration-300 overflow-hidden group"
+                    >
+                      {product.image_url ? (
+                        <div className="w-full h-28 bg-gray-50 overflow-hidden">
+                          <img
+                            src={resolveImageUrl(product.image_url)}
+                            alt={product.name}
+                            loading="lazy"
+                            className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-full h-28 bg-gray-50 flex items-center justify-center">
+                          <div
+                            className="w-10 h-10 rounded-full opacity-30"
+                            style={{ backgroundColor: category.color }}
+                          />
+                        </div>
+                      )}
 
-                    <div className="p-3">
-                      <h3 className="text-sm font-medium text-charcoal line-clamp-1 font-display">
-                        {product.name}
-                      </h3>
-                      <div className="flex items-baseline justify-between mt-1">
-                        <span className="text-base font-semibold text-charcoal font-display">
-                          {formatPrice(product.cheapest_price)}
-                        </span>
-                        <span className="text-xs text-charcoal-light font-ui">
-                          {formatStoreName(product.cheapest_store)}
-                        </span>
+                      <div className="p-3">
+                        <h3 className="text-sm font-medium text-charcoal line-clamp-1 font-display">
+                          {product.name}
+                        </h3>
+                        <div className="flex items-baseline justify-between mt-1">
+                          <span className="text-base font-semibold text-charcoal font-display">
+                            {formatPrice(product.cheapest_price)}
+                          </span>
+                          <span className="text-xs text-charcoal-light font-ui">
+                            {formatStoreName(product.cheapest_store)}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </section>
           );
@@ -370,7 +444,7 @@ export default function HomeScreen() {
               >
                 Browse All Products
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </Link>
               <Link
