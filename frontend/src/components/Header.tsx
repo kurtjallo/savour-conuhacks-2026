@@ -84,7 +84,7 @@ export default function Header() {
 
         <button
           onClick={() => navigate('/basket')}
-          className="relative p-2.5 -mr-2.5 rounded-lg hover:bg-white/50 transition-colors duration-200"
+          className="tour-basket-icon relative p-2.5 -mr-2.5 rounded-lg hover:bg-white/50 transition-colors duration-200"
           aria-label={`View basket with ${totalCount} items`}
         >
           <svg

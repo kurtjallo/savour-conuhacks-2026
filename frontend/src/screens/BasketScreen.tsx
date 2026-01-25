@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import Joyride, { type CallBackProps, STATUS } from 'react-joyride';
 import { useBasket } from '../context/BasketContext';
 import { analyzeBasket, getCategories, generateRecipe, checkRecipeAvailability } from '../lib/api';
 import type { BasketAnalysis, Category, RecipeGenerateResponse } from '../lib/types';
@@ -12,9 +13,36 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import remarkBreaks from 'remark-breaks';
 import rehypeKatex from 'rehype-katex';
+import { useTour } from '../context/TourContext';
+
+const BASKET_TOUR_STEPS = [
+  {
+    target: '.tour-cart-items',
+    content: 'Your selected items appear here. Adjust quantities or remove items as needed.',
+    disableBeacon: true,
+    placement: 'right' as const,
+  },
+  {
+    target: '.tour-price-summary',
+    content: 'See your total savings compared to shopping at the most expensive store.',
+    placement: 'left' as const,
+  },
+  {
+    target: '.tour-recipe-generator',
+    content: 'Generate AI-powered recipes using the items in your basket. Get meal ideas that use your deals!',
+    placement: 'top' as const,
+  },
+  {
+    target: '.tour-strategy-tabs',
+    content: 'Switch between your shopping list and trip planner to optimize your shopping route.',
+    placement: 'top' as const,
+  },
+];
 
 export default function BasketScreen() {
   const { items, updateQuantity, removeItem, clearBasket } = useBasket();
+  const { isActive, currentPage, setTourPage, completeTour } = useTour();
+  const [runTour, setRunTour] = useState(false);
   const [analysis, setAnalysis] = useState<BasketAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +54,30 @@ export default function BasketScreen() {
   const [recipe, setRecipe] = useState<RecipeGenerateResponse | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [recipeAvailable, setRecipeAvailable] = useState<boolean | null>(null);
+
+  // Set tour page when on this page
+  useEffect(() => {
+    if (isActive) {
+      setTourPage('basket');
+    }
+  }, [isActive, setTourPage]);
+
+  // Start tour when analysis is ready (means items are loaded)
+  useEffect(() => {
+    if (isActive && currentPage === 'basket' && items.length > 0 && analysis) {
+      const timer = setTimeout(() => setRunTour(true), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isActive, currentPage, items.length, analysis]);
+
+  const handleJoyrideCallback = (data: CallBackProps) => {
+    const { status } = data;
+
+    if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+      setRunTour(false);
+      completeTour(); // Tour ends here
+    }
+  };
 
   // Fetch categories for price info
   useEffect(() => {
@@ -209,6 +261,46 @@ export default function BasketScreen() {
 
   return (
     <div className="min-h-screen bg-savour-bg">
+      <Joyride
+        steps={BASKET_TOUR_STEPS}
+        run={runTour}
+        continuous
+        showProgress
+        showSkipButton
+        scrollOffset={80}
+        disableScrollParentFix
+        callback={handleJoyrideCallback}
+        styles={{
+          options: {
+            primaryColor: '#f05a24',
+            zIndex: 10000,
+          },
+          tooltip: {
+            borderRadius: 12,
+            fontSize: 14,
+          },
+          buttonNext: {
+            borderRadius: 8,
+            fontWeight: 600,
+          },
+          buttonBack: {
+            marginRight: 8,
+          },
+          buttonSkip: {
+            color: '#666',
+          },
+        }}
+        floaterProps={{
+          disableAnimation: true,
+        }}
+        locale={{
+          back: 'Back',
+          close: 'Close',
+          last: 'Finish tour',
+          next: 'Next',
+          skip: 'Skip tour',
+        }}
+      />
       {/* Header */}
       <header className="bg-white border-b border-savour-border sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-6 py-4">
@@ -271,7 +363,7 @@ export default function BasketScreen() {
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Column - Cart Items */}
-          <div className="flex-1">
+          <div className="tour-cart-items flex-1">
             {/* Selection Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -330,7 +422,7 @@ export default function BasketScreen() {
 
             {/* Recipe Generator Section */}
             {analysis && (
-              <div className="mt-8 bg-white border border-savour-border rounded-xl p-6">
+              <div className="tour-recipe-generator mt-8 bg-white border border-savour-border rounded-xl p-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
                     <h2 className="text-lg font-semibold text-savour-text">
@@ -403,7 +495,7 @@ export default function BasketScreen() {
 
             {/* Combined Shopping Strategy Section */}
             {analysis && (
-              <div id="shopping-strategy-section" className="mt-8">
+              <div id="shopping-strategy-section" className="tour-strategy-tabs mt-8">
                 {/* Tab Header */}
                 <div className="bg-white border border-savour-border rounded-t-xl overflow-hidden">
                   <div className="flex border-b border-savour-border">
@@ -457,7 +549,7 @@ export default function BasketScreen() {
           </div>
 
           {/* Right Column - Price Summary */}
-          <div className="lg:w-[380px] lg:flex-shrink-0">
+          <div className="tour-price-summary lg:w-[380px] lg:flex-shrink-0">
             <div className="lg:sticky lg:top-36">
               <PriceSummary
                 items={itemsWithPrices}

@@ -1,10 +1,19 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import GroceryVisual from '../components/GroceryVisual';
 import BackgroundPattern from '../components/BackgroundPattern';
 import StoreLogoCarousel from '../components/StoreLogoCarousel';
 import FloatingStats from '../components/FloatingStats';
+import { useTour } from '../context/TourContext';
 
 export default function LandingScreen() {
+  const navigate = useNavigate();
+  const { startTour } = useTour();
+
+  const handleStartSaving = () => {
+    startTour();
+    navigate('/onboarding');
+  };
+
   return (
     <div className="h-screen bg-cream overflow-hidden relative flex flex-col">
       {/* Background dot pattern with radial gradient */}
@@ -54,8 +63,8 @@ export default function LandingScreen() {
 
             {/* CTA Buttons */}
             <div className="flex flex-wrap gap-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              <Link
-                to="/onboarding"
+              <button
+                onClick={handleStartSaving}
                 className="inline-flex items-center gap-2 bg-accent text-white font-semibold px-8 py-4 rounded-full
                          hover:bg-[#e04d12] hover:shadow-lg hover:scale-[1.02]
                          transition-all duration-200 ease-out"
@@ -64,7 +73,7 @@ export default function LandingScreen() {
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </Link>
+              </button>
               <Link
                 to="/products"
                 className="inline-flex items-center gap-2 bg-white text-charcoal font-semibold px-8 py-4 rounded-full

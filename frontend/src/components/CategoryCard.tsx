@@ -18,17 +18,6 @@ export default function CategoryCard({ category }: CategoryCardProps) {
     }).format(price);
   };
 
-  const formatStoreName = (storeId: string): string => {
-    const storeNames: Record<string, string> = {
-      'maxi': 'Maxi',
-      'iga': 'IGA',
-      'provigo': 'Provigo',
-      'walmart': 'Walmart',
-      'metro': 'Metro',
-    };
-    return storeNames[storeId] || storeId;
-  };
-
   const calculateSavings = (): number | null => {
     if (category.most_expensive_price > category.cheapest_price) {
       const savings = ((category.most_expensive_price - category.cheapest_price) / category.most_expensive_price) * 100;
