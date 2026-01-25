@@ -14,12 +14,11 @@ export default function LandingScreen() {
         {/* Logo / Brand */}
         <header className="pt-6 pb-2">
           <Link to="/" className="inline-block">
-            <h1
-              className="text-2xl font-bold text-charcoal tracking-tight"
-              style={{ fontFamily: "'Work Sans', sans-serif" }}
-            >
-              Savour
-            </h1>
+            <img
+              src="/savourlogo.png"
+              alt="Savour"
+              className="h-9 w-auto"
+            />
           </Link>
         </header>
 

@@ -57,9 +57,11 @@ export default function AllProductsScreen() {
               onClick={() => navigate('/')}
               className="hover:opacity-70 transition-opacity duration-200"
             >
-              <h1 className="text-xl font-semibold tracking-wide text-charcoal font-display">
-                Savour
-              </h1>
+              <img
+                src="/savourlogo.png"
+                alt="Savour"
+                className="h-8 w-auto"
+              />
             </button>
           </div>
         </header>
@@ -82,9 +84,11 @@ export default function AllProductsScreen() {
             onClick={() => navigate('/')}
             className="hover:opacity-70 transition-opacity duration-200"
           >
-            <h1 className="text-xl font-semibold tracking-wide text-charcoal font-display">
-              Savour
-            </h1>
+            <img
+              src="/savourlogo.png"
+              alt="Savour"
+              className="h-8 w-auto"
+            />
           </button>
 
           <button
