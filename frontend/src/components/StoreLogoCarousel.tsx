@@ -1,8 +1,9 @@
 const stores = [
-  { name: 'Maxi', logo: '/maxi.svg' },
+  { name: 'Super C', logo: '/superc.png' },
+  { name: 'Maxi', logo: '/maxi.png' },
   { name: 'IGA', logo: '/iga.svg' },
-  { name: 'Provigo', logo: '/provigo.svg' },
-  { name: 'Walmart', logo: '/walmart.svg' },
+  { name: 'Provigo', logo: '/provigo.png' },
+  { name: 'Walmart', logo: '/walmart.png' },
   { name: 'Metro', logo: '/metro.png' },
 ];
 

@@ -4,14 +4,16 @@ interface StoreLogoProps {
 }
 
 const storeLogos: Record<string, string> = {
-  'maxi': '/maxi.svg',
+  'superc': '/superc.png',
+  'maxi': '/maxi.png',
   'iga': '/iga.svg',
-  'provigo': '/provigo.svg',
-  'walmart': '/walmart.svg',
+  'provigo': '/provigo.png',
+  'walmart': '/walmart.png',
   'metro': '/metro.png',
 };
 
 const storeNames: Record<string, string> = {
+  'superc': 'Super C',
   'maxi': 'Maxi',
   'iga': 'IGA',
   'provigo': 'Provigo',
@@ -21,6 +23,7 @@ const storeNames: Record<string, string> = {
 
 // Individual heights to make logos appear visually equal
 const storeHeights: Record<string, string> = {
+  'superc': '18px',
   'maxi': '18px',
   'iga': '20px',
   'provigo': '18px',

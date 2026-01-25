@@ -15,6 +15,17 @@ load_dotenv()
 # Quebec/Montreal store chains with multiple locations per chain
 STORE_CHAINS = [
     {
+        "store_id": "superc",
+        "name": "Super C",
+        "color": "#FF6B00",
+        "locations": [
+            {"location_id": "superc_hochelaga", "address": "3190 Rue Sherbrooke E, Montreal, QC H1W 1C9", "lat": 45.5426, "lng": -73.5418},
+            {"location_id": "superc_st_leonard", "address": "5975 Rue Jean-Talon E, Saint-Leonard, QC H1S 1M4", "lat": 45.5894, "lng": -73.5805},
+            {"location_id": "superc_lasalle", "address": "7475 Blvd Newman, LaSalle, QC H8N 1X3", "lat": 45.4306, "lng": -73.6389},
+            {"location_id": "superc_laval", "address": "1600 Blvd Le Corbusier, Laval, QC H7S 2K1", "lat": 45.5607, "lng": -73.7249},
+        ]
+    },
+    {
         "store_id": "maxi",
         "name": "Maxi",
         "color": "#E31837",
@@ -133,22 +144,24 @@ def extract_image_url(product_image_str):
 def generate_store_prices(base_price):
     """Generate realistic prices for Quebec stores based on base price (from CSV).
 
-    Quebec market pricing tiers:
-    - Maxi: Discount chain (Loblaw-owned), cheapest tier
-    - Walmart: Competitive discount pricing
-    - IGA: Mid-tier full service (Sobeys-owned)
-    - Provigo: Premium chain (Loblaw-owned), baseline
-    - Metro: Premium chain, similar to Provigo
+    Quebec market pricing tiers (Jan 2026, based on MTL Blog comparisons):
+    - Super C: Metro's discount banner, cheapest in Quebec
+    - Maxi: Loblaw's discount banner, 2nd cheapest
+    - Walmart: National chain, competitive pricing
+    - Provigo: Premium chain (Loblaw-owned), baseline reference
+    - IGA: Mid-to-expensive tier (Sobeys-owned)
+    - Metro: Most expensive full-service chain
     """
     if not base_price or base_price <= 0:
         base_price = 2.99
 
     prices = {
-        "maxi": round(base_price * random.uniform(0.82, 0.92), 2),      # Cheapest (discount)
-        "walmart": round(base_price * random.uniform(0.85, 0.95), 2),   # Low prices
-        "iga": round(base_price * random.uniform(0.95, 1.05), 2),       # Mid-tier
+        "superc": round(base_price * random.uniform(0.78, 0.88), 2),    # Cheapest (Metro's discount)
+        "maxi": round(base_price * random.uniform(0.80, 0.90), 2),      # 2nd cheapest (Loblaw discount)
+        "walmart": round(base_price * random.uniform(0.84, 0.94), 2),   # Competitive national
+        "iga": round(base_price * random.uniform(1.02, 1.12), 2),       # Mid-expensive (Sobeys)
         "provigo": round(base_price, 2),                                 # Premium baseline
-        "metro": round(base_price * random.uniform(0.98, 1.08), 2),     # Premium
+        "metro": round(base_price * random.uniform(1.05, 1.15), 2),     # Most expensive
     }
     return prices
 
