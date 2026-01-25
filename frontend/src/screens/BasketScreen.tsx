@@ -6,6 +6,7 @@ import type { BasketAnalysis, Category, RecipeGenerateResponse } from '../lib/ty
 import CartItemCard from '../components/CartItemCard';
 import PriceSummary from '../components/PriceSummary';
 import StoreBreakdown from '../components/StoreBreakdown';
+import RouteOptimizer from '../components/RouteOptimizer';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -437,7 +438,7 @@ export default function BasketScreen() {
 
           {/* Right Column - Price Summary */}
           <div className="lg:w-[380px] lg:flex-shrink-0">
-            <div className="lg:sticky lg:top-36">
+            <div className="lg:sticky lg:top-36 space-y-4">
               <PriceSummary
                 items={itemsWithPrices}
                 analysis={analysis}
@@ -450,6 +451,15 @@ export default function BasketScreen() {
                     document.getElementById('shopping-list-section')?.scrollIntoView({ behavior: 'smooth' });
                   }, 100);
                 }}
+              />
+
+              {/* Route Optimizer - only show when multi-store is better */}
+              <RouteOptimizer
+                basketItems={items.filter(item => selectedItems.has(item.category_id))}
+                multiStoreRecommended={
+                  !!analysis &&
+                  analysis.multi_store_total < analysis.single_store_best.total
+                }
               />
             </div>
           </div>

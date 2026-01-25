@@ -94,3 +94,57 @@ export interface RecipeGenerateResponse {
   recipe_text: string;
   rag_items: RetrievedItem[];
 }
+
+// --- Route Optimizer Types ---
+
+export interface Location {
+  lat: number;
+  lng: number;
+}
+
+export interface RouteSettings {
+  gas_price_per_liter: number;
+  fuel_efficiency_l_per_100km: number;
+  time_value_per_hour: number;
+  time_per_store_minutes: number;
+}
+
+export interface StoreWithLocation {
+  store_id: string;
+  name: string;
+  color: string;
+  address: string;
+  lat: number;
+  lng: number;
+}
+
+export interface StoreVisit {
+  store: StoreWithLocation;
+  items_to_buy: MultiStoreItem[];
+  store_subtotal: number;
+  visit_duration_minutes: number;
+}
+
+export interface TravelCost {
+  total_distance_km: number;
+  total_drive_time_minutes: number;
+  total_store_time_minutes: number;
+  total_trip_time_minutes: number;
+  gas_cost: number;
+  time_cost: number;
+  total_travel_cost: number;
+}
+
+export interface RouteOptimizeResponse {
+  stores_to_visit: StoreVisit[];
+  route_polyline?: string;
+  travel_cost: TravelCost;
+  grocery_total: number;
+  single_store_best_total: number;
+  single_store_best_name: string;
+  multi_store_total: number;
+  grocery_savings: number;
+  net_savings: number;
+  is_worth_it: boolean;
+  recommendation: string;
+}
