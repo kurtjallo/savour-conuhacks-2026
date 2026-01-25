@@ -1,0 +1,90 @@
+import { useNavigate } from 'react-router-dom';
+import type { Category } from '../lib/types';
+import { resolveImageUrl } from '../lib/api';
+
+interface ProductGridCardProps {
+  category: Category;
+}
+
+export default function ProductGridCard({ category }: ProductGridCardProps) {
+  const navigate = useNavigate();
+
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat('en-CA', {
+      style: 'currency',
+      currency: 'CAD',
+    }).format(price);
+  };
+
+  const formatStoreName = (storeId: string): string => {
+    const storeNames: Record<string, string> = {
+      'nofrills': 'No Frills',
+      'no-frills': 'No Frills',
+      'freshco': 'FreshCo',
+      'walmart': 'Walmart',
+      'loblaws': 'Loblaws',
+      'metro': 'Metro',
+    };
+    return storeNames[storeId] || storeId;
+  };
+
+  return (
+    <div
+      onClick={() => navigate(`/category/${category.category_id}`)}
+      className="bg-white rounded-xl border border-border cursor-pointer
+                 hover:-translate-y-1 hover:shadow-lift
+                 transition-all duration-300 ease-out overflow-hidden group"
+    >
+      {/* Product Image */}
+      {category.image_url ? (
+        <div className="w-full aspect-square bg-gray-50 overflow-hidden">
+          <img
+            src={resolveImageUrl(category.image_url)}
+            alt={category.name}
+            loading="lazy"
+            className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+          />
+        </div>
+      ) : (
+        <div className="w-full aspect-square bg-gray-50 flex items-center justify-center">
+          <span className="text-5xl opacity-50">{category.icon}</span>
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="p-3">
+        {/* Product Name & Unit */}
+        <h3 className="text-sm font-medium text-charcoal mb-0.5 line-clamp-2 min-h-[2.5rem] font-display">
+          {category.name}
+        </h3>
+        <p className="text-xs text-muted mb-2 font-ui">
+          {category.unit}
+        </p>
+
+        {/* Price Display */}
+        <div className="flex items-baseline gap-2 mb-1">
+          <span className="text-lg font-semibold text-charcoal font-display">
+            {formatPrice(category.cheapest_price)}
+          </span>
+          {category.previous_price && category.previous_price > category.cheapest_price && (
+            <span className="text-xs text-muted line-through font-ui">
+              {formatPrice(category.previous_price)}
+            </span>
+          )}
+        </div>
+
+        {/* Store & Savings */}
+        <div className="flex items-center justify-between flex-wrap gap-1">
+          <span className="text-xs text-charcoal-light font-ui">
+            at {formatStoreName(category.cheapest_store)}
+          </span>
+          {category.previous_price && category.previous_price > category.cheapest_price && (
+            <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-sage bg-sage-light rounded-full font-ui">
+              Save {Math.round(((category.previous_price - category.cheapest_price) / category.previous_price) * 100)}%
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

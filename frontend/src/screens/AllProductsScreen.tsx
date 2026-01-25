@@ -1,13 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCategories, resolveImageUrl } from '../lib/api';
+import { getCategories } from '../lib/api';
 import type { Category } from '../lib/types';
 import { useBasket } from '../context/BasketContext';
+import ProductGridCard from '../components/ProductGridCard';
+
+const ITEMS_PER_PAGE = 25;
 
 export default function AllProductsScreen() {
   const navigate = useNavigate();
   const { totalCount } = useBasket();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,6 +21,7 @@ export default function AllProductsScreen() {
       setError(null);
       const data = await getCategories();
       setCategories(data);
+      setCurrentPage(1);
     } catch (err) {
       setError('Unable to load products. Please try again.');
       console.error('Error fetching categories:', err);
@@ -29,23 +34,16 @@ export default function AllProductsScreen() {
     fetchCategories();
   }, [fetchCategories]);
 
-  const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency: 'CAD',
-    }).format(price);
-  };
+  // Pagination calculations
+  const totalPages = Math.ceil(categories.length / ITEMS_PER_PAGE);
+  const paginatedCategories = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return categories.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [categories, currentPage]);
 
-  const formatStoreName = (storeId: string): string => {
-    const storeNames: Record<string, string> = {
-      'nofrills': 'No Frills',
-      'no-frills': 'No Frills',
-      'freshco': 'FreshCo',
-      'walmart': 'Walmart',
-      'loblaws': 'Loblaws',
-      'metro': 'Metro',
-    };
-    return storeNames[storeId] || storeId;
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (isLoading) {
@@ -145,67 +143,15 @@ export default function AllProductsScreen() {
         )}
 
         {/* Products Grid */}
-        {categories.length > 0 ? (
+        {paginatedCategories.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {categories.map((category, index) => (
+            {paginatedCategories.map((category, index) => (
               <div
                 key={category.category_id}
-                onClick={() => navigate(`/category/${category.category_id}`)}
-                className="bg-white rounded-xl border border-border cursor-pointer
-                           hover:-translate-y-1 hover:shadow-lift
-                           transition-all duration-300 ease-out overflow-hidden group animate-fade-in-up"
+                className="animate-fade-in-up"
                 style={{ animationDelay: `${Math.min(index, 20) * 20}ms` }}
               >
-                {/* Product Image */}
-                {category.image_url ? (
-                  <div className="w-full aspect-square bg-gray-50 overflow-hidden">
-                    <img
-                      src={resolveImageUrl(category.image_url)}
-                      alt={category.name}
-                      loading="lazy"
-                      className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full aspect-square bg-gray-50 flex items-center justify-center">
-                    <span className="text-5xl opacity-50">{category.icon}</span>
-                  </div>
-                )}
-
-                {/* Content */}
-                <div className="p-3">
-                  {/* Product Name & Unit */}
-                  <h3 className="text-sm font-medium text-charcoal mb-0.5 line-clamp-2 min-h-[2.5rem] font-display">
-                    {category.name}
-                  </h3>
-                  <p className="text-xs text-muted mb-2 font-ui">
-                    {category.unit}
-                  </p>
-
-                  {/* Price Display */}
-                  <div className="flex items-baseline gap-2 mb-1">
-                    <span className="text-lg font-semibold text-charcoal font-display">
-                      {formatPrice(category.cheapest_price)}
-                    </span>
-                    {category.previous_price && category.previous_price > category.cheapest_price && (
-                      <span className="text-xs text-muted line-through font-ui">
-                        {formatPrice(category.previous_price)}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Store & Savings */}
-                  <div className="flex items-center justify-between flex-wrap gap-1">
-                    <span className="text-xs text-charcoal-light font-ui">
-                      at {formatStoreName(category.cheapest_store)}
-                    </span>
-                    {category.previous_price && category.previous_price > category.cheapest_price && (
-                      <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-sage bg-sage-light rounded-full font-ui">
-                        Save {Math.round(((category.previous_price - category.cheapest_price) / category.previous_price) * 100)}%
-                      </span>
-                    )}
-                  </div>
-                </div>
+                <ProductGridCard category={category} />
               </div>
             ))}
           </div>
@@ -220,6 +166,102 @@ export default function AllProductsScreen() {
               </p>
             </div>
           )
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="mt-10 flex items-center justify-center gap-2">
+            {/* Previous Button */}
+            <button
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg border border-border bg-white text-charcoal
+                       disabled:opacity-40 disabled:cursor-not-allowed
+                       hover:border-charcoal/30 transition-colors"
+              aria-label="Previous page"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+              </svg>
+            </button>
+
+            {/* Page Numbers */}
+            <div className="flex items-center gap-1">
+              {(() => {
+                const pages: (number | 'ellipsis')[] = [];
+
+                if (totalPages <= 7) {
+                  for (let i = 1; i <= totalPages; i++) {
+                    pages.push(i);
+                  }
+                } else {
+                  pages.push(1);
+
+                  if (currentPage > 3) {
+                    pages.push('ellipsis');
+                  }
+
+                  const start = Math.max(2, currentPage - 1);
+                  const end = Math.min(totalPages - 1, currentPage + 1);
+
+                  for (let i = start; i <= end; i++) {
+                    pages.push(i);
+                  }
+
+                  if (currentPage < totalPages - 2) {
+                    pages.push('ellipsis');
+                  }
+
+                  pages.push(totalPages);
+                }
+
+                return pages.map((page, idx) => {
+                  if (page === 'ellipsis') {
+                    return (
+                      <span key={`ellipsis-${idx}`} className="px-2 text-muted select-none">
+                        ...
+                      </span>
+                    );
+                  }
+
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => goToPage(page)}
+                      className={`w-10 h-10 font-medium transition-all duration-200
+                                ${currentPage === page
+                                  ? 'bg-charcoal text-white rounded-full'
+                                  : 'text-charcoal hover:text-charcoal/70'
+                                }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                });
+              })()}
+            </div>
+
+            {/* Next Button */}
+            <button
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-lg border border-border bg-white text-charcoal
+                       disabled:opacity-40 disabled:cursor-not-allowed
+                       hover:border-charcoal/30 transition-colors"
+              aria-label="Next page"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {/* Page Info */}
+        {totalPages > 1 && (
+          <p className="text-center text-sm text-muted mt-4">
+            Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, categories.length)} of {categories.length} products
+          </p>
         )}
       </main>
     </div>

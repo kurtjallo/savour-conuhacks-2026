@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import CategoryFilter, { FOOD_CATEGORIES } from '../components/CategoryFilter';
-import CategoryCard from '../components/CategoryCard';
+import ProductGridCard from '../components/ProductGridCard';
 import { getCategories, searchCategories } from '../lib/api';
 import type { Category } from '../lib/types';
 
@@ -215,7 +215,7 @@ export default function HomeScreen() {
                   className="animate-fade-in-up"
                   style={{ animationDelay: `${150 + index * 30}ms` }}
                 >
-                  <CategoryCard category={category} />
+                  <ProductGridCard category={category} />
                 </div>
               ))}
             </div>
