@@ -1,6 +1,6 @@
 import type { Store, Category, CategoryDetail, BasketAnalysis, RecipeGenerateResponse } from './types';
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
 /**
  * Resolves image URLs - prepends API_BASE to relative URLs (e.g. /static/images/...)
@@ -87,7 +87,20 @@ export async function generateRecipe(payload: {
     }),
   });
   if (!response.ok) {
-    throw new Error('Failed to generate recipe');
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.detail || 'Failed to generate recipe';
+    throw new Error(errorMessage);
   }
   return response.json();
+}
+
+export async function checkRecipeAvailability(): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_BASE}/api/recipes/status`);
+    if (!response.ok) return false;
+    const data = await response.json();
+    return data.available === true;
+  } catch {
+    return false;
+  }
 }

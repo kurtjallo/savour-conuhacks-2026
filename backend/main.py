@@ -410,6 +410,12 @@ async def _call_gemini(prompt: str) -> str:
     return text
 
 
+@app.get("/api/recipes/status")
+async def recipe_status():
+    """Check if recipe generation is available (Gemini API key configured)."""
+    return {"available": bool(GEMINI_API_KEY)}
+
+
 @app.post("/api/recipes/generate", response_model=RecipeGenerateResponse)
 async def generate_recipe(request: RecipeGenerateRequest):
     start = time.perf_counter()
