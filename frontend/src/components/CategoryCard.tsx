@@ -70,12 +70,12 @@ export default function CategoryCard({ category }: CategoryCardProps) {
       {/* Content area with padding */}
       <div className="p-5 flex flex-col flex-1">
         {/* Product name */}
-        <h3 className="text-base font-medium text-charcoal mb-1">
+        <h3 className="text-base font-medium text-charcoal mb-1 font-display">
           {category.name}
         </h3>
 
         {/* Unit */}
-        <p className="text-sm text-muted mb-4">
+        <p className="text-sm text-muted mb-4 font-ui">
           {category.unit}
         </p>
 
@@ -83,10 +83,10 @@ export default function CategoryCard({ category }: CategoryCardProps) {
         <div className="mt-auto pt-3 border-t border-border/50">
           <div className="flex items-baseline justify-between">
             <div>
-              <span className="text-xl font-semibold text-charcoal">
+              <span className="text-xl font-semibold text-charcoal font-display">
                 {formatPrice(category.cheapest_price)}
               </span>
-              <span className="text-sm text-muted ml-1">
+              <span className="text-sm text-muted ml-1 font-ui">
                 at {formatStoreName(category.cheapest_store)}
               </span>
             </div>
@@ -95,7 +95,7 @@ export default function CategoryCard({ category }: CategoryCardProps) {
           {/* Savings badge */}
           {savings && savings > 0 && (
             <div className="mt-2">
-              <span className="inline-flex items-center px-2.5 py-1 text-xs font-medium text-sage bg-sage-light rounded-full">
+              <span className="inline-flex items-center px-2.5 py-1 text-xs font-medium text-sage bg-sage-light rounded-full font-ui">
                 Save {savings}%
               </span>
             </div>

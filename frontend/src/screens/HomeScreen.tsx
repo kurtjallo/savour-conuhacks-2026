@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import CategoryFilter, { FOOD_CATEGORIES } from '../components/CategoryFilter';
@@ -125,7 +126,7 @@ export default function HomeScreen() {
         <main className="max-w-5xl mx-auto px-6 py-20">
           <div className="flex flex-col items-center justify-center">
             <div className="w-8 h-8 border-2 border-charcoal/20 border-t-charcoal rounded-full animate-spin mb-4"></div>
-            <p className="text-charcoal-light text-sm">Loading products...</p>
+            <p className="text-charcoal-light text-sm font-ui">Loading products...</p>
           </div>
         </main>
       </div>
@@ -139,12 +140,23 @@ export default function HomeScreen() {
       <main className="max-w-5xl mx-auto px-6">
         {/* Hero Section */}
         <section className="py-16 md:py-20 text-center animate-fade-in-up">
-          <h1 className="text-4xl md:text-5xl font-semibold text-charcoal tracking-tight mb-4">
+          <h1 className="text-4xl md:text-5xl font-semibold text-charcoal tracking-tight mb-4 font-display">
             Compare. Save. Savour.
           </h1>
-          <p className="text-charcoal-light text-lg font-light max-w-md mx-auto">
+          <p className="text-charcoal-light text-lg font-light max-w-md mx-auto mb-8 font-ui">
             Find the best grocery prices across Canadian stores
           </p>
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-2 bg-accent text-white font-semibold px-6 py-3 rounded-full
+                     hover:bg-[#e04d12] hover:shadow-lg hover:scale-[1.02]
+                     transition-all duration-200 ease-out font-ui"
+          >
+            All Products
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </Link>
         </section>
 
         {/* Search and Filter */}
@@ -181,7 +193,7 @@ export default function HomeScreen() {
 
         {/* Results Count */}
         {(searchQuery || selectedFilters.length > 0) && (
-          <p className="text-sm text-muted mb-6 animate-fade-in">
+          <p className="text-sm text-muted mb-6 animate-fade-in font-ui">
             {filteredCategories.length} result{filteredCategories.length !== 1 ? 's' : ''}
             {searchQuery && ` for "${searchQuery}"`}
             {selectedFilters.length > 0 && (
@@ -310,10 +322,10 @@ export default function HomeScreen() {
           </section>
         ) : (
           <section className="text-center py-20 animate-fade-in">
-            <h3 className="text-xl font-medium text-charcoal mb-2">
+            <h3 className="text-xl font-medium text-charcoal mb-2 font-display">
               No products found
             </h3>
-            <p className="text-charcoal-light mb-6">
+            <p className="text-charcoal-light mb-6 font-ui">
               Try a different search term or filter
             </p>
             <button
@@ -323,7 +335,7 @@ export default function HomeScreen() {
                 setFilteredCategories(categories);
                 setCurrentPage(1);
               }}
-              className="px-6 py-3 text-accent border border-accent rounded-xl hover:bg-accent hover:text-white transition-all duration-200"
+              className="px-6 py-3 text-accent border border-accent rounded-xl hover:bg-accent hover:text-white transition-all duration-200 font-ui"
             >
               Clear filters
             </button>

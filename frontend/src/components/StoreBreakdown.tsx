@@ -34,7 +34,7 @@ export default function StoreBreakdown({ items, total }: StoreBreakdownProps) {
     <section>
       <h2
         className="text-lg font-semibold mb-5"
-        style={{ color: colors.textPrimary }}
+        style={{ color: colors.textPrimary, fontFamily: "'Work Sans', sans-serif" }}
       >
         Shopping List
       </h2>
@@ -49,7 +49,7 @@ export default function StoreBreakdown({ items, total }: StoreBreakdownProps) {
               <div className="flex items-center justify-between mb-4">
                 <h3
                   className="font-medium capitalize"
-                  style={{ color: colors.textPrimary }}
+                  style={{ color: colors.textPrimary, fontFamily: "'Work Sans', sans-serif" }}
                 >
                   {items[0]?.store_name?.replace('-', ' ') ?? store.replace('-', ' ')}
                 </h3>

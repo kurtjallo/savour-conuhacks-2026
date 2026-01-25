@@ -1,16 +1,15 @@
 # Savour
 
-A grocery price comparison mobile app for Canadian shoppers. Compare prices across 5 major stores, build a basket, and see optimized shopping strategies with real savings calculations.
+A grocery price comparison web app for Canadian shoppers. Compare prices across 5 major stores, build a basket, and see optimized shopping strategies with real savings calculations.
 
 ## Features
 
-- **Price Comparison** - Compare 25 common grocery items across 5 Canadian stores
-- **Best Deals** - See which items have the biggest price differences
+- **Price Comparison** - Compare grocery items across 5 Canadian stores
+- **Price History Charts** - Track price trends over time with visual charts
 - **Smart Basket** - Build a shopping list and get optimization suggestions
 - **Multi-Store Optimization** - Find out if shopping at multiple stores saves money
 - **Savings Calculator** - See exactly how much you could save annually
-- **Favorites** - Quick access to items you buy regularly
-- **Weekly Deals** - Track store sales and promotions
+- **AI Recipe Generator** - Generate recipes based on your basket items
 
 ## Stores Covered
 
@@ -26,8 +25,8 @@ A grocery price comparison mobile app for Canadian shoppers. Compare prices acro
 |-------|------------|
 | Backend | Python FastAPI |
 | Database | MongoDB Atlas |
-| Mobile | React Native / Expo + TypeScript |
-| Icons | Ionicons |
+| Frontend | React + TypeScript (Vite) |
+| Styling | Tailwind CSS |
 
 ## Getting Started
 
@@ -36,7 +35,6 @@ A grocery price comparison mobile app for Canadian shoppers. Compare prices acro
 - Node.js 18+
 - Python 3.9+
 - MongoDB Atlas account (free tier works)
-- Expo Go app (for mobile testing)
 
 ### Backend Setup
 
@@ -62,40 +60,19 @@ uvicorn main:app --reload
 
 The API will be available at `http://localhost:8000`
 
-### Mobile Setup
+### Frontend Setup
 
 ```bash
-cd mobile
+cd frontend
 
 # Install dependencies
 npm install
 
-# Start Expo
-npx expo start
+# Start the dev server
+npm run dev
 ```
 
-Then:
-- Press `i` for iOS Simulator
-- Press `a` for Android Emulator
-- Scan QR code with Expo Go (requires ngrok for physical device)
-
-### Physical Device Testing
-
-Physical devices can't reach `localhost`. You need to tunnel the backend:
-
-```bash
-# Install ngrok
-brew install ngrok
-
-# Tunnel the backend
-ngrok http 8000
-
-# Create mobile/.env with the ngrok URL
-echo "EXPO_PUBLIC_API_URL=https://your-subdomain.ngrok-free.app" > mobile/.env
-
-# Restart Expo
-npx expo start --clear
-```
+The app will be available at `http://localhost:5173`
 
 ## API Endpoints
 
@@ -106,44 +83,33 @@ npx expo start --clear
 | GET | `/api/categories/search?q=` | Search products |
 | GET | `/api/categories/{id}` | Get price breakdown for one product |
 | POST | `/api/basket/analyze` | Analyze basket for optimization |
+| POST | `/api/recipe/generate` | Generate recipe from ingredients |
 
 ## Project Structure
 
 ```
-groceryPriec/
+savour-conuhacks-2026/
 ├── backend/
 │   ├── main.py              # FastAPI endpoints
 │   ├── database.py          # MongoDB connection
 │   ├── models.py            # Pydantic models
 │   └── scripts/
 │       └── seed_db.py       # Database seeding
-├── mobile/
-│   ├── App.tsx              # Main app with navigation
+├── frontend/
+│   ├── index.html           # Vite entry point
+│   ├── vite.config.ts       # Vite configuration
 │   └── src/
-│       ├── screens/         # Home, Category, Basket, Deals
-│       ├── components/      # CategoryCard, SearchBar, etc.
-│       ├── context/         # Basket & Favorites state
-│       ├── lib/             # API, types, theme, icons
-│       └── navigation/      # Type definitions
+│       ├── App.tsx          # Main app with routing
+│       ├── screens/         # Landing, Home, Products, Category, Basket
+│       ├── components/      # UI components
+│       ├── context/         # Basket state management
+│       └── lib/             # API, types, theme
 └── README.md
 ```
 
-## Screenshots
-
-The app features:
-- Clean light theme with green accents
-- Bottom tab navigation (Home, Deals, Basket)
-- Product cards with price ranges and savings badges
-- Detailed price comparison tables
-- Basket optimization with multi-store suggestions
-
-## Demo Hook
-
-> "Canadians overpay $1200/year on groceries — we fix that"
-
 ## Built For
 
-ConUHacks 2025
+ConUHacks 2026
 
 ## License
 
