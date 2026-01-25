@@ -4,30 +4,27 @@ interface StoreLogoProps {
 }
 
 const storeLogos: Record<string, string> = {
-  'no-frills': '/nofrills.png',
-  'nofrills': '/nofrills.png',
-  'freshco': '/freshco-seeklogo.png',
+  'maxi': '/maxi.svg',
+  'iga': '/iga.svg',
+  'provigo': '/provigo.svg',
   'walmart': '/walmart.svg',
-  'loblaws': '/loblaws.png',
   'metro': '/metro.png',
 };
 
 const storeNames: Record<string, string> = {
-  'no-frills': 'No Frills',
-  'nofrills': 'No Frills',
-  'freshco': 'FreshCo',
+  'maxi': 'Maxi',
+  'iga': 'IGA',
+  'provigo': 'Provigo',
   'walmart': 'Walmart',
-  'loblaws': 'Loblaws',
   'metro': 'Metro',
 };
 
 // Individual heights to make logos appear visually equal
 const storeHeights: Record<string, string> = {
-  'no-frills': '14px',
-  'nofrills': '14px',
-  'freshco': '20px',
+  'maxi': '18px',
+  'iga': '20px',
+  'provigo': '18px',
   'walmart': '18px',
-  'loblaws': '18px',
   'metro': '16px',
 };
 

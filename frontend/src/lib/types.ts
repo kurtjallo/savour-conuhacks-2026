@@ -111,6 +111,7 @@ export interface RouteSettings {
 
 export interface StoreWithLocation {
   store_id: string;
+  location_id?: string;  // For multi-location support
   name: string;
   color: string;
   address: string;

@@ -144,14 +144,31 @@ class RouteOptimizeRequest(BaseModel):
     settings: RouteSettings = RouteSettings()
 
 
+class StoreLocation(BaseModel):
+    """Individual store location within a chain."""
+    location_id: str
+    address: str
+    lat: float
+    lng: float
+
+
 class StoreWithLocation(BaseModel):
     """Store with geographic information."""
     store_id: str
+    location_id: Optional[str] = None  # For multi-location support
     name: str
     color: str
     address: str
     lat: float
     lng: float
+
+
+class StoreWithLocations(BaseModel):
+    """Store chain with all its locations."""
+    store_id: str
+    name: str
+    color: str
+    locations: list[StoreLocation]
 
 
 class StoreVisit(BaseModel):

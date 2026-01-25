@@ -20,10 +20,10 @@ export default function CategoryCard({ category }: CategoryCardProps) {
 
   const formatStoreName = (storeId: string): string => {
     const storeNames: Record<string, string> = {
-      'no-frills': 'No Frills',
-      'freshco': 'FreshCo',
+      'maxi': 'Maxi',
+      'iga': 'IGA',
+      'provigo': 'Provigo',
       'walmart': 'Walmart',
-      'loblaws': 'Loblaws',
       'metro': 'Metro',
     };
     return storeNames[storeId] || storeId;
