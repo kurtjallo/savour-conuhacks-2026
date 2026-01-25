@@ -8,7 +8,7 @@ const storeLogos: Record<string, string> = {
   'maxi': '/maxi.png',
   'iga': '/iga.svg',
   'provigo': '/provigo.png',
-  'walmart': '/walmart.png',
+  'walmart': '/walmart.svg',
   'metro': '/metro.png',
 };
 

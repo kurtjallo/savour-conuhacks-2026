@@ -3,7 +3,7 @@ const stores = [
   { name: 'Maxi', logo: '/maxi.png' },
   { name: 'IGA', logo: '/iga.svg' },
   { name: 'Provigo', logo: '/provigo.png' },
-  { name: 'Walmart', logo: '/walmart.png' },
+  { name: 'Walmart', logo: '/walmart.svg' },
   { name: 'Metro', logo: '/metro.png' },
 ];
 
