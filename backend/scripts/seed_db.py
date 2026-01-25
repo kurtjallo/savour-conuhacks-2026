@@ -157,6 +157,17 @@ def load_products_from_csv():
         (r'^(white |brown |granulated )?sugar,?\s*\d?', ['free', 'substitute', 'cone', 'snap']),
         # Oil
         (r'^(vegetable |canola |olive |cooking )?oil', ['essential', 'baby', 'oregano', 'fish']),
+        # Additional essential dairy
+        (r'^cream,?\s*\d', ['ice', 'whipped', 'sour']),
+        (r'^(whipping |heavy )?cream\b', ['ice', 'cheese', 'sour']),
+        # Additional essential meats
+        (r'^(boneless |bone-in )?pork chops?', ['breaded']),
+        (r'^(beef )?steak', ['salisbury', 'cheese']),
+        (r'^(sliced |deli )?turkey\b', ['ground', 'whole']),
+        (r'^(sliced |deli )?ham\b', ['burger']),
+        # Canned essentials
+        (r'^(canned |diced |crushed )?tomatoes', ['sun-dried', 'fresh']),
+        (r'^tomato (sauce|paste)', []),
     ]
 
     # TIER 2: More common items with exclusions
@@ -186,6 +197,42 @@ def load_products_from_csv():
         (r'^bagels?\b', ['chips', 'seasoning']),
         (r'^(flour |corn )?tortillas?\b', ['chips']),
         (r'^(hamburger |hot dog )?buns\b', []),
+        # Additional produce
+        (r'^zucchini\b', ['bread', 'noodle']),
+        (r'^(butternut |acorn |spaghetti )?squash\b', ['drink']),
+        (r'^asparagus\b', ['soup']),
+        (r'^kale\b', ['chips', 'smoothie']),
+        (r'^(green |string )?beans\b', ['coffee', 'jelly', 'baked', 'refried']),
+        (r'^(frozen |canned |green )?peas\b', ['split', 'soup']),
+        (r'^cauliflower\b', ['rice', 'pizza']),
+        (r'^(sweet )?potatoes?\b', ['chip', 'fries']),
+        # Additional fruits
+        (r'^watermelon\b', ['juice', 'candy']),
+        (r'^cantaloupe\b', []),
+        (r'^(peaches|nectarines)\b', ['canned', 'cobbler']),
+        (r'^pears?\b', ['juice', 'canned']),
+        (r'^plums?\b', ['sauce']),
+        (r'^raspberries\b', ['jam', 'syrup']),
+        (r'^(fresh |frozen )?mango\b', ['juice', 'chutney']),
+        (r'^(fresh |canned )?pineapple\b', ['juice', 'upside']),
+        (r'^limes?\b', ['juice', 'key']),
+        (r'^(clementines|mandarins|tangerines)\b', []),
+        # Additional dairy
+        (r'^cream cheese\b', ['flavored', 'spread']),
+        (r'^cottage cheese\b', []),
+        (r'^(half.and.half|half & half)\b', []),
+        (r'^(almond |oat |soy |coconut )milk\b', ['chocolate']),
+        # Additional meats and seafood
+        (r'^(ground |minced )chicken\b', []),
+        (r'^(ground |minced )pork\b', []),
+        (r'^(ground |minced )turkey\b', []),
+        (r'^(fresh |frozen )?shrimp\b', ['paste', 'chips']),
+        (r'^(fresh |frozen )?tilapia\b', []),
+        (r'^(canned )?tuna\b', ['salad', 'helper']),
+        (r'^(fresh |frozen )?cod\b', ['liver']),
+        (r'^chicken (wings|drumsticks|legs)\b', ['buffalo']),
+        (r'^(beef |pork )?ribs\b', ['short']),
+        (r'^roast (beef|pork|chicken)\b', []),
     ]
 
     # TIER 3: Pantry staples
@@ -204,6 +251,52 @@ def load_products_from_csv():
         (r'^honey,?\s*\d?', ['mustard', 'garlic']),
         (r'^(strawberry |grape )?jam', []),
         (r'^peanut butter', ['cup', 'cookie']),
+        # Additional condiments
+        (r'^mayonnaise|^mayo\b', ['vegan']),
+        (r'^(bbq|barbecue) sauce\b', []),
+        (r'^soy sauce\b', ['low']),
+        (r'^hot sauce\b', []),
+        (r'^(ranch |caesar |italian )?salad dressing\b', []),
+        (r'^(pure |real )?maple syrup\b', ['flavored']),
+        (r'^worcestershire sauce\b', []),
+        (r'^teriyaki sauce\b', []),
+        (r'^sriracha\b', []),
+        (r'^relish\b', []),
+        (r'^(dill |bread.and.butter )?pickles\b', []),
+        (r'^(green |black |kalamata )?olives\b', []),
+        # Baking essentials
+        (r'^baking powder\b', []),
+        (r'^baking soda\b', []),
+        (r'^(active dry |instant )?yeast\b', ['nutritional']),
+        (r'^(unsweetened )?cocoa powder\b', []),
+        (r'^(pure )?vanilla extract\b', []),
+        (r'^cornstarch\b', []),
+        (r'^(icing |powdered |confectioner.s )?sugar\b', []),
+        # Additional grains
+        (r'^quinoa\b', ['salad']),
+        (r'^couscous\b', ['salad']),
+        (r'^(plain |italian |panko )?bread crumbs\b', []),
+        (r'^(elbow )?macaroni\b', ['cheese', 'salad']),
+        (r'^egg noodles\b', []),
+        (r'^(instant |cup )?ramen\b', []),
+        # Canned goods
+        (r'^(canned )?chickpeas\b', ['hummus']),
+        (r'^(canned )?lentils\b', ['soup']),
+        (r'^(canned )?coconut milk\b', []),
+        (r'^(cream of )?(mushroom |chicken |tomato )?soup\b', []),
+        (r'^(canned )?corn\b', ['chip', 'flakes', 'syrup']),
+        # Spices
+        (r'^(ground |black )?pepper\b', ['bell', 'hot', 'cayenne', 'stuffed']),
+        (r'^(ground )?cinnamon\b', ['roll', 'bun']),
+        (r'^(ground )?cumin\b', []),
+        (r'^paprika\b', []),
+        (r'^(italian |dried )?oregano\b', []),
+        (r'^(dried )?basil\b', []),
+        (r'^(garlic |onion )?powder\b', []),
+        (r'^chili powder\b', []),
+        (r'^bay leaves\b', []),
+        (r'^(dried )?thyme\b', []),
+        (r'^(dried )?rosemary\b', []),
     ]
 
     # TIER 4: Nice to have
@@ -215,6 +308,49 @@ def load_products_from_csv():
         (r'^ice cream', ['sandwich', 'bar', 'cone']),
         (r'^(frozen )?pizza', []),
         (r'^(spring |bottled )?water', ['coconut', 'sparkling']),
+        # Additional frozen foods
+        (r'^frozen (vegetables|veggies)\b', []),
+        (r'^frozen (fruit|berries)\b', []),
+        (r'^frozen (chicken|fish) (fillets|breasts)\b', []),
+        (r'^(fish |chicken )?nuggets\b', []),
+        (r'^fish sticks\b', []),
+        (r'^frozen (fries|french fries)\b', []),
+        (r'^(frozen )?waffles\b', []),
+        (r'^(frozen )?burritos\b', []),
+        (r'^(frozen )?pie\b', ['pizza']),
+        # Additional snacks
+        (r'^granola bars?\b', []),
+        (r'^(mixed |trail )?nuts\b', ['donut', 'doughnut']),
+        (r'^trail mix\b', []),
+        (r'^(microwave )?popcorn\b', []),
+        (r'^pretzels\b', []),
+        (r'^(corn |tortilla )?chips\b', ['chocolate']),
+        (r'^salsa\b', []),
+        (r'^hummus\b', []),
+        (r'^guacamole\b', []),
+        # Beverages
+        (r'^sparkling water\b', []),
+        (r'^(cola|soda|pop)\b', ['baking']),
+        (r'^(ginger ale|ginger beer)\b', []),
+        (r'^(sports |energy )?drink\b', ['yogurt', 'mixed']),
+        (r'^(apple |grape |cranberry )?juice\b', ['orange']),
+        (r'^(chocolate |strawberry )?milk\b', ['almond', 'oat', 'soy']),
+        # Breakfast items
+        (r'^(breakfast |pork )?sausage\b', ['roll', 'italian']),
+        (r'^(english )?muffins\b', []),
+        (r'^pancake mix\b', []),
+        (r'^(maple )?syrup\b', ['cough', 'corn']),
+        (r'^(granola|muesli)\b', ['bar']),
+        # Deli items
+        (r'^(rotisserie |roasted )?chicken\b', ['breast', 'thigh', 'wing', 'soup', 'stock', 'broth']),
+        (r'^(sliced |deli )?(roast beef|turkey|ham|salami|pepperoni)\b', []),
+        # Misc essentials
+        (r'^(paper )?towels\b', []),
+        (r'^(toilet |bathroom )paper\b', []),
+        (r'^(dish |laundry )?detergent\b', []),
+        (r'^(plastic |garbage |trash )?bags\b', ['chip', 'snack']),
+        (r'^(aluminum |tin )?foil\b', []),
+        (r'^(plastic |cling )?wrap\b', []),
     ]
 
     def matches_search(title, pattern, excludes):
@@ -230,7 +366,7 @@ def load_products_from_csv():
 
     # First pass: get ONE product per essential search
     for pattern, excludes in essential_searches:
-        if len(selected_products) >= 100:
+        if len(selected_products) >= 250:
             break
         for _, row in df.iterrows():
             title = row['title']
@@ -241,7 +377,7 @@ def load_products_from_csv():
 
     # Second pass: get ONE product per tier2 search
     for pattern, excludes in tier2_searches:
-        if len(selected_products) >= 100:
+        if len(selected_products) >= 250:
             break
         for _, row in df.iterrows():
             title = row['title']
@@ -252,7 +388,7 @@ def load_products_from_csv():
 
     # Third pass: get ONE product per tier3 search
     for pattern, excludes in tier3_searches:
-        if len(selected_products) >= 100:
+        if len(selected_products) >= 250:
             break
         for _, row in df.iterrows():
             title = row['title']
@@ -263,7 +399,7 @@ def load_products_from_csv():
 
     # Fourth pass: get ONE product per tier4 search
     for pattern, excludes in tier4_searches:
-        if len(selected_products) >= 100:
+        if len(selected_products) >= 250:
             break
         for _, row in df.iterrows():
             title = row['title']
@@ -275,10 +411,10 @@ def load_products_from_csv():
     # Fifth pass: fill remaining with any products that have images
     all_searches = essential_searches + tier2_searches + tier3_searches + tier4_searches
     for pattern, excludes in all_searches:
-        if len(selected_products) >= 100:
+        if len(selected_products) >= 250:
             break
         for _, row in df.iterrows():
-            if len(selected_products) >= 100:
+            if len(selected_products) >= 250:
                 break
             title = row['title']
             if title not in used_titles and matches_search(title, pattern, excludes):
@@ -286,10 +422,10 @@ def load_products_from_csv():
                 used_titles.add(title)
 
     # Second pass: fill remaining slots with other products
-    if len(selected_products) < 100:
+    if len(selected_products) < 250:
         remaining = df[~df['title'].isin(used_titles)]
         for _, row in remaining.iterrows():
-            if len(selected_products) >= 100:
+            if len(selected_products) >= 250:
                 break
             selected_products.append(row)
 
