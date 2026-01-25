@@ -23,6 +23,7 @@ export default function BasketScreen() {
   const [recipeLoading, setRecipeLoading] = useState(false);
   const [recipeError, setRecipeError] = useState<string | null>(null);
   const [recipe, setRecipe] = useState<RecipeGenerateResponse | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [recipeAvailable, setRecipeAvailable] = useState<boolean | null>(null);
 
   // Fetch categories for price info
@@ -48,34 +49,41 @@ export default function BasketScreen() {
     setSelectedItems(new Set(items.map(item => item.category_id)));
   }, [items]);
 
-  // Fetch analysis whenever basket items change
+  // Fetch analysis whenever basket items or selection changes (debounced)
   useEffect(() => {
-    if (items.length === 0) {
+    // Filter to only selected items
+    const selectedBasketItems = items.filter(item => selectedItems.has(item.category_id));
+
+    if (selectedBasketItems.length === 0) {
       setAnalysis(null);
       setRecipe(null);
       return;
     }
 
-    const fetchAnalysis = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const basketItems = items.map((item) => ({
-          category_id: item.category_id,
-          quantity: item.quantity,
-        }));
-        const result = await analyzeBasket(basketItems);
-        setAnalysis(result);
-      } catch (err) {
-        setError('Failed to analyze basket. Please try again.');
-        console.error('Analysis error:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const timeoutId = setTimeout(() => {
+      const fetchAnalysis = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const basketItems = selectedBasketItems.map((item) => ({
+            category_id: item.category_id,
+            quantity: item.quantity,
+          }));
+          const result = await analyzeBasket(basketItems);
+          setAnalysis(result);
+        } catch (err) {
+          setError('Failed to analyze basket. Please try again.');
+          console.error('Analysis error:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchAnalysis();
-  }, [items]);
+      fetchAnalysis();
+    }, 300); // Debounce 300ms
+
+    return () => clearTimeout(timeoutId);
+  }, [items, selectedItems]);
 
   // Get price info for each item
   const getCategoryPrice = (categoryId: string): number | undefined => {
@@ -122,11 +130,18 @@ export default function BasketScreen() {
   };
 
   const handleGenerateRecipe = async () => {
+    // Use only selected items for recipe
+    const selectedBasketItems = items.filter(item => selectedItems.has(item.category_id));
+    if (selectedBasketItems.length === 0) {
+      setRecipeError('Please select at least one item to generate a recipe.');
+      return;
+    }
+
     setRecipeLoading(true);
     setRecipeError(null);
     try {
-      const ingredients = items.map((item) => item.name);
-      const categoryIds = items.map((item) => item.category_id);
+      const ingredients = selectedBasketItems.map((item) => item.name);
+      const categoryIds = selectedBasketItems.map((item) => item.category_id);
       const result = await generateRecipe({
         ingredients,
         category_ids: categoryIds,
@@ -210,7 +225,7 @@ export default function BasketScreen() {
             <h1 className="text-lg font-bold text-savour-text">Your Cart</h1>
 
             <button
-              onClick={clearBasket}
+              onClick={() => setShowClearConfirm(true)}
               className="text-sm font-medium text-savour-text-secondary hover:text-red-500 transition-colors"
             >
               Clear all
@@ -219,36 +234,36 @@ export default function BasketScreen() {
         </div>
 
         {/* Progress Stepper */}
-        <div className="max-w-md mx-auto px-6 pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col items-center">
+        <nav className="max-w-md mx-auto px-6 pb-4" aria-label="Checkout progress">
+          <ol className="flex items-center justify-between" role="list">
+            <li className="flex flex-col items-center" aria-current="step">
               <div className="w-8 h-8 rounded-full bg-savour-text text-white flex items-center justify-center text-sm font-medium">
                 1
               </div>
               <span className="text-xs font-medium text-savour-text mt-1">Cart</span>
-            </div>
-            <div className="flex-1 h-0.5 bg-gray-200 mx-2" />
-            <div className="flex flex-col items-center">
+            </li>
+            <li className="flex-1 h-0.5 bg-gray-200 mx-2" aria-hidden="true" />
+            <li className="flex flex-col items-center">
               <div className="w-8 h-8 rounded-full bg-gray-200 text-savour-text-secondary flex items-center justify-center text-sm font-medium">
                 2
               </div>
-              <span className="text-xs text-savour-text-secondary mt-1">Review</span>
-            </div>
-            <div className="flex-1 h-0.5 bg-gray-200 mx-2" />
-            <div className="flex flex-col items-center">
+              <span className="text-xs text-savour-text-secondary mt-1">Compare</span>
+            </li>
+            <li className="flex-1 h-0.5 bg-gray-200 mx-2" aria-hidden="true" />
+            <li className="flex flex-col items-center">
               <div className="w-8 h-8 rounded-full bg-gray-200 text-savour-text-secondary flex items-center justify-center text-sm font-medium">
                 3
               </div>
               <span className="text-xs text-savour-text-secondary mt-1">Shop</span>
-            </div>
-          </div>
-        </div>
+            </li>
+          </ol>
+        </nav>
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Error state */}
         {error && (
-          <div className="rounded-xl p-4 mb-6 bg-red-50 border border-red-200 text-red-800">
+          <div role="alert" className="rounded-xl p-4 mb-6 bg-red-50 border border-red-200 text-red-800">
             <p className="text-sm">{error}</p>
           </div>
         )}
@@ -261,6 +276,8 @@ export default function BasketScreen() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={toggleSelectAll}
+                  role="checkbox"
+                  aria-checked={selectedItems.size === items.length}
                   className={`
                     w-5 h-5 rounded flex items-center justify-center border-2 transition-all duration-200
                     ${selectedItems.size === items.length
@@ -268,7 +285,7 @@ export default function BasketScreen() {
                       : 'border-gray-300 hover:border-savour-accent'
                     }
                   `}
-                  aria-label={selectedItems.size === items.length ? 'Deselect all' : 'Select all'}
+                  aria-label={selectedItems.size === items.length ? 'Deselect all items' : 'Select all items'}
                 >
                   {selectedItems.size === items.length && (
                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
@@ -346,7 +363,7 @@ export default function BasketScreen() {
                 </div>
 
                 {recipeError && (
-                  <div className="rounded-lg p-3 mt-4 bg-red-50 border border-red-200 text-red-800">
+                  <div role="alert" className="rounded-lg p-3 mt-4 bg-red-50 border border-red-200 text-red-800">
                     <p className="text-sm">{recipeError}</p>
                   </div>
                 )}
@@ -371,10 +388,10 @@ export default function BasketScreen() {
                     {recipe.rag_items.length > 0 && (
                       <div className="text-xs text-savour-text-secondary">
                         <span className="font-semibold text-savour-text">
-                          RAG items used:
+                          Ingredients from your basket:
                         </span>{' '}
                         {recipe.rag_items
-                          .map((item) => `${item.name} (${item.cheapest_store})`)
+                          .map((item) => `${item.name} (best at ${item.cheapest_store})`)
                           .join(', ')}
                       </div>
                     )}
@@ -385,9 +402,11 @@ export default function BasketScreen() {
 
             {/* Shopping List Section (collapsible) */}
             {analysis && (
-              <div className="mt-8">
+              <div id="shopping-list-section" className="mt-8">
                 <button
                   onClick={() => setShowShoppingList(!showShoppingList)}
+                  aria-expanded={showShoppingList}
+                  aria-controls="shopping-list-content"
                   className="w-full flex items-center justify-between p-4 bg-white border border-savour-border rounded-xl hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
@@ -408,7 +427,7 @@ export default function BasketScreen() {
                 </button>
 
                 {showShoppingList && (
-                  <div className="mt-4">
+                  <div id="shopping-list-content" className="mt-4">
                     <StoreBreakdown items={analysis.multi_store_optimal} total={analysis.multi_store_total} />
                   </div>
                 )}
@@ -424,11 +443,58 @@ export default function BasketScreen() {
                 analysis={analysis}
                 loading={loading}
                 selectedCount={selectedItems.size}
+                onViewShoppingList={() => {
+                  setShowShoppingList(true);
+                  // Scroll to shopping list section
+                  setTimeout(() => {
+                    document.getElementById('shopping-list-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }}
               />
             </div>
           </div>
         </div>
       </main>
+
+      {/* Clear Cart Confirmation Modal */}
+      {showClearConfirm && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowClearConfirm(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="clear-cart-title"
+        >
+          <div
+            className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="clear-cart-title" className="text-lg font-bold text-savour-text mb-2">
+              Clear your cart?
+            </h2>
+            <p className="text-savour-text-secondary text-sm mb-6">
+              This will remove all {items.length} item{items.length !== 1 ? 's' : ''} from your cart. This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowClearConfirm(false)}
+                className="flex-1 px-4 py-3 rounded-xl font-medium text-savour-text bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  clearBasket();
+                  setShowClearConfirm(false);
+                }}
+                className="flex-1 px-4 py-3 rounded-xl font-medium text-white bg-red-500 hover:bg-red-600 transition-colors"
+              >
+                Clear cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

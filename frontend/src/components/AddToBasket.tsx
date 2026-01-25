@@ -11,7 +11,7 @@ interface AddToBasketProps {
 export default function AddToBasket({ category, bestPrice, onAdd }: AddToBasketProps) {
   const [quantity, setQuantity] = useState(1);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const { addItem, items, updateQuantity } = useBasket();
+  const { addItemWithQuantity, items, updateQuantity } = useBasket();
 
   const existingItem = items.find((item) => item.category_id === category.category_id);
 
@@ -39,13 +39,11 @@ export default function AddToBasket({ category, bestPrice, onAdd }: AddToBasketP
     if (existingItem) {
       updateQuantity(category.category_id, existingItem.quantity + quantity);
     } else {
-      for (let i = 0; i < quantity; i++) {
-        addItem({
-          category_id: category.category_id,
-          name: category.name,
-          icon: category.icon,
-        });
-      }
+      addItemWithQuantity({
+        category_id: category.category_id,
+        name: category.name,
+        icon: category.icon,
+      }, quantity);
     }
 
     setShowConfirmation(true);

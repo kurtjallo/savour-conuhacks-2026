@@ -1,4 +1,5 @@
 import type { BasketItem as BasketItemType } from '../lib/types';
+import { resolveImageUrl } from '../lib/api';
 
 interface CartItemCardProps {
   item: BasketItemType;
@@ -32,6 +33,8 @@ export default function CartItemCard({
       <div className="pt-1">
         <button
           onClick={() => onToggleSelect(item.category_id)}
+          role="checkbox"
+          aria-checked={isSelected}
           className={`
             w-5 h-5 rounded flex items-center justify-center border-2 transition-all duration-200
             ${isSelected
@@ -39,7 +42,7 @@ export default function CartItemCard({
               : 'border-gray-300 hover:border-savour-accent'
             }
           `}
-          aria-label={isSelected ? 'Deselect item' : 'Select item'}
+          aria-label={`${isSelected ? 'Deselect' : 'Select'} ${item.name}`}
         >
           {isSelected && (
             <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
@@ -53,7 +56,7 @@ export default function CartItemCard({
       <div className="flex-shrink-0">
         {imageUrl ? (
           <img
-            src={imageUrl}
+            src={resolveImageUrl(imageUrl)}
             alt={item.name}
             className="w-20 h-20 object-cover rounded-lg bg-gray-100"
           />

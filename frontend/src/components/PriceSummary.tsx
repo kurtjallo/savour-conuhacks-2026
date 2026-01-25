@@ -11,6 +11,7 @@ interface PriceSummaryProps {
   analysis: BasketAnalysis | null;
   loading: boolean;
   selectedCount: number;
+  onViewShoppingList?: () => void;
 }
 
 export default function PriceSummary({
@@ -18,6 +19,7 @@ export default function PriceSummary({
   analysis,
   loading,
   selectedCount,
+  onViewShoppingList,
 }: PriceSummaryProps) {
   const itemsTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const savingsAmount = analysis?.savings_vs_worst ?? 0;
@@ -124,7 +126,7 @@ export default function PriceSummary({
             )}
 
             <div className="flex items-center justify-between text-sm">
-              <span className="text-savour-text-secondary">Delivery</span>
+              <span className="text-savour-text-secondary">Price comparison</span>
               <span className="text-savour-savings font-medium">Free</span>
             </div>
           </div>
@@ -151,7 +153,11 @@ export default function PriceSummary({
 
       {/* Checkout Button */}
       <div className="p-4 border-t border-savour-border bg-gray-50">
-        <button className="w-full bg-savour-text hover:bg-savour-text/90 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-md">
+        <button
+          onClick={onViewShoppingList}
+          disabled={!analysis}
+          className="w-full bg-savour-text hover:bg-savour-text/90 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           <span>View Shopping List</span>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
