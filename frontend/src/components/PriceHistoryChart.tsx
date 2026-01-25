@@ -73,15 +73,44 @@ export default function PriceHistoryChart({ currentPrice, productId }: PriceHist
   // Create path for the gradient area
   const areaPath = `${linePath} L ${points[points.length - 1].x} ${padding.top + chartHeight} L ${points[0].x} ${padding.top + chartHeight} Z`;
 
+  // Determine trend: compare first price to current price
+  const firstPrice = priceHistory[0]?.price || currentPrice;
+  const priceWentUp = currentPrice > firstPrice;
+  const priceChange = ((currentPrice - firstPrice) / firstPrice) * 100;
+
+  // Colors based on trend (green = down/good, red = up/bad)
+  const trendColor = priceWentUp ? '#EF4444' : '#22C55E'; // red if up, green if down
+  const gradientId = `priceGradient-${productId.replace(/[^a-zA-Z0-9]/g, '')}`;
+
   return (
     <div className="bg-white border border-savour-border rounded-2xl p-6">
-      <h3 className="text-lg font-medium text-savour-text mb-6">Price History</h3>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-medium text-savour-text">Price History</h3>
+        <span
+          className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full ${
+            priceWentUp
+              ? 'bg-red-50 text-red-600'
+              : 'bg-green-50 text-green-600'
+          }`}
+        >
+          {priceWentUp ? (
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+          ) : (
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          )}
+          {Math.abs(priceChange).toFixed(1)}%
+        </span>
+      </div>
 
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
         <defs>
-          <linearGradient id="priceGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#4F46E5" stopOpacity="0" />
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor={trendColor} stopOpacity="0.2" />
+            <stop offset="100%" stopColor={trendColor} stopOpacity="0" />
           </linearGradient>
         </defs>
 
@@ -112,13 +141,13 @@ export default function PriceHistoryChart({ currentPrice, productId }: PriceHist
         })}
 
         {/* Area under the line */}
-        <path d={areaPath} fill="url(#priceGradient)" />
+        <path d={areaPath} fill={`url(#${gradientId})`} />
 
         {/* Line */}
         <path
           d={linePath}
           fill="none"
-          stroke="#4F46E5"
+          stroke={trendColor}
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -132,7 +161,7 @@ export default function PriceHistoryChart({ currentPrice, productId }: PriceHist
               cy={point.y}
               r="4"
               fill="white"
-              stroke="#4F46E5"
+              stroke={trendColor}
               strokeWidth="2"
             />
             {/* X-axis labels */}
@@ -154,7 +183,7 @@ export default function PriceHistoryChart({ currentPrice, productId }: PriceHist
             cx={points[points.length - 1].x}
             cy={points[points.length - 1].y}
             r="6"
-            fill="#4F46E5"
+            fill={trendColor}
           />
           <text
             x={points[points.length - 1].x}
@@ -171,8 +200,11 @@ export default function PriceHistoryChart({ currentPrice, productId }: PriceHist
       <div className="mt-4 flex items-center justify-between text-xs text-savour-text-secondary">
         <span>6-month price trend</span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-0.5 bg-indigo-500 rounded"></span>
-          Average price
+          <span
+            className="w-3 h-0.5 rounded"
+            style={{ backgroundColor: trendColor }}
+          ></span>
+          {priceWentUp ? 'Price increased' : 'Price decreased'}
         </span>
       </div>
     </div>
