@@ -3,11 +3,13 @@ import type { ReactNode } from 'react';
 import type { BasketItem } from '../lib/types';
 
 const STORAGE_KEY = 'inflation-fighter-basket';
+const MAX_QUANTITY = 99;
 
 interface BasketContextType {
   items: BasketItem[];
   totalCount: number;
   addItem: (item: Omit<BasketItem, 'quantity'>) => void;
+  addItemWithQuantity: (item: Omit<BasketItem, 'quantity'>, quantity: number) => void;
   removeItem: (categoryId: string) => void;
   updateQuantity: (categoryId: string, quantity: number) => void;
   clearBasket: () => void;
@@ -40,11 +42,26 @@ export function BasketProvider({ children }: { children: ReactNode }) {
       if (existing) {
         return prev.map((i) =>
           i.category_id === item.category_id
-            ? { ...i, quantity: i.quantity + 1 }
+            ? { ...i, quantity: Math.min(i.quantity + 1, MAX_QUANTITY) }
             : i
         );
       }
       return [...prev, { ...item, quantity: 1 }];
+    });
+  };
+
+  const addItemWithQuantity = (item: Omit<BasketItem, 'quantity'>, quantity: number) => {
+    const clampedQuantity = Math.min(Math.max(1, quantity), MAX_QUANTITY);
+    setItems((prev) => {
+      const existing = prev.find((i) => i.category_id === item.category_id);
+      if (existing) {
+        return prev.map((i) =>
+          i.category_id === item.category_id
+            ? { ...i, quantity: Math.min(i.quantity + clampedQuantity, MAX_QUANTITY) }
+            : i
+        );
+      }
+      return [...prev, { ...item, quantity: clampedQuantity }];
     });
   };
 
@@ -57,9 +74,10 @@ export function BasketProvider({ children }: { children: ReactNode }) {
       removeItem(categoryId);
       return;
     }
+    const clampedQuantity = Math.min(quantity, MAX_QUANTITY);
     setItems((prev) =>
       prev.map((i) =>
-        i.category_id === categoryId ? { ...i, quantity } : i
+        i.category_id === categoryId ? { ...i, quantity: clampedQuantity } : i
       )
     );
   };
@@ -74,6 +92,7 @@ export function BasketProvider({ children }: { children: ReactNode }) {
         items,
         totalCount,
         addItem,
+        addItemWithQuantity,
         removeItem,
         updateQuantity,
         clearBasket,
