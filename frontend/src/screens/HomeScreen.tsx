@@ -1,33 +1,33 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
-import CategoryFilter, { FOOD_CATEGORIES } from '../components/CategoryFilter';
-import ProductGridCard from '../components/ProductGridCard';
-import { getCategories, searchCategories } from '../lib/api';
+import { getCategories } from '../lib/api';
+import { resolveImageUrl } from '../lib/api';
 import type { Category } from '../lib/types';
 
-const ITEMS_PER_PAGE = 25;
+// Category tiles for browsing
+const BROWSE_CATEGORIES = [
+  { id: 'produce', name: 'Fruits & Vegetables', icon: '🥬', keywords: ['apple', 'banana', 'tomato', 'potato', 'onion', 'carrot', 'lettuce', 'broccoli', 'pepper', 'cucumber'] },
+  { id: 'dairy', name: 'Dairy & Eggs', icon: '🥛', keywords: ['milk', 'cheese', 'yogurt', 'butter', 'cream', 'egg'] },
+  { id: 'meat', name: 'Meat & Seafood', icon: '🥩', keywords: ['chicken', 'beef', 'pork', 'salmon', 'bacon', 'sausage', 'ground'] },
+  { id: 'bakery', name: 'Bread & Bakery', icon: '🍞', keywords: ['bread', 'bagel', 'bun', 'muffin', 'tortilla'] },
+  { id: 'pantry', name: 'Pantry Staples', icon: '🥫', keywords: ['rice', 'pasta', 'flour', 'sugar', 'oil', 'cereal', 'oat', 'coffee', 'tea'] },
+  { id: 'frozen', name: 'Frozen Foods', icon: '🧊', keywords: ['frozen', 'ice cream', 'pizza'] },
+];
 
 export default function HomeScreen() {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const fetchCategories = useCallback(async () => {
     try {
       setIsLoading(true);
-      setError(null);
-
       const data = await getCategories();
       setCategories(data);
-      setFilteredCategories(data);
     } catch (err) {
-      setError('Unable to load products. Please try again.');
       console.error('Error fetching categories:', err);
     } finally {
       setIsLoading(false);
@@ -38,95 +38,88 @@ export default function HomeScreen() {
     fetchCategories();
   }, [fetchCategories]);
 
-  // Filter categories based on selected food category filters
-  const filterByFoodCategories = useCallback((cats: Category[], filters: string[]): Category[] => {
-    if (filters.length === 0) return cats;
+  // Calculate savings stats
+  const savingsStats = useMemo(() => {
+    if (categories.length === 0) return null;
 
-    const selectedKeywords = filters.flatMap(filterId => {
-      const category = FOOD_CATEGORIES.find(c => c.id === filterId);
-      return category ? category.keywords : [];
+    let totalSavings = 0;
+    let maxSavingsPercent = 0;
+    let productsWithSavings = 0;
+
+    categories.forEach(cat => {
+      if (cat.most_expensive_price > cat.cheapest_price) {
+        const savings = cat.most_expensive_price - cat.cheapest_price;
+        const savingsPercent = (savings / cat.most_expensive_price) * 100;
+        totalSavings += savings;
+        productsWithSavings++;
+        if (savingsPercent > maxSavingsPercent) {
+          maxSavingsPercent = savingsPercent;
+        }
+      }
     });
 
-    return cats.filter(cat => {
+    return {
+      avgSavings: productsWithSavings > 0 ? totalSavings / productsWithSavings : 0,
+      maxSavingsPercent: Math.round(maxSavingsPercent),
+      productsCompared: categories.length,
+    };
+  }, [categories]);
+
+  // Get top deals (highest savings percentage)
+  const topDeals = useMemo(() => {
+    return [...categories]
+      .filter(cat => cat.most_expensive_price > cat.cheapest_price)
+      .map(cat => ({
+        ...cat,
+        savingsPercent: Math.round(((cat.most_expensive_price - cat.cheapest_price) / cat.most_expensive_price) * 100),
+        savingsAmount: cat.most_expensive_price - cat.cheapest_price,
+      }))
+      .sort((a, b) => b.savingsPercent - a.savingsPercent)
+      .slice(0, 8);
+  }, [categories]);
+
+  // Get products by category
+  const getProductsByCategory = (keywords: string[]) => {
+    return categories.filter(cat => {
       const name = cat.name.toLowerCase();
-      const categoryId = cat.category_id.toLowerCase();
-      return selectedKeywords.some(keyword =>
-        name.includes(keyword) || categoryId.includes(keyword)
-      );
-    });
-  }, []);
+      return keywords.some(keyword => name.includes(keyword));
+    }).slice(0, 4);
+  };
 
-  const handleSearch = useCallback(
-    async (query: string) => {
-      setSearchQuery(query);
-      setCurrentPage(1);
-
-      if (!query.trim()) {
-        const filtered = filterByFoodCategories(categories, selectedFilters);
-        setFilteredCategories(filtered);
-        return;
-      }
-
-      try {
-        const results = await searchCategories(query);
-        const filtered = filterByFoodCategories(results, selectedFilters);
-        setFilteredCategories(filtered);
-      } catch (err) {
-        console.error('Search API failed, using local filter:', err);
-        const lowerQuery = query.toLowerCase();
-        let filtered = categories.filter(
-          (cat) =>
-            cat.name.toLowerCase().includes(lowerQuery) ||
-            cat.category_id.toLowerCase().includes(lowerQuery)
-        );
-        filtered = filterByFoodCategories(filtered, selectedFilters);
-        setFilteredCategories(filtered);
-      }
-    },
-    [categories, selectedFilters, filterByFoodCategories]
-  );
-
-  const handleFilterChange = useCallback((filters: string[]) => {
-    setSelectedFilters(filters);
-    setCurrentPage(1);
-
-    let filtered = categories;
-
-    // Apply search query if present
-    if (searchQuery.trim()) {
-      const lowerQuery = searchQuery.toLowerCase();
-      filtered = categories.filter(
-        (cat) =>
-          cat.name.toLowerCase().includes(lowerQuery) ||
-          cat.category_id.toLowerCase().includes(lowerQuery)
-      );
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query.trim()) {
+      navigate(`/products?search=${encodeURIComponent(query)}`);
     }
+  };
 
-    // Apply food category filters
-    filtered = filterByFoodCategories(filtered, filters);
-    setFilteredCategories(filtered);
-  }, [categories, searchQuery, filterByFoodCategories]);
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat('en-CA', {
+      style: 'currency',
+      currency: 'CAD',
+    }).format(price);
+  };
 
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredCategories.length / ITEMS_PER_PAGE);
-  const paginatedCategories = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredCategories.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredCategories, currentPage]);
-
-  const goToPage = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const formatStoreName = (storeId: string): string => {
+    const storeNames: Record<string, string> = {
+      'nofrills': 'No Frills',
+      'no-frills': 'No Frills',
+      'freshco': 'FreshCo',
+      'walmart': 'Walmart',
+      'loblaws': 'Loblaws',
+      'metro': 'Metro',
+    };
+    return storeNames[storeId] || storeId;
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-cream">
         <Header />
-        <main className="max-w-5xl mx-auto px-6 py-20">
+        <main className="max-w-6xl mx-auto px-6 py-20">
           <div className="flex flex-col items-center justify-center">
             <div className="w-8 h-8 border-2 border-charcoal/20 border-t-charcoal rounded-full animate-spin mb-4"></div>
-            <p className="text-charcoal-light text-sm font-ui">Loading products...</p>
+            <p className="text-charcoal-light text-sm font-ui">Loading deals...</p>
           </div>
         </main>
       </div>
@@ -137,210 +130,257 @@ export default function HomeScreen() {
     <div className="min-h-screen bg-cream">
       <Header />
 
-      <main className="max-w-5xl mx-auto px-6">
-        {/* Hero Section */}
-        <section className="py-16 md:py-20 text-center animate-fade-in-up">
-          <h1 className="text-4xl md:text-5xl font-semibold text-charcoal tracking-tight mb-4 font-display">
+      <main className="max-w-6xl mx-auto px-6">
+        {/* Hero Section - More compact */}
+        <section className="py-10 md:py-14 text-center animate-fade-in-up">
+          <h1 className="text-3xl md:text-4xl font-semibold text-charcoal tracking-tight mb-3 font-display">
             Compare. Save. Savour.
           </h1>
-          <p className="text-charcoal-light text-lg font-light max-w-md mx-auto mb-8 font-ui">
+          <p className="text-charcoal-light text-base md:text-lg font-light max-w-md mx-auto mb-6 font-ui">
             Find the best grocery prices across Canadian stores
           </p>
-          <Link
-            to="/products"
-            className="inline-flex items-center gap-2 bg-accent text-white font-semibold px-6 py-3 rounded-full
-                     hover:bg-[#e04d12] hover:shadow-lg hover:scale-[1.02]
-                     transition-all duration-200 ease-out font-ui"
-          >
-            All Products
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </Link>
-        </section>
 
-        {/* Search and Filter */}
-        <section className="mb-12 animate-fade-in-up relative z-20" style={{ animationDelay: '100ms' }}>
-          <div className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
-            <div className="flex-1">
-              <SearchBar
-                value={searchQuery}
-                onChange={handleSearch}
-                placeholder="Search groceries..."
-              />
-            </div>
-            <CategoryFilter
-              selectedCategories={selectedFilters}
-              onChange={handleFilterChange}
+          {/* Search Bar - Prominent */}
+          <div className="max-w-xl mx-auto mb-6">
+            <SearchBar
+              value={searchQuery}
+              onChange={handleSearch}
+              placeholder="Search for groceries..."
             />
           </div>
         </section>
 
-        {/* Error State */}
-        {error && (
-          <div className="mb-8 p-5 bg-white border border-border rounded-2xl animate-fade-in">
-            <div className="flex items-center justify-between">
-              <p className="text-charcoal">{error}</p>
-              <button
-                onClick={fetchCategories}
-                className="text-accent font-medium hover:underline"
+        {/* Stats Banner */}
+        {savingsStats && (
+          <section className="mb-10 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+            <div className="bg-gradient-to-r from-sage/10 to-accent/10 rounded-2xl p-6 border border-sage/20">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p className="text-2xl md:text-3xl font-bold text-charcoal font-display">
+                    {savingsStats.productsCompared}+
+                  </p>
+                  <p className="text-xs md:text-sm text-charcoal-light font-ui">Products Compared</p>
+                </div>
+                <div>
+                  <p className="text-2xl md:text-3xl font-bold text-accent font-display">
+                    {savingsStats.maxSavingsPercent}%
+                  </p>
+                  <p className="text-xs md:text-sm text-charcoal-light font-ui">Max Savings</p>
+                </div>
+                <div>
+                  <p className="text-2xl md:text-3xl font-bold text-sage font-display">5</p>
+                  <p className="text-xs md:text-sm text-charcoal-light font-ui">Stores Tracked</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Top Deals Section */}
+        <section className="mb-12 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-xl md:text-2xl font-semibold text-charcoal font-display">
+                🔥 Top Deals
+              </h2>
+              <p className="text-sm text-charcoal-light font-ui">Best savings right now</p>
+            </div>
+            <Link
+              to="/products"
+              className="text-sm font-medium text-accent hover:text-accent/80 transition-colors font-ui"
+            >
+              View all →
+            </Link>
+          </div>
+
+          {/* Horizontal scroll on mobile, grid on desktop */}
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-4 md:overflow-visible scrollbar-hide">
+            {topDeals.map((deal, index) => (
+              <div
+                key={deal.category_id}
+                onClick={() => navigate(`/category/${deal.category_id}`)}
+                className="flex-shrink-0 w-[160px] md:w-auto bg-white rounded-xl border border-border cursor-pointer
+                           hover:-translate-y-1 hover:shadow-lift transition-all duration-300 overflow-hidden group"
+                style={{ animationDelay: `${200 + index * 50}ms` }}
               >
-                Retry
-              </button>
+                {/* Savings Badge */}
+                <div className="relative">
+                  <div className="absolute top-2 left-2 z-10">
+                    <span className="inline-flex items-center px-2 py-1 text-xs font-bold text-white bg-accent rounded-full shadow-sm">
+                      Save {deal.savingsPercent}%
+                    </span>
+                  </div>
+                  {deal.image_url ? (
+                    <div className="w-full h-28 bg-gray-50 overflow-hidden">
+                      <img
+                        src={resolveImageUrl(deal.image_url)}
+                        alt={deal.name}
+                        loading="lazy"
+                        className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-28 bg-gray-50 flex items-center justify-center">
+                      <span className="text-4xl opacity-50">{deal.icon}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-3">
+                  <h3 className="text-sm font-medium text-charcoal line-clamp-2 min-h-[2.5rem] font-display">
+                    {deal.name}
+                  </h3>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <span className="text-base font-semibold text-charcoal font-display">
+                      {formatPrice(deal.cheapest_price)}
+                    </span>
+                    <span className="text-xs text-muted line-through">
+                      {formatPrice(deal.most_expensive_price)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-charcoal-light mt-1 font-ui">
+                    at {formatStoreName(deal.cheapest_store)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Browse by Category */}
+        <section className="mb-12 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl md:text-2xl font-semibold text-charcoal font-display">
+              Browse by Category
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {BROWSE_CATEGORIES.map((category, index) => {
+              const products = getProductsByCategory(category.keywords);
+              return (
+                <div
+                  key={category.id}
+                  onClick={() => navigate(`/products?category=${category.id}`)}
+                  className="bg-white rounded-xl border border-border p-4 cursor-pointer
+                             hover:-translate-y-1 hover:shadow-lift hover:border-accent/30
+                             transition-all duration-300 text-center group"
+                  style={{ animationDelay: `${250 + index * 30}ms` }}
+                >
+                  <span className="text-3xl mb-2 block group-hover:scale-110 transition-transform duration-300">
+                    {category.icon}
+                  </span>
+                  <h3 className="text-sm font-medium text-charcoal font-display">
+                    {category.name}
+                  </h3>
+                  <p className="text-xs text-muted mt-1 font-ui">
+                    {products.length}+ items
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Featured Products by Category */}
+        {BROWSE_CATEGORIES.slice(0, 2).map((category, catIndex) => {
+          const products = getProductsByCategory(category.keywords);
+          if (products.length === 0) return null;
+
+          return (
+            <section
+              key={category.id}
+              className="mb-12 animate-fade-in-up"
+              style={{ animationDelay: `${300 + catIndex * 50}ms` }}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{category.icon}</span>
+                  <h2 className="text-lg md:text-xl font-semibold text-charcoal font-display">
+                    {category.name}
+                  </h2>
+                </div>
+                <Link
+                  to={`/products?category=${category.id}`}
+                  className="text-sm font-medium text-accent hover:text-accent/80 transition-colors font-ui"
+                >
+                  See all →
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {products.map((product) => (
+                  <div
+                    key={product.category_id}
+                    onClick={() => navigate(`/category/${product.category_id}`)}
+                    className="bg-white rounded-xl border border-border cursor-pointer
+                               hover:-translate-y-1 hover:shadow-lift transition-all duration-300 overflow-hidden group"
+                  >
+                    {product.image_url ? (
+                      <div className="w-full h-28 bg-gray-50 overflow-hidden">
+                        <img
+                          src={resolveImageUrl(product.image_url)}
+                          alt={product.name}
+                          loading="lazy"
+                          className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-28 bg-gray-50 flex items-center justify-center">
+                        <span className="text-4xl opacity-50">{product.icon}</span>
+                      </div>
+                    )}
+
+                    <div className="p-3">
+                      <h3 className="text-sm font-medium text-charcoal line-clamp-1 font-display">
+                        {product.name}
+                      </h3>
+                      <div className="flex items-baseline justify-between mt-1">
+                        <span className="text-base font-semibold text-charcoal font-display">
+                          {formatPrice(product.cheapest_price)}
+                        </span>
+                        <span className="text-xs text-charcoal-light font-ui">
+                          {formatStoreName(product.cheapest_store)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+
+        {/* CTA Section */}
+        <section className="pb-16 text-center animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+          <div className="bg-charcoal rounded-2xl p-8 md:p-12">
+            <h2 className="text-2xl md:text-3xl font-semibold text-white mb-3 font-display">
+              Ready to start saving?
+            </h2>
+            <p className="text-white/70 mb-6 max-w-md mx-auto font-ui">
+              Browse all {categories.length}+ products and build your optimized shopping basket
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                to="/products"
+                className="inline-flex items-center justify-center gap-2 bg-accent text-white font-semibold px-6 py-3 rounded-full
+                         hover:bg-[#e04d12] hover:shadow-lg transition-all duration-200 font-ui"
+              >
+                Browse All Products
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+              <Link
+                to="/basket"
+                className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-6 py-3 rounded-full
+                         border border-white/20 hover:bg-white/20 transition-all duration-200 font-ui"
+              >
+                View My Basket
+              </Link>
             </div>
           </div>
-        )}
-
-        {/* Results Count */}
-        {(searchQuery || selectedFilters.length > 0) && (
-          <p className="text-sm text-muted mb-6 animate-fade-in font-ui">
-            {filteredCategories.length} result{filteredCategories.length !== 1 ? 's' : ''}
-            {searchQuery && ` for "${searchQuery}"`}
-            {selectedFilters.length > 0 && (
-              <span>
-                {searchQuery ? ' in ' : ' filtered by '}
-                {selectedFilters.map(id => FOOD_CATEGORIES.find(c => c.id === id)?.name).join(', ')}
-              </span>
-            )}
-          </p>
-        )}
-
-        {/* Category Grid */}
-        {paginatedCategories.length > 0 ? (
-          <section className="pb-20 relative z-10">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 md:gap-6">
-              {paginatedCategories.map((category, index) => (
-                <div
-                  key={`${category.category_id}-${index}`}
-                  className="animate-fade-in-up"
-                  style={{ animationDelay: `${150 + index * 30}ms` }}
-                >
-                  <ProductGridCard category={category} />
-                </div>
-              ))}
-            </div>
-
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="mt-10 flex items-center justify-center gap-2">
-                {/* Previous Button */}
-                <button
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="p-2 rounded-lg border border-border bg-white text-charcoal
-                           disabled:opacity-40 disabled:cursor-not-allowed
-                           hover:border-charcoal/30 transition-colors"
-                  aria-label="Previous page"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                  </svg>
-                </button>
-
-                {/* Page Numbers */}
-                <div className="flex items-center gap-1">
-                  {(() => {
-                    const pages: (number | 'ellipsis')[] = [];
-
-                    if (totalPages <= 7) {
-                      // Show all pages if 7 or fewer
-                      for (let i = 1; i <= totalPages; i++) {
-                        pages.push(i);
-                      }
-                    } else {
-                      // Always show first page
-                      pages.push(1);
-
-                      if (currentPage > 3) {
-                        pages.push('ellipsis');
-                      }
-
-                      // Show pages around current
-                      const start = Math.max(2, currentPage - 1);
-                      const end = Math.min(totalPages - 1, currentPage + 1);
-
-                      for (let i = start; i <= end; i++) {
-                        pages.push(i);
-                      }
-
-                      if (currentPage < totalPages - 2) {
-                        pages.push('ellipsis');
-                      }
-
-                      // Always show last page
-                      pages.push(totalPages);
-                    }
-
-                    return pages.map((page, idx) => {
-                      if (page === 'ellipsis') {
-                        return (
-                          <span key={`ellipsis-${idx}`} className="px-2 text-muted select-none">
-                            ...
-                          </span>
-                        );
-                      }
-
-                      return (
-                        <button
-                          key={page}
-                          onClick={() => goToPage(page)}
-                          className={`w-10 h-10 font-medium transition-all duration-200
-                                    ${currentPage === page
-                                      ? 'bg-charcoal text-white rounded-full'
-                                      : 'text-charcoal hover:text-charcoal/70'
-                                    }`}
-                        >
-                          {page}
-                        </button>
-                      );
-                    });
-                  })()}
-                </div>
-
-                {/* Next Button */}
-                <button
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg border border-border bg-white text-charcoal
-                           disabled:opacity-40 disabled:cursor-not-allowed
-                           hover:border-charcoal/30 transition-colors"
-                  aria-label="Next page"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                  </svg>
-                </button>
-              </div>
-            )}
-
-            {/* Page Info */}
-            {totalPages > 1 && (
-              <p className="text-center text-sm text-muted mt-4">
-                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredCategories.length)} of {filteredCategories.length} products
-              </p>
-            )}
-          </section>
-        ) : (
-          <section className="text-center py-20 animate-fade-in">
-            <h3 className="text-xl font-medium text-charcoal mb-2 font-display">
-              No products found
-            </h3>
-            <p className="text-charcoal-light mb-6 font-ui">
-              Try a different search term or filter
-            </p>
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setSelectedFilters([]);
-                setFilteredCategories(categories);
-                setCurrentPage(1);
-              }}
-              className="px-6 py-3 text-accent border border-accent rounded-xl hover:bg-accent hover:text-white transition-all duration-200 font-ui"
-            >
-              Clear filters
-            </button>
-          </section>
-        )}
+        </section>
       </main>
     </div>
   );

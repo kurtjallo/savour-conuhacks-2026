@@ -183,3 +183,12 @@
 .float-fade-delay-2 { animation-delay: 1.5s; }
 .float-fade-delay-3 { animation-delay: 3s; }
 .float-fade-delay-4 { animation-delay: 4.5s; }
+
+/* Hide scrollbar for horizontal scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
