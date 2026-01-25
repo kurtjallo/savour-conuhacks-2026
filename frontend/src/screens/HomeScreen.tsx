@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import QuickAddButton from '../components/QuickAddButton';
+import StoreLogo from '../components/StoreLogo';
 import { getCategories } from '../lib/api';
 import { resolveImageUrl } from '../lib/api';
 import type { Category } from '../lib/types';
@@ -251,8 +252,8 @@ export default function HomeScreen() {
                         {formatPrice(deal.most_expensive_price)}
                       </span>
                     </div>
-                    <p className="text-xs text-charcoal-light mt-1 font-ui">
-                      at {formatStoreName(deal.cheapest_store)}
+                    <p className="text-xs text-charcoal-light mt-1 font-ui flex items-center gap-1">
+                      at <StoreLogo storeId={deal.cheapest_store} />
                     </p>
                   </div>
 
@@ -372,8 +373,8 @@ export default function HomeScreen() {
                           <span className="text-base font-semibold text-charcoal font-display">
                             {formatPrice(product.cheapest_price)}
                           </span>
-                          <span className="text-xs text-charcoal-light font-ui">
-                            {formatStoreName(product.cheapest_store)}
+                          <span className="text-xs text-charcoal-light font-ui flex items-center">
+                            <StoreLogo storeId={product.cheapest_store} />
                           </span>
                         </div>
                       </div>

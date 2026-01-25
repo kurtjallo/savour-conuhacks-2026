@@ -4,6 +4,7 @@ import type { Category } from '../lib/types';
 import { resolveImageUrl } from '../lib/api';
 import { getCategoryColorFromName } from '../lib/icons';
 import QuickAddButton from './QuickAddButton';
+import StoreLogo from './StoreLogo';
 
 interface ProductGridCardProps {
   category: Category;
@@ -127,8 +128,8 @@ export default function ProductGridCard({ category }: ProductGridCardProps) {
         )}
 
         {/* Store name */}
-        <span className="text-xs text-charcoal-light font-ui">
-          at {formatStoreName(category.cheapest_store)}
+        <span className="text-xs text-charcoal-light font-ui flex items-center gap-1">
+          at <StoreLogo storeId={category.cheapest_store} />
         </span>
       </div>
 
