@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { CategoryDetail, PriceEntry } from '../lib/types';
 import { getCategory } from '../lib/api';
 import PriceTable from '../components/PriceTable';
+import PriceHistoryChart from '../components/PriceHistoryChart';
 import AddToBasket from '../components/AddToBasket';
 import { useBasket } from '../context/BasketContext';
 
@@ -213,6 +214,13 @@ export default function CategoryScreen() {
           </div>
           <PriceTable prices={sortedPrices} unit={category.unit} />
         </div>
+
+        {/* Price History Chart */}
+        {bestPrice && (
+          <div className="mb-10">
+            <PriceHistoryChart currentPrice={bestPrice.price} productId={category.category_id} />
+          </div>
+        )}
 
         {/* Add to Basket Section */}
         <AddToBasket category={category} />
