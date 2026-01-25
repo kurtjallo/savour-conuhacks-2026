@@ -5,7 +5,7 @@ import type { Category } from '../lib/types';
 import { useBasket } from '../context/BasketContext';
 import ProductGridCard from '../components/ProductGridCard';
 
-const ITEMS_PER_PAGE = 25;
+const ITEMS_PER_PAGE = 40;
 
 export default function AllProductsScreen() {
   const navigate = useNavigate();

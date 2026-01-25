@@ -366,7 +366,7 @@ def load_products_from_csv():
 
     # First pass: get ONE product per essential search
     for pattern, excludes in essential_searches:
-        if len(selected_products) >= 250:
+        if len(selected_products) >= 1000:
             break
         for _, row in df.iterrows():
             title = row['title']
@@ -377,7 +377,7 @@ def load_products_from_csv():
 
     # Second pass: get ONE product per tier2 search
     for pattern, excludes in tier2_searches:
-        if len(selected_products) >= 250:
+        if len(selected_products) >= 1000:
             break
         for _, row in df.iterrows():
             title = row['title']
@@ -388,7 +388,7 @@ def load_products_from_csv():
 
     # Third pass: get ONE product per tier3 search
     for pattern, excludes in tier3_searches:
-        if len(selected_products) >= 250:
+        if len(selected_products) >= 1000:
             break
         for _, row in df.iterrows():
             title = row['title']
@@ -399,7 +399,7 @@ def load_products_from_csv():
 
     # Fourth pass: get ONE product per tier4 search
     for pattern, excludes in tier4_searches:
-        if len(selected_products) >= 250:
+        if len(selected_products) >= 1000:
             break
         for _, row in df.iterrows():
             title = row['title']
@@ -411,10 +411,10 @@ def load_products_from_csv():
     # Fifth pass: fill remaining with any products that have images
     all_searches = essential_searches + tier2_searches + tier3_searches + tier4_searches
     for pattern, excludes in all_searches:
-        if len(selected_products) >= 250:
+        if len(selected_products) >= 1000:
             break
         for _, row in df.iterrows():
-            if len(selected_products) >= 250:
+            if len(selected_products) >= 1000:
                 break
             title = row['title']
             if title not in used_titles and matches_search(title, pattern, excludes):
@@ -422,10 +422,10 @@ def load_products_from_csv():
                 used_titles.add(title)
 
     # Second pass: fill remaining slots with other products
-    if len(selected_products) < 250:
+    if len(selected_products) < 1000:
         remaining = df[~df['title'].isin(used_titles)]
         for _, row in remaining.iterrows():
-            if len(selected_products) >= 250:
+            if len(selected_products) >= 1000:
                 break
             selected_products.append(row)
 

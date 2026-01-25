@@ -2,11 +2,11 @@
 
 ## Project Overview
 
-InflationFighter is a grocery price comparison web app for Canadian shoppers. Users browse 250 common grocery items, compare prices across 5 major stores, build a basket, and see optimized shopping strategies with savings calculations.
+InflationFighter is a grocery price comparison web app for Canadian shoppers. Users browse 1000 common grocery items, compare prices across 5 major stores, build a basket, and see optimized shopping strategies with savings calculations.
 
 **Core value:** Show users exactly how much they can save by shopping smarter — with real numbers, not vague advice.
 
-**Product catalog:** 250 essential grocery items across categories (dairy, produce, meat, pantry staples, frozen foods, beverages, snacks, etc.)
+**Product catalog:** 1000 essential grocery items across categories (dairy, produce, meat, pantry staples, frozen foods, beverages, snacks, etc.)
 
 ## Tech Stack
 
@@ -104,7 +104,7 @@ Returns `single_store_best`, `single_store_worst`, `multi_store_optimal`, `savin
 - No Frills, FreshCo, Walmart, Loblaws, Metro
 - Fields: `store_id`, `name`, `color`
 
-### Categories (250 products)
+### Categories (1000 products)
 - Essential groceries: eggs, milk, bread, butter, produce (fruits & vegetables), meats, seafood, pasta, rice, flour, sugar, oil
 - Pantry staples: condiments, spices, canned goods, baking supplies, grains
 - Frozen foods, snacks, beverages, breakfast items, deli items

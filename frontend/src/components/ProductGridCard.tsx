@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Category } from '../lib/types';
 import { resolveImageUrl } from '../lib/api';
@@ -8,6 +9,31 @@ interface ProductGridCardProps {
 
 export default function ProductGridCard({ category }: ProductGridCardProps) {
   const navigate = useNavigate();
+  const [isVisible, setIsVisible] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: '100px', // Start loading 100px before visible
+        threshold: 0.1,
+      }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('en-CA', {
@@ -30,26 +56,35 @@ export default function ProductGridCard({ category }: ProductGridCardProps) {
 
   return (
     <div
+      ref={cardRef}
       onClick={() => navigate(`/category/${category.category_id}`)}
       className="bg-white rounded-xl border border-border cursor-pointer
                  hover:-translate-y-1 hover:shadow-lift
                  transition-all duration-300 ease-out overflow-hidden group"
     >
-      {/* Product Image */}
-      {category.image_url ? (
-        <div className="w-full aspect-square bg-gray-50 overflow-hidden">
+      {/* Product Image with skeleton */}
+      <div className="w-full aspect-square bg-gray-50 overflow-hidden relative">
+        {/* Skeleton placeholder */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+        )}
+
+        {isVisible && category.image_url ? (
           <img
             src={resolveImageUrl(category.image_url)}
             alt={category.name}
             loading="lazy"
-            className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+            decoding="async"
+            onLoad={() => setImageLoaded(true)}
+            className={`w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300
+                       ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
           />
-        </div>
-      ) : (
-        <div className="w-full aspect-square bg-gray-50 flex items-center justify-center">
-          <span className="text-5xl opacity-50">{category.icon}</span>
-        </div>
-      )}
+        ) : !category.image_url ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-5xl opacity-50">{category.icon}</span>
+          </div>
+        ) : null}
+      </div>
 
       {/* Content */}
       <div className="p-3">
@@ -57,7 +92,7 @@ export default function ProductGridCard({ category }: ProductGridCardProps) {
         <h3 className="text-sm font-medium text-charcoal mb-0.5 line-clamp-2 min-h-[2.5rem] font-display">
           {category.name}
         </h3>
-        <p className="text-xs text-muted mb-2 font-ui">
+        <p className="text-xs text-muted mb-2 font-ui truncate">
           {category.unit}
         </p>
 
