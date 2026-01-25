@@ -119,3 +119,70 @@ class RetrievedItem(BaseModel):
 class RecipeGenerateResponse(BaseModel):
     recipe_text: str
     rag_items: list[RetrievedItem]
+
+
+# --- Route Optimizer Models ---
+
+class Location(BaseModel):
+    """Geographic coordinates."""
+    lat: float
+    lng: float
+
+
+class RouteSettings(BaseModel):
+    """User-configurable route settings."""
+    gas_price_per_liter: float = 1.50  # CAD
+    fuel_efficiency_l_per_100km: float = 10.0  # L/100km
+    time_value_per_hour: float = 15.0  # CAD per hour
+    time_per_store_minutes: int = 30  # minutes per store visit
+
+
+class RouteOptimizeRequest(BaseModel):
+    """Request body for route optimization."""
+    items: list[BasketItem]
+    user_location: Location
+    settings: RouteSettings = RouteSettings()
+
+
+class StoreWithLocation(BaseModel):
+    """Store with geographic information."""
+    store_id: str
+    name: str
+    color: str
+    address: str
+    lat: float
+    lng: float
+
+
+class StoreVisit(BaseModel):
+    """Details of a store visit in the route."""
+    store: StoreWithLocation
+    items_to_buy: list[MultiStoreItem]
+    store_subtotal: float
+    visit_duration_minutes: int
+
+
+class TravelCost(BaseModel):
+    """Breakdown of travel costs."""
+    total_distance_km: float
+    total_drive_time_minutes: float
+    total_store_time_minutes: float
+    total_trip_time_minutes: float
+    gas_cost: float
+    time_cost: float
+    total_travel_cost: float
+
+
+class RouteOptimizeResponse(BaseModel):
+    """Response from route optimization."""
+    stores_to_visit: list[StoreVisit]
+    route_polyline: Optional[str] = None
+    travel_cost: TravelCost
+    grocery_total: float
+    single_store_best_total: float
+    single_store_best_name: str
+    multi_store_total: float
+    grocery_savings: float
+    net_savings: float
+    is_worth_it: bool
+    recommendation: str
