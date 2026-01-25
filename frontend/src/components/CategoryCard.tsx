@@ -69,13 +69,13 @@ export default function CategoryCard({ category }: CategoryCardProps) {
 
       {/* Content area with padding */}
       <div className="p-5 flex flex-col flex-1">
-        {/* Product name */}
-        <h3 className="text-base font-medium text-charcoal mb-1 font-display">
+        {/* Product name - fixed height with line clamp */}
+        <h3 className="text-base font-medium text-charcoal mb-1 font-display line-clamp-2 min-h-[2.75rem]">
           {category.name}
         </h3>
 
-        {/* Unit */}
-        <p className="text-sm text-muted mb-4 font-ui">
+        {/* Unit - single line */}
+        <p className="text-sm text-muted mb-4 font-ui truncate">
           {category.unit}
         </p>
 
