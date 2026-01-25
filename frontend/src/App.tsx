@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { BasketProvider } from './context/BasketContext';
+import { TourProvider } from './context/TourContext';
 import LandingScreen from './screens/LandingScreen';
 import HomeScreen from './screens/HomeScreen';
 import CategoryScreen from './screens/CategoryScreen';
@@ -23,18 +24,20 @@ function FloatingElements() {
 
 function App() {
   return (
-    <BasketProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingScreen />} />
-          <Route path="/onboarding" element={<HomeScreen />} />
-          <Route path="/products" element={<AllProductsScreen />} />
-          <Route path="/category/:id" element={<CategoryScreen />} />
-          <Route path="/basket" element={<BasketScreen />} />
-        </Routes>
-        <FloatingElements />
-      </BrowserRouter>
-    </BasketProvider>
+    <TourProvider>
+      <BasketProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LandingScreen />} />
+            <Route path="/onboarding" element={<HomeScreen />} />
+            <Route path="/products" element={<AllProductsScreen />} />
+            <Route path="/category/:id" element={<CategoryScreen />} />
+            <Route path="/basket" element={<BasketScreen />} />
+          </Routes>
+          <FloatingElements />
+        </BrowserRouter>
+      </BasketProvider>
+    </TourProvider>
   );
 }
 

@@ -45,8 +45,6 @@ export default function ProductGridCard({ category }: ProductGridCardProps) {
     }).format(price);
   };
 
-
-
   return (
     <div
       ref={cardRef}

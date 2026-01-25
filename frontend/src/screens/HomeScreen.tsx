@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Joyride, { type CallBackProps, STATUS, ACTIONS, EVENTS } from 'react-joyride';
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import QuickAddButton from '../components/QuickAddButton';
@@ -8,6 +9,7 @@ import { getCategories } from '../lib/api';
 import { resolveImageUrl } from '../lib/api';
 import type { Category } from '../lib/types';
 import { getCategoryColor } from '../lib/icons';
+import { useTour } from '../context/TourContext';
 
 // Category tiles for browsing - using colored dots for professional look
 const BROWSE_CATEGORIES = [
@@ -19,11 +21,73 @@ const BROWSE_CATEGORIES = [
   { id: 'frozen', name: 'Frozen Foods', color: '#06b6d4', keywords: ['frozen', 'ice cream', 'pizza'] },
 ];
 
+const ONBOARDING_STEPS = [
+  {
+    target: '.tour-search-bar',
+    content: 'Search for any grocery item to compare prices across stores.',
+    disableBeacon: true,
+    placement: 'bottom' as const,
+  },
+  {
+    target: '.tour-top-deals',
+    content: 'Browse products with the biggest savings right now.',
+    placement: 'bottom' as const,
+  },
+  {
+    target: '.tour-categories',
+    content: 'Or explore products by category.',
+    placement: 'top' as const,
+  },
+  {
+    target: '.tour-quick-add',
+    content: 'Quickly add items to your basket with one click.',
+    placement: 'left' as const,
+  },
+  {
+    target: '.tour-basket-icon',
+    content: 'View your basket anytime to see your savings.',
+    placement: 'bottom' as const,
+  },
+  {
+    target: '.tour-top-deals',
+    content: 'Click on any product to see detailed price comparisons and continue the tour.',
+    placement: 'bottom' as const,
+    spotlightClicks: true,
+  },
+];
+
 export default function HomeScreen() {
   const navigate = useNavigate();
+  const { isActive, currentPage, completeTour } = useTour();
+  const [runTour, setRunTour] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+
+  // Start tour when on this page and tour is active
+  useEffect(() => {
+    if (isActive && currentPage === 'onboarding' && !isLoading) {
+      // Small delay to ensure DOM elements are rendered
+      const timer = setTimeout(() => setRunTour(true), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isActive, currentPage, isLoading]);
+
+  const handleJoyrideCallback = (data: CallBackProps) => {
+    const { status, action, type } = data;
+
+    if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+      setRunTour(false);
+      if (status === STATUS.SKIPPED) {
+        completeTour();
+      }
+    }
+
+    // If user clicks outside during the last step, they're exploring
+    if (action === ACTIONS.CLOSE && type === EVENTS.STEP_AFTER) {
+      setRunTour(false);
+    }
+  };
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -104,8 +168,6 @@ export default function HomeScreen() {
     }).format(price);
   };
 
-
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-cream">
@@ -122,6 +184,46 @@ export default function HomeScreen() {
 
   return (
     <div className="min-h-screen bg-cream">
+      <Joyride
+        steps={ONBOARDING_STEPS}
+        run={runTour}
+        continuous
+        showProgress
+        showSkipButton
+        scrollOffset={80}
+        disableScrollParentFix
+        callback={handleJoyrideCallback}
+        styles={{
+          options: {
+            primaryColor: '#f05a24',
+            zIndex: 10000,
+          },
+          tooltip: {
+            borderRadius: 12,
+            fontSize: 14,
+          },
+          buttonNext: {
+            borderRadius: 8,
+            fontWeight: 600,
+          },
+          buttonBack: {
+            marginRight: 8,
+          },
+          buttonSkip: {
+            color: '#666',
+          },
+        }}
+        floaterProps={{
+          disableAnimation: true,
+        }}
+        locale={{
+          back: 'Back',
+          close: 'Close',
+          last: 'Got it',
+          next: 'Next',
+          skip: 'Skip tour',
+        }}
+      />
       <Header />
 
       <main className="max-w-6xl mx-auto px-6">
@@ -135,7 +237,7 @@ export default function HomeScreen() {
           </p>
 
           {/* Search Bar - Prominent */}
-          <div className="max-w-xl mx-auto mb-6">
+          <div className="tour-search-bar max-w-xl mx-auto mb-6">
             <SearchBar
               value={searchQuery}
               onChange={handleSearchChange}
@@ -177,7 +279,7 @@ export default function HomeScreen() {
         )}
 
         {/* Top Deals Section */}
-        <section className="mb-12 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
+        <section className="tour-top-deals mb-12 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-xl md:text-2xl font-semibold text-charcoal font-display">
@@ -248,9 +350,9 @@ export default function HomeScreen() {
                   </div>
 
                   {/* Quick Add Button */}
-                  <div className="absolute bottom-3 right-3 opacity-70 group-hover:opacity-100
+                  <div className={`absolute bottom-3 right-3 opacity-70 group-hover:opacity-100
                                   md:opacity-0 md:group-hover:opacity-100
-                                  transition-opacity duration-200">
+                                  transition-opacity duration-200 ${index === 0 ? 'tour-quick-add' : ''}`}>
                     <QuickAddButton category={deal} />
                   </div>
                 </div>
@@ -260,7 +362,7 @@ export default function HomeScreen() {
         </section>
 
         {/* Browse by Category */}
-        <section className="mb-12 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+        <section className="tour-categories mb-12 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl md:text-2xl font-semibold text-charcoal font-display">
               Browse by Category

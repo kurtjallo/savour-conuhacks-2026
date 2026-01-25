@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import Joyride, { type CallBackProps, STATUS } from 'react-joyride';
 import type { CategoryDetail, PriceEntry } from '../lib/types';
 import { getCategory, resolveImageUrl } from '../lib/api';
 import { getCategoryColorFromName } from '../lib/icons';
@@ -7,15 +8,64 @@ import Header from '../components/Header';
 import PriceTable from '../components/PriceTable';
 import PriceHistoryChart from '../components/PriceHistoryChart';
 import AddToBasket from '../components/AddToBasket';
+import { useTour } from '../context/TourContext';
+
+const CATEGORY_TOUR_STEPS = [
+  {
+    target: '.tour-best-price',
+    content: 'See the lowest price at a glance and where to find it.',
+    disableBeacon: true,
+    placement: 'right' as const,
+  },
+  {
+    target: '.tour-price-table',
+    content: 'Compare prices across all stores to find the best deal.',
+    placement: 'top' as const,
+  },
+  {
+    target: '.tour-add-basket',
+    content: 'Add this item to your basket to start saving.',
+    placement: 'top' as const,
+    spotlightClicks: true,
+  },
+];
 
 export default function CategoryScreen() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { isActive, currentPage, setTourPage, completeTour } = useTour();
+  const [runTour, setRunTour] = useState(false);
 
   const [category, setCategory] = useState<CategoryDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Set tour page and start tour when on this page
+  useEffect(() => {
+    if (isActive) {
+      setTourPage('category');
+    }
+  }, [isActive, setTourPage]);
+
+  useEffect(() => {
+    if (isActive && currentPage === 'category' && !loading && category) {
+      const timer = setTimeout(() => setRunTour(true), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isActive, currentPage, loading, category]);
+
+  const handleJoyrideCallback = (data: CallBackProps) => {
+    const { status } = data;
+
+    if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+      setRunTour(false);
+      if (status === STATUS.SKIPPED) {
+        completeTour();
+      }
+      // Tour continues on basket page after user adds item
+    }
+  };
 
   const sortedPrices = useMemo<PriceEntry[]>(() => {
     if (!category) {
@@ -159,6 +209,46 @@ export default function CategoryScreen() {
 
   return (
     <div className="min-h-screen bg-cream pb-32 md:pb-10">
+      <Joyride
+        steps={CATEGORY_TOUR_STEPS}
+        run={runTour}
+        continuous
+        showProgress
+        showSkipButton
+        scrollOffset={80}
+        disableScrollParentFix
+        callback={handleJoyrideCallback}
+        styles={{
+          options: {
+            primaryColor: '#f05a24',
+            zIndex: 10000,
+          },
+          tooltip: {
+            borderRadius: 12,
+            fontSize: 14,
+          },
+          buttonNext: {
+            borderRadius: 8,
+            fontWeight: 600,
+          },
+          buttonBack: {
+            marginRight: 8,
+          },
+          buttonSkip: {
+            color: '#666',
+          },
+        }}
+        floaterProps={{
+          disableAnimation: true,
+        }}
+        locale={{
+          back: 'Back',
+          close: 'Close',
+          last: 'Add to basket',
+          next: 'Next',
+          skip: 'Skip tour',
+        }}
+      />
       {/* Shared Header with search bar */}
       <Header />
 
@@ -242,7 +332,7 @@ export default function CategoryScreen() {
         </section>
 
         {/* Best Price Card */}
-        <section className="mb-8 animate-fade-in-up" style={{ animationDelay: '50ms' }}>
+        <section className="tour-best-price mb-8 animate-fade-in-up" style={{ animationDelay: '50ms' }}>
           <div className="bg-gradient-to-br from-sage-light to-sage/10 rounded-2xl border border-sage/20 p-6 shadow-subtle">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -290,7 +380,7 @@ export default function CategoryScreen() {
         </section>
 
         {/* Price Comparison Section */}
-        <section className="mb-8 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+        <section className="tour-price-table mb-8 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
           <div className="mb-5 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-charcoal mb-0.5 font-display">Price Comparison</h2>
@@ -314,7 +404,7 @@ export default function CategoryScreen() {
         )}
 
         {/* Add to Basket Section - Desktop */}
-        <section className="hidden md:block animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+        <section className="tour-add-basket hidden md:block animate-fade-in-up" style={{ animationDelay: '200ms' }}>
           <AddToBasket category={category} bestPrice={bestPrice?.price} />
         </section>
 
@@ -338,7 +428,7 @@ export default function CategoryScreen() {
       </main>
 
       {/* Sticky Add to Basket - Mobile Only */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-border shadow-lift z-40 p-4 animate-fade-in-up">
+      <div className="tour-add-basket-mobile md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-border shadow-lift z-40 p-4 animate-fade-in-up">
         <div className="max-w-2xl mx-auto">
           <AddToBasket category={category} bestPrice={bestPrice?.price} compact />
         </div>
