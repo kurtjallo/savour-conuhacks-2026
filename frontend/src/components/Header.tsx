@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useBasket } from '../context/BasketContext';
 import { getMetadata } from '../lib/api';
 import SearchBar from './SearchBar';
 
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
+  const hideSearchBar = location.pathname === '/onboarding';
   const { totalCount } = useBasket();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [isAnimating, setIsAnimating] = useState(false);
@@ -68,15 +70,17 @@ export default function Header() {
           )}
         </div>
 
-        <div className="flex-1 max-w-md">
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onSubmit={handleSearchSubmit}
-            placeholder="Search groceries..."
-            compact
-          />
-        </div>
+        {!hideSearchBar && (
+          <div className="flex-1 max-w-md">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onSubmit={handleSearchSubmit}
+              placeholder="Search groceries..."
+              compact
+            />
+          </div>
+        )}
 
         <button
           onClick={() => navigate('/basket')}
