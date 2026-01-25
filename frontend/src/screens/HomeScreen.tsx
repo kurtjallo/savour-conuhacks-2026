@@ -86,11 +86,12 @@ export default function HomeScreen() {
     }).slice(0, 4);
   };
 
-  const handleSearch = (query: string) => {
+  const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-    if (query.trim()) {
-      navigate(`/products?search=${encodeURIComponent(query)}`);
-    }
+  };
+
+  const handleSearchSubmit = (query: string) => {
+    navigate(`/products?search=${encodeURIComponent(query)}`);
   };
 
   const formatPrice = (price: number): string => {
@@ -144,7 +145,8 @@ export default function HomeScreen() {
           <div className="max-w-xl mx-auto mb-6">
             <SearchBar
               value={searchQuery}
-              onChange={handleSearch}
+              onChange={handleSearchChange}
+              onSubmit={handleSearchSubmit}
               placeholder="Search for groceries..."
             />
           </div>
