@@ -1,14 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCategories } from '../lib/api';
 import type { Category } from '../lib/types';
 import { useBasket } from '../context/BasketContext';
 import ProductGridCard from '../components/ProductGridCard';
 
+const ITEMS_PER_PAGE = 100;
+
 export default function AllProductsScreen() {
   const navigate = useNavigate();
   const { totalCount } = useBasket();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,6 +32,18 @@ export default function AllProductsScreen() {
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
+
+  // Pagination
+  const totalPages = Math.ceil(categories.length / ITEMS_PER_PAGE);
+  const paginatedCategories = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return categories.slice(start, start + ITEMS_PER_PAGE);
+  }, [categories, currentPage]);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   if (isLoading) {
     return (
@@ -113,8 +128,7 @@ export default function AllProductsScreen() {
           </div>
           <p className="text-charcoal-light font-ui">
             Compare prices across <span className="font-semibold text-charcoal">{categories.length.toLocaleString()}</span> products
-            at <span className="font-semibold text-charcoal">5 major Canadian grocery stores</span> —
-            all with real-time price comparison and savings calculations
+            at <span className="font-semibold text-charcoal">5 major Canadian grocery stores</span>
           </p>
         </div>
 
@@ -158,22 +172,102 @@ export default function AllProductsScreen() {
           </div>
         )}
 
-        {/* Products Grid - ALL products with lazy loading */}
-        {categories.length > 0 ? (
+        {/* Products Grid - 5 columns */}
+        {paginatedCategories.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-              {categories.map((category, index) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {paginatedCategories.map((category) => (
                 <ProductGridCard key={category.category_id} category={category} />
               ))}
             </div>
 
-            {/* Bottom stats */}
-            <div className="mt-12 text-center">
-              <p className="text-sm text-muted font-ui">
-                Showing all <span className="font-semibold text-charcoal">{categories.length.toLocaleString()}</span> products •
-                Powered by lazy loading for optimal performance
-              </p>
-            </div>
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="mt-10 flex flex-col items-center gap-4">
+                <div className="flex items-center gap-2">
+                  {/* Previous Button */}
+                  <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="flex items-center gap-1 px-4 py-2 rounded-lg border border-border bg-white text-charcoal font-medium
+                             disabled:opacity-40 disabled:cursor-not-allowed
+                             hover:border-charcoal/30 hover:bg-gray-50 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                    Previous
+                  </button>
+
+                  {/* Page Numbers */}
+                  <div className="flex items-center gap-1">
+                    {(() => {
+                      const pages: (number | 'ellipsis')[] = [];
+
+                      if (totalPages <= 7) {
+                        for (let i = 1; i <= totalPages; i++) {
+                          pages.push(i);
+                        }
+                      } else {
+                        pages.push(1);
+                        if (currentPage > 3) pages.push('ellipsis');
+
+                        const start = Math.max(2, currentPage - 1);
+                        const end = Math.min(totalPages - 1, currentPage + 1);
+                        for (let i = start; i <= end; i++) {
+                          pages.push(i);
+                        }
+
+                        if (currentPage < totalPages - 2) pages.push('ellipsis');
+                        pages.push(totalPages);
+                      }
+
+                      return pages.map((page, idx) => {
+                        if (page === 'ellipsis') {
+                          return (
+                            <span key={`ellipsis-${idx}`} className="px-2 text-muted select-none">
+                              ...
+                            </span>
+                          );
+                        }
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => goToPage(page)}
+                            className={`w-10 h-10 font-medium rounded-full transition-all duration-200
+                                      ${currentPage === page
+                                        ? 'bg-charcoal text-white'
+                                        : 'text-charcoal hover:bg-gray-100'
+                                      }`}
+                          >
+                            {page}
+                          </button>
+                        );
+                      });
+                    })()}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="flex items-center gap-1 px-4 py-2 rounded-lg border border-border bg-white text-charcoal font-medium
+                             disabled:opacity-40 disabled:cursor-not-allowed
+                             hover:border-charcoal/30 hover:bg-gray-50 transition-colors"
+                  >
+                    Next
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Page Info */}
+                <p className="text-sm text-muted font-ui">
+                  Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, categories.length)} of {categories.length.toLocaleString()} products
+                </p>
+              </div>
+            )}
           </>
         ) : (
           !error && (
