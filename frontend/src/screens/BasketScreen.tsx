@@ -6,6 +6,11 @@ import type { BasketAnalysis, RecipeGenerateResponse } from '../lib/types';
 import BasketItem from '../components/BasketItem';
 import SavingsCard from '../components/SavingsCard';
 import StoreBreakdown from '../components/StoreBreakdown';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import remarkBreaks from 'remark-breaks';
+import rehypeKatex from 'rehype-katex';
 
 // Design system colors
 const colors = {
@@ -63,8 +68,10 @@ export default function BasketScreen() {
     setRecipeError(null);
     try {
       const ingredients = items.map((item) => item.name);
+      const categoryIds = items.map((item) => item.category_id);
       const result = await generateRecipe({
         ingredients,
+        category_ids: categoryIds,
         servings: 2,
         meal_type: 'dinner',
       });
@@ -250,10 +257,21 @@ export default function BasketScreen() {
               {recipe && (
                 <div className="mt-5 space-y-4">
                   <div
-                    className="rounded-lg p-4 border whitespace-pre-line text-sm"
+                    className="rounded-lg p-4 border text-sm"
                     style={{ borderColor: colors.cardBorder, color: colors.textPrimary }}
                   >
-                    {recipe.recipe_text}
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
+                      rehypePlugins={[rehypeKatex]}
+                      components={{
+                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                        ol: ({ children }) => <ol className="list-decimal pl-5 space-y-1">{children}</ol>,
+                        ul: ({ children }) => <ul className="list-disc pl-5 space-y-1">{children}</ul>,
+                        li: ({ children }) => <li>{children}</li>,
+                      }}
+                    >
+                      {recipe.recipe_text}
+                    </ReactMarkdown>
                   </div>
 
                   {recipe.rag_items.length > 0 && (
