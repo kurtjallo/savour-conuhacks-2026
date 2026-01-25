@@ -35,16 +35,16 @@ export default function PriceTable({ prices, unit }: PriceTableProps) {
   });
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {priceRows.map((row) => (
         <div
           key={row.store_id}
           className={`
             group relative bg-white border rounded-xl px-5 py-4
-            transition-all duration-200
+            transition-all duration-200 cursor-pointer
             ${row.rank === 1
-              ? 'border-l-[3px] border-l-savour-savings border-savour-border bg-savour-savings-light/30'
-              : 'border-savour-border hover:border-savour-text-secondary/30'
+              ? 'border-l-4 border-l-savour-savings border-savour-savings/30 bg-savour-savings-light/40 shadow-sm hover:shadow-md'
+              : 'border-savour-border hover:border-savour-text-secondary/40 hover:shadow-sm hover:bg-gray-50/50'
             }
           `}
         >
@@ -52,26 +52,29 @@ export default function PriceTable({ prices, unit }: PriceTableProps) {
             {/* Left side: Rank + Store name */}
             <div className="flex items-center gap-4">
               <span className={`
-                text-xs font-medium w-5 text-center
-                ${row.rank === 1 ? 'text-savour-savings' : 'text-savour-text-secondary'}
+                text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full
+                ${row.rank === 1
+                  ? 'bg-savour-savings text-white'
+                  : 'bg-gray-100 text-savour-text-secondary'
+                }
               `}>
                 {row.rank}
               </span>
               <span className={`
-                font-medium
-                ${row.rank === 1 ? 'text-savour-text' : 'text-savour-text'}
+                font-medium text-base
+                ${row.rank === 1 ? 'text-savour-text' : 'text-savour-text group-hover:text-savour-text'}
               `}>
                 {row.store_name}
               </span>
             </div>
 
             {/* Right side: Price + Savings */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {row.savingsPercent > 0 && (
                 <span className={`
-                  text-xs font-medium px-2.5 py-1 rounded-full
+                  text-xs font-semibold px-2.5 py-1 rounded-full
                   ${row.rank === 1
-                    ? 'bg-savour-savings/10 text-savour-savings'
+                    ? 'bg-savour-savings text-white'
                     : 'bg-savour-savings-light text-savour-savings'
                   }
                 `}>
@@ -79,8 +82,8 @@ export default function PriceTable({ prices, unit }: PriceTableProps) {
                 </span>
               )}
               <span className={`
-                font-semibold tabular-nums
-                ${row.rank === 1 ? 'text-savour-savings text-lg' : 'text-savour-text'}
+                font-bold tabular-nums
+                ${row.rank === 1 ? 'text-savour-savings text-xl' : 'text-savour-text text-base'}
               `}>
                 ${row.price.toFixed(2)}
                 <span className="text-savour-text-secondary text-xs font-normal ml-0.5">/{unit}</span>
@@ -90,9 +93,9 @@ export default function PriceTable({ prices, unit }: PriceTableProps) {
 
           {/* Best price indicator */}
           {row.rank === 1 && (
-            <div className="absolute -top-2 left-4">
-              <span className="text-[10px] font-medium uppercase tracking-wider text-savour-savings bg-white px-2 py-0.5 rounded">
-                Best price
+            <div className="absolute -top-2.5 left-4">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white bg-savour-savings px-2.5 py-1 rounded-full shadow-sm">
+                Best Price
               </span>
             </div>
           )}
