@@ -164,43 +164,52 @@ export default function CategoryScreen() {
         <div className="mb-10 text-center">
           {/* Product Image or Icon */}
           {category.image_url ? (
-            <div className="w-40 h-40 mx-auto mb-6 bg-white rounded-2xl shadow-sm overflow-hidden border border-savour-border hover:shadow-md transition-shadow duration-300">
+            <div className="w-44 h-44 mx-auto mb-6 bg-white rounded-2xl shadow-md overflow-hidden border border-savour-border hover:shadow-lg hover:scale-[1.02] transition-all duration-300">
               <img
                 src={category.image_url}
                 alt={category.name}
-                className="w-40 h-40 object-cover"
+                className="w-44 h-44 object-cover"
               />
             </div>
           ) : (
-            <div className="w-40 h-40 mx-auto mb-6 bg-gray-50 rounded-2xl flex items-center justify-center border border-savour-border">
-              <span className="text-6xl opacity-60">{category.icon}</span>
+            <div className="w-44 h-44 mx-auto mb-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl flex items-center justify-center border border-savour-border shadow-md">
+              <span className="text-7xl">{category.icon}</span>
             </div>
           )}
-          <h1 className="text-2xl font-semibold text-savour-text tracking-tight mb-1">{category.name}</h1>
+          <h1 className="text-2xl font-bold text-savour-text tracking-tight mb-1">{category.name}</h1>
           <p className="text-savour-text-secondary text-sm">per {category.unit}</p>
         </div>
 
         {/* Item Details Summary */}
-        <div className="bg-white border border-savour-border rounded-2xl p-6 mb-10">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="bg-white border border-savour-border rounded-2xl p-6 mb-10 shadow-sm">
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-wide text-savour-text-secondary">Best price</p>
-                <p className="text-2xl font-semibold text-savour-text">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="inline-flex items-center px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-savour-savings text-white">
+                    Best Price
+                  </span>
+                </div>
+                <p className="text-3xl font-bold text-savour-savings">
                   {bestPrice ? formatPrice(bestPrice.price) : 'N/A'}
                 </p>
                 {bestPrice && (
-                  <p className="text-sm text-savour-text-secondary">at {bestPrice.store_name}</p>
+                  <p className="text-sm text-savour-text-secondary mt-1">
+                    at <span className="font-medium text-savour-text">{bestPrice.store_name}</span>
+                  </p>
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-savour-savings-light text-savour-savings">
+                <span className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full bg-gray-100 text-savour-text-secondary border border-gray-200">
+                  <svg className="w-3.5 h-3.5 mr-1.5 text-savour-savings" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
                   {availabilityText}
                 </span>
               </div>
             </div>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-savour-text-secondary mb-2">Description</p>
+            <div className="pt-4 border-t border-savour-border">
+              <p className="text-xs uppercase tracking-wide text-savour-text-secondary mb-2">About this product</p>
               <p className="text-savour-text text-sm leading-relaxed">{descriptionText}</p>
             </div>
           </div>
@@ -208,9 +217,17 @@ export default function CategoryScreen() {
 
         {/* Price Comparison Section */}
         <div className="mb-10">
-          <div className="mb-6">
-            <h2 className="text-lg font-medium text-savour-text mb-1">Price Comparison</h2>
-            <p className="text-savour-text-secondary text-sm">across 5 Canadian retailers</p>
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-savour-text mb-0.5">Price Comparison</h2>
+              <p className="text-savour-text-secondary text-sm">across 5 Canadian retailers</p>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-savour-text-secondary">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+              </svg>
+              <span>Sorted by price</span>
+            </div>
           </div>
           <PriceTable prices={sortedPrices} unit={category.unit} />
         </div>
@@ -223,15 +240,15 @@ export default function CategoryScreen() {
         )}
 
         {/* Add to Basket Section */}
-        <AddToBasket category={category} />
+        <AddToBasket category={category} bestPrice={bestPrice?.price} />
 
         {/* Quick Navigation */}
         <div className="mt-10 flex justify-center">
           <Link
-            to="/"
-            className="text-savour-text-secondary hover:text-savour-text text-sm flex items-center gap-2 transition-colors"
+            to="/products"
+            className="text-savour-text-secondary hover:text-savour-accent text-sm flex items-center gap-2 transition-colors group"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
