@@ -25,6 +25,12 @@
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0"
   },
+  "overrides": {
+    "react-joyride": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.1",
