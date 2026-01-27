@@ -34,3 +34,6 @@ coverage/
 # Misc
 *.tmp
 *.temp
+
+# Project docs
+CLAUDE.md

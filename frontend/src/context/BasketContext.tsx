@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2026 Savour. All Rights Reserved.
+ *
+ * This software and associated documentation files are proprietary and confidential.
+ * Unauthorized copying, distribution, modification, or use of this software,
+ * via any medium, is strictly prohibited without express written permission from Savour.
+ */
+
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { BasketItem } from '../lib/types';

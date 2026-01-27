@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2026 Savour. All Rights Reserved.
+ *
+ * This software and associated documentation files are proprietary and confidential.
+ * Unauthorized copying, distribution, modification, or use of this software,
+ * via any medium, is strictly prohibited without express written permission from Savour.
+ */
+
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { BasketProvider } from './context/BasketContext';
 import { TourProvider } from './context/TourContext';
